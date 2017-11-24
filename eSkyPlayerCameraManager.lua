@@ -25,24 +25,37 @@ function prototype:_loadFromBuff(buff)
     self.eventData_.eventType = buff:ReadByte();
     self.eventData_.timeLength = buff:ReadFloat();
 
-    self.eventData_.beginFrameX = buff:ReadFloat();
-    self.eventData_.beginFrameY = buff:ReadFloat();
-    self.eventData_.beginFrameZ = buff:ReadFloat();
-    self.eventData_.beginDrX = buff:ReadFloat();
-    self.eventData_.beginDrY = buff:ReadFloat();
-    self.eventData_.beginDrZ = buff:ReadFloat();
-    self.eventData_.beginLookAtX = buff:ReadFloat();
-    self.eventData_.beginLookAtY = buff:ReadFloat();
-    self.eventData_.beginLookAtZ = buff:ReadFloat();
-    self.eventData_.endFrameX = buff:ReadFloat();
-    self.eventData_.endFrameY = buff:ReadFloat();
-    self.eventData_.endFrameZ = buff:ReadFloat();
-    self.eventData_.endDrX = buff:ReadFloat();
-    self.eventData_.endDrY = buff:ReadFloat();
-    self.eventData_.endDrZ = buff:ReadFloat();
-    self.eventData_.endLookAtX = buff:ReadFloat();
-    self.eventData_.endLookAtY = buff:ReadFloat();
-    self.eventData_.endLookAtZ = buff:ReadFloat();
+    local x = buff:ReadFloat();
+    local y = buff:ReadFloat();
+    local z = buff:ReadFloat();
+    self.eventData_.beginFrame = Vector3.New(x, y, z);
+
+    x = buff:ReadFloat();
+    y = buff:ReadFloat();
+    z = buff:ReadFloat();
+    self.eventData_.beginDr = Vector3.New(x, y, z);
+
+    x = buff:ReadFloat();
+    y = buff:ReadFloat();
+    z = buff:ReadFloat();
+    self.eventData_.beginLookAt = Vector3.New(x, y, z);
+
+    x = buff:ReadFloat();
+    y = buff:ReadFloat();
+    z = buff:ReadFloat();
+    self.eventData_.endFrame = Vector3.New(x, y, z);
+
+    x = buff:ReadFloat();
+    y = buff:ReadFloat();
+    z = buff:ReadFloat();
+    self.eventData_.endDr = Vector3.New(x, y, z);
+
+    x = buff:ReadFloat();
+    y = buff:ReadFloat();
+    z = buff:ReadFloat();
+    self.eventData_.endLookAt = Vector3.New(x, y, z);
+
+
     self.eventData_.fov = buff:ReadFloat();
     self.eventData_.tweenType = buff:ReadByte();
 
