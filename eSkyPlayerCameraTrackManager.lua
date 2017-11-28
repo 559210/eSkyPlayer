@@ -25,6 +25,7 @@ function prototype:_loadFromBuff(buff)
     self.trackFile_.trackType = buff:ReadByte();
     self.trackFile_.trackTitle = buff:ReadString();
     self.trackFile_.eventCount = buff:ReadShort();
+
     for e = 1, self.trackFile_.eventCount do
         local event = {};
         self.trackFile_.events [#self.trackFile_.events + 1] = event;
@@ -42,9 +43,9 @@ function prototype:_loadFromBuff(buff)
         cEvent:initialize();
 
         if event.storeType == 1 then
-            event.date = cEvent:getEventDate("D:/DD_Client/mod/plans/camera/c0001/camera/" .. event.name .. ".byte");
+            event.data = cEvent:getEventDate("D:/DD_Client/mod/plans/camera/c0001/camera/" .. event.name .. ".byte");
         else
-            event.date = cEvent:getEventDate("D:/DD_Client/mod/events/camera/" .. event.name .. ".byte");
+            event.data = cEvent:getEventDate("D:/DD_Client/mod/events/camera/" .. event.name .. ".byte");
         end
     end
     return true;

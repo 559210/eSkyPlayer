@@ -33,7 +33,7 @@ function prototype:_loadFromBuff(buff)
     x = buff:ReadFloat();
     y = buff:ReadFloat();
     z = buff:ReadFloat();
-    self.eventData_.beginDr = Vector3.New(x, y, z);
+    self.eventData_.beginDr = Quaternion.Euler(x, y, z);
 
     x = buff:ReadFloat();
     y = buff:ReadFloat();
@@ -48,7 +48,7 @@ function prototype:_loadFromBuff(buff)
     x = buff:ReadFloat();
     y = buff:ReadFloat();
     z = buff:ReadFloat();
-    self.eventData_.endDr = Vector3.New(x, y, z);
+    self.eventData_.endDr = Quaternion.Euler(x, y, z);
 
     x = buff:ReadFloat();
     y = buff:ReadFloat();
