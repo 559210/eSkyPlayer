@@ -43,9 +43,9 @@ function prototype:_loadFromBuff(buff)
         cEvent:initialize();
 
         if event.storeType == 1 then
-            event.data = cEvent:getEventDate("D:/DD_Client/mod/plans/camera/c0001/camera/" .. event.name .. ".byte");
+            event.data = cEvent:getEventDate(Util.AppDataRoot .. "/mod/plans/camera/c0001/camera/" .. event.name .. ".byte");
         else
-            event.data = cEvent:getEventDate("D:/DD_Client/mod/events/camera/" .. event.name .. ".byte");
+            event.data = cEvent:getEventDate(Util.AppDataRoot .. "/mod/events/camera/" .. event.name .. ".byte");
         end
     end
     return true;
