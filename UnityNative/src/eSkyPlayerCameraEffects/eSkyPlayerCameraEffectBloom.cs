@@ -47,11 +47,33 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
     }
 
     public bool stop() {
-
+		dispose ();
         return true;
     }
 
+	public bool pause() {
+		if (m_pp == null) {
+			return false;
+		}
+
+		m_pp.profile.bloom.enabled = false;
+
+		return true;
+	}
+
+	public bool resume() {
+		if (m_pp == null) {
+			return false;
+		}
+		m_pp.profile.bloom.enabled = true;
+
+		return true;
+	}
+
     public bool setParam(eSkyPlayerCameraEffectParamBase param) {
+		if (m_pp.profile.bloom.enabled == false) {
+			return false;
+		}
 //        BloomModel.Settings setting = this.m_pp.profile.bloom.settings;
 //        BloomModel.BloomSettings bloomSetting = setting.bloom;
 //        bloomSetting.intensity = m_intensity;

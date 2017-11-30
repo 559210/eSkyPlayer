@@ -10,6 +10,8 @@ public interface IeSkyPlayerCameraEffectBase {
     void dispose();
     bool start();
     bool stop();
+	bool pause ();
+	bool resume ();
     bool setParam(eSkyPlayerCameraEffectParamBase param);
     eSkyPlayerCameraEffectParamBase getParam();
 }
