@@ -3,6 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PostProcessing;
 
+
+public class eSkyPlayerCameraEffectBloomParam : eSkyPlayerCameraEffectParamBase {
+	public float intensity;
+	public float threshold;
+	public float softKnee;
+	public float radius;
+	public bool antiFlicker;
+	public float lenDirtIntensity;
+	public int lenDirtTextureId;
+}
+
+// TODO: 有4张预置的lenDirt贴图，需要考虑何时加载和释放
+
 public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
     protected Camera m_camera = null;
     protected PostProcessingBehaviour m_pp = null;
@@ -71,20 +84,42 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
 	}
 
     public bool setParam(eSkyPlayerCameraEffectParamBase param) {
-		if (m_pp.profile.bloom.enabled == false) {
+		if (m_pp == null) {
 			return false;
 		}
-//        BloomModel.Settings setting = this.m_pp.profile.bloom.settings;
-//        BloomModel.BloomSettings bloomSetting = setting.bloom;
-//        bloomSetting.intensity = m_intensity;
-//        setting.bloom = bloomSetting;
-//        this.m_pp.profile.bloom.settings = setting;
+
+		if (param is eSkyPlayerCameraEffectBloomParam) {
+			eSkyPlayerCameraEffectBloomParam p = param as eSkyPlayerCameraEffectBloomParam;
+			if (m_pp.profile.bloom.enabled == false) {
+				return false;
+			}
+			m_bloomModelBloomSetting.intensity = p.intensity;
+			m_bloomModelBloomSetting.threshold = p.threshold;
+			m_bloomModelBloomSetting.softKnee = p.softKnee;
+			m_bloomModelBloomSetting.radius = p.radius;
+			m_bloomModelBloomSetting.antiFlicker = p.antiFlicker;
+
+			m_bloomModelSettings.bloom = m_bloomModelBloomSetting;
+			m_pp.profile.bloom.settings = m_bloomModelSettings;
+		} else {
+			return false;
+		}
 
         return true;
     }
 
     public eSkyPlayerCameraEffectParamBase getParam() {
+		if (m_pp == null) {
+			return null;
+		}
 
-        return null;
+		eSkyPlayerCameraEffectBloomParam p = new eSkyPlayerCameraEffectBloomParam ();
+		p.intensity = m_bloomModelBloomSetting.intensity;
+		p.threshold = m_bloomModelBloomSetting.threshold;
+		p.softKnee = m_bloomModelBloomSetting.softKnee;
+		p.radius = m_bloomModelBloomSetting.radius;
+		p.antiFlicker = m_bloomModelBloomSetting.antiFlicker;
+
+        return p;
     }
 }
