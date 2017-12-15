@@ -1,29 +1,14 @@
-local prototype = class("eSkyPlayerCameraManager");
+local prototype = class("eSkyPlayerCameraMotionEventData", require("eSkyPlayer/eSkyPlayerEventDataBase"));
 
 
-function prototype:ctor()
-	-- body
-end
 
-function prototype:initialize()
-	self.eventData_ = {};
-	return true;
-end
+-- function prototype:ctor()
+--  -- body
+-- end
 
-function prototype:loadCameraEventSync(filename)
-    local buff = FileUtils.readAllBytes(filename);
-    return self:_loadFromBuff(buff);
-end
+
 
 function prototype:_loadFromBuff(buff)
-	if buff == nil then 
-		return false; 
-	end
-
-    self.eventData_.version = buff:ReadShort();
-    self.eventData_.smallVersion = buff:ReadShort();
-    self.eventData_.eventType = buff:ReadByte();
-    self.eventData_.timeLength = buff:ReadFloat();
 
     local x = buff:ReadFloat();
     local y = buff:ReadFloat();
@@ -70,9 +55,5 @@ function prototype:_loadFromBuff(buff)
     return true;
 end
 
-function prototype:getEventDate(filename)
-	self:loadCameraEventSync(filename);
-	return self.eventData_;
-end
 
 return prototype;
