@@ -49,8 +49,11 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
     }
 
     public bool start() {
-        m_pp = m_camera.gameObject.AddComponent<PostProcessingBehaviour>();
-        m_pp.profile = new PostProcessingProfile();
+		m_pp = m_camera.gameObject.GetComponent<PostProcessingBehaviour>();
+		if (m_pp == null) {
+			m_pp = m_camera.gameObject.AddComponent<PostProcessingBehaviour> ();
+			m_pp.profile = new PostProcessingProfile ();
+		}
         m_pp.profile.bloom.enabled = true;
 
         m_bloomModelSettings = m_pp.profile.bloom.settings;

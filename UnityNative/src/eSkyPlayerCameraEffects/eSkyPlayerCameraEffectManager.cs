@@ -49,6 +49,35 @@ public class eSkyPlayerCameraEffectManager {
 		return index;
 	}
 
+	public int createDepthOfFieldEffect() {
+		if (m_mainCamera == null) {
+			return -1;
+		}
+
+		eSkyPlayerCameraEffectDepthOfField depthOfField = new eSkyPlayerCameraEffectDepthOfField ();
+		if (!depthOfField.create (m_mainCamera)) {
+			return -1;
+		}
+
+		int index = getNewEffectIndex ();
+		m_effects.Add (index, depthOfField);
+		return index;
+	}
+	public int createChromaticAberrationEffect() {
+		if (m_mainCamera == null) {
+			return -1;
+		}
+
+		eSkyPlayerCameraEffectChromaticAberration chromaticAberration = new eSkyPlayerCameraEffectChromaticAberration ();
+		if (!chromaticAberration.create (m_mainCamera)) {
+			return -1;
+		}
+
+		int index = getNewEffectIndex ();
+		m_effects.Add (index, chromaticAberration);
+		return index;
+	}
+
 
 	// common operations
 	public bool start(int effectId) {
