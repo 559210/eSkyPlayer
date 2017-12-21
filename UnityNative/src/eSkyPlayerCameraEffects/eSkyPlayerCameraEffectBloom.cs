@@ -11,7 +11,7 @@ public class eSkyPlayerCameraEffectBloomParam : eSkyPlayerCameraEffectParamBase 
 	public float radius;
 	public bool antiFlicker;
 	public float lenDirtIntensity;
-	public int lenDirtTextureId;
+	public Texture2D lenDirtTexture;
 }
 
 // TODO: 有4张预置的lenDirt贴图，需要考虑何时加载和释放
@@ -99,6 +99,10 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
 			m_bloomModelBloomSetting.radius = p.radius;
 			m_bloomModelBloomSetting.antiFlicker = p.antiFlicker;
 
+			if (p.lenDirtTexture != null) {
+				m_bloomModelSettings.lensDirt.texture = p.lenDirtTexture;
+			}
+
 			m_bloomModelSettings.bloom = m_bloomModelBloomSetting;
 			m_pp.profile.bloom.settings = m_bloomModelSettings;
 		} else {
@@ -119,6 +123,7 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
 		p.softKnee = m_bloomModelBloomSetting.softKnee;
 		p.radius = m_bloomModelBloomSetting.radius;
 		p.antiFlicker = m_bloomModelBloomSetting.antiFlicker;
+		p.lenDirtTexture = null;
 
         return p;
     }
