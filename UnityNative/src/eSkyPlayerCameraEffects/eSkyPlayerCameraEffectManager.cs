@@ -63,6 +63,7 @@ public class eSkyPlayerCameraEffectManager {
 		m_effects.Add (index, depthOfField);
 		return index;
 	}
+
 	public int createChromaticAberrationEffect() {
 		if (m_mainCamera == null) {
 			return -1;
@@ -78,6 +79,20 @@ public class eSkyPlayerCameraEffectManager {
 		return index;
 	}
 
+	public int createVignetteEffect() {
+		if (m_mainCamera == null) {
+			return -1;
+		}
+
+		eSkyPlayerCameraEffectVignette vignette = new eSkyPlayerCameraEffectVignette ();
+		if (!vignette.create (m_mainCamera)) {
+			return -1;
+		}
+
+		int index = getNewEffectIndex ();
+		m_effects.Add (index, vignette);
+		return index;
+	}
 
 	// common operations
 	public bool start(int effectId) {
