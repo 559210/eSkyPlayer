@@ -11,7 +11,7 @@ public class eSkyPlayerCameraEffectBloomParam : eSkyPlayerCameraEffectParamBase 
 	public float radius;
 	public bool antiFlicker;
 	public float lenDirtIntensity;
-	public Texture2D lenDirtTexture;
+	public Texture lenDirtTexture;
 }
 
 // TODO: 有4张预置的lenDirt贴图，需要考虑何时加载和释放
