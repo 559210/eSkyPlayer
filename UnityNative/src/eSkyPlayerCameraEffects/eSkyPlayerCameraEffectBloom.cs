@@ -102,9 +102,7 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
 			m_bloomModelBloomSetting.radius = p.radius;
 			m_bloomModelBloomSetting.antiFlicker = p.antiFlicker;
 
-			if (p.lenDirtTexture != null) {
-				m_bloomModelSettings.lensDirt.texture = p.lenDirtTexture;
-			}
+			m_bloomModelSettings.lensDirt.texture = p.lenDirtTexture;
 
 			m_bloomModelSettings.bloom = m_bloomModelBloomSetting;
 			m_pp.profile.bloom.settings = m_bloomModelSettings;
@@ -126,7 +124,7 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
 		p.softKnee = m_bloomModelBloomSetting.softKnee;
 		p.radius = m_bloomModelBloomSetting.radius;
 		p.antiFlicker = m_bloomModelBloomSetting.antiFlicker;
-		p.lenDirtTexture = null;
+		p.lenDirtTexture = m_bloomModelSettings.lensDirt.texture;
 
         return p;
     }
