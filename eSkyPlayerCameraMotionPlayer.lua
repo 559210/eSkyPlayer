@@ -2,7 +2,7 @@ local prototype = class("eSkyPlayerCameraMotionPlayer",require "eSkyPlayer/eSkyP
 
 
 function prototype:ctor(director)
-    self.super.ctor(self,director);
+    self.base:ctor(director);
     self.targetCamera_ = self.director.camera;
     self.cameraTrack_ = nil;
 end
@@ -10,13 +10,13 @@ end
 
 function prototype:initialize(trackObj)
     self.cameraTrack_ = trackObj;
-    return self.super.initialize(self,trackObj);
+    return self.base:initialize(trackObj);
 end
 
 
 function prototype:_update()
     if self.director.timeLine_ > self.trackLength_ then
-        self.super.isPlaying_ = false;
+        self.base.isPlaying_ = false;
         return;
     end
     for i = 1 , self.eventCount_ do
@@ -38,7 +38,7 @@ function prototype:play()
     if self.targetCamera_ == nil then
         return false
     end
-    self.super.play(self);
+    self.base:play();
     return true;
 end
 
