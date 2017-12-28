@@ -13,44 +13,30 @@ public class eSkyPlayerCameraEffectChromaticAberrationParam : eSkyPlayerCameraEf
 
 public class eSkyPlayerCameraEffectChromaticAberration : IeSkyPlayerCameraEffectBase {
     protected Camera m_camera = null;
-    protected PostProcessingBehaviour m_pp = null;
+    protected PostProcessingBehaviour pp = null;
+	protected eSkyPlayerCameraEffectManager manager = null;
 	protected ChromaticAberrationModel.Settings m_chromaticAberrationModelSettings;
 
-    public bool create(Camera ca) {
-        if (ca == null)
-        {
-            return false;
-        }
+	public eSkyPlayerCameraEffectChromaticAberration(eSkyPlayerCameraEffectManager obj){
+		manager = obj;
+	}
 
-        m_camera = ca;
-        return true;
-    }
 
     public void dispose() {
-        if (m_pp != null)
-        {
-            UnityEngine.GameObject.Destroy(m_pp);
-            m_pp = null;
-        }
-
-        if (m_camera != null)
-        {
-            m_camera = null;
-        }
-
+		var type = eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR;
+		manager.releaseAdditionalComponent(type);
 //        m_bloomModelSettings = null;
 //        m_bloomModelBloomSetting = null;
     }
 
     public bool start() {
-        m_pp = m_camera.gameObject.GetComponent<PostProcessingBehaviour>();
-        if (m_pp == null) {
-            m_pp = m_camera.gameObject.AddComponent<PostProcessingBehaviour> ();
-            m_pp.profile = new PostProcessingProfile ();
-        }
-		m_pp.profile.chromaticAberration.enabled = true;
+		pp = manager.getComponentPostProcessingBehaviour ();
+		if (pp == null) {
+			return false;
+		}
+		pp.profile.chromaticAberration.enabled = true;
 
-		m_chromaticAberrationModelSettings = m_pp.profile.chromaticAberration.settings;
+		m_chromaticAberrationModelSettings = pp.profile.chromaticAberration.settings;
 
         return true;
     }
@@ -61,38 +47,36 @@ public class eSkyPlayerCameraEffectChromaticAberration : IeSkyPlayerCameraEffect
     }
 
     public bool pause() {
-        if (m_pp == null) {
+        if (pp == null) {
             return false;
         }
-
-		m_pp.profile.chromaticAberration.enabled = false;
 
         return true;
     }
 
-    public bool resume() {
-        if (m_pp == null) {
-            return false;
-        }
-		m_pp.profile.chromaticAberration.enabled = true;
-
-        return true;
-    }
-
+//    public bool resume() {
+//        if (pp == null) {
+//            return false;
+//        }
+//		pp.profile.chromaticAberration.enabled = true;
+//
+//        return true;
+//    }
+//
     public bool setParam(eSkyPlayerCameraEffectParamBase param) {
-        if (m_pp == null) {
+        if (pp == null) {
             return false;
         }
 
 		if (param is eSkyPlayerCameraEffectChromaticAberrationParam) {
 			eSkyPlayerCameraEffectChromaticAberrationParam p = param as eSkyPlayerCameraEffectChromaticAberrationParam;
-			if (m_pp.profile.chromaticAberration.enabled == false) {
+			if (pp.profile.chromaticAberration.enabled == false) {
                 return false;
             }
 			m_chromaticAberrationModelSettings.spectralTexture = p.spectralTexture;
 			m_chromaticAberrationModelSettings.intensity = p.intensity;
 
-			m_pp.profile.chromaticAberration.settings = m_chromaticAberrationModelSettings;
+			pp.profile.chromaticAberration.settings = m_chromaticAberrationModelSettings;
         } else {
             return false;
         }
@@ -101,7 +85,7 @@ public class eSkyPlayerCameraEffectChromaticAberration : IeSkyPlayerCameraEffect
     }
 
     public eSkyPlayerCameraEffectParamBase getParam() {
-        if (m_pp == null) {
+        if (pp == null) {
             return null;
         }
 

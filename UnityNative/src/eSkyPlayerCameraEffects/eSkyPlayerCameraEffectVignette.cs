@@ -19,44 +19,30 @@ public class eSkyPlayerCameraEffectVignetteParam : eSkyPlayerCameraEffectParamBa
 
 public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     protected Camera m_camera = null;
-    protected PostProcessingBehaviour m_pp = null;
+    protected PostProcessingBehaviour pp = null;
+	protected eSkyPlayerCameraEffectManager manager = null;
 	protected VignetteModel.Settings m_vignetteModelSettings;
 
-    public bool create(Camera ca) {
-        if (ca == null)
-        {
-            return false;
-        }
+	public eSkyPlayerCameraEffectVignette(eSkyPlayerCameraEffectManager obj){
+		manager = obj;
+	}
 
-        m_camera = ca;
-        return true;
-    }
 
     public void dispose() {
-        if (m_pp != null)
-        {
-            UnityEngine.GameObject.Destroy(m_pp);
-            m_pp = null;
-        }
-
-        if (m_camera != null)
-        {
-            m_camera = null;
-        }
-
+		var type = eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR;
+		manager.releaseAdditionalComponent(type);
 //        m_depthOfFieldModelSettings = null;
 //        m_depthOfFieldModelDepthOfFieldSetting = null;
     }
 
     public bool start() {
-        m_pp = m_camera.gameObject.GetComponent<PostProcessingBehaviour>();
-        if (m_pp == null) {
-            m_pp = m_camera.gameObject.AddComponent<PostProcessingBehaviour> ();
-            m_pp.profile = new PostProcessingProfile ();
-        }
-		m_pp.profile.vignette.enabled = true;
+		pp = manager.getComponentPostProcessingBehaviour ();
+		if (pp == null) {
+			return false;
+		}
+		pp.profile.vignette.enabled = true;
 
-		m_vignetteModelSettings = m_pp.profile.vignette.settings;
+		m_vignetteModelSettings = pp.profile.vignette.settings;
 
         return true;
     }
@@ -67,32 +53,30 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     }
 
     public bool pause() {
-        if (m_pp == null) {
+        if (pp == null) {
             return false;
         }
-
-		m_pp.profile.vignette.enabled = false;
 
         return true;
     }
 
-    public bool resume() {
-        if (m_pp == null) {
-            return false;
-        }
-		m_pp.profile.vignette.enabled = true;
-
-        return true;
-    }
+//    public bool resume() {
+//        if (pp == null) {
+//            return false;
+//        }
+//		pp.profile.vignette.enabled = true;
+//
+//        return true;
+//    }
 
     public bool setParam(eSkyPlayerCameraEffectParamBase param) {
-        if (m_pp == null) {
+        if (pp == null) {
             return false;
         }
 
 		if (param is eSkyPlayerCameraEffectVignetteParam) {
 			eSkyPlayerCameraEffectVignetteParam p = param as eSkyPlayerCameraEffectVignetteParam;
-			if (m_pp.profile.vignette.enabled == false) {
+			if (pp.profile.vignette.enabled == false) {
                 return false;
             }
 			m_vignetteModelSettings.color = p.color;
@@ -113,7 +97,7 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
                 break;
             }
 
-			m_pp.profile.vignette.settings = m_vignetteModelSettings;
+			pp.profile.vignette.settings = m_vignetteModelSettings;
         } else {
             return false;
         }
@@ -122,7 +106,7 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     }
 
     public eSkyPlayerCameraEffectParamBase getParam() {
-        if (m_pp == null) {
+        if (pp == null) {
             return null;
         }
 
