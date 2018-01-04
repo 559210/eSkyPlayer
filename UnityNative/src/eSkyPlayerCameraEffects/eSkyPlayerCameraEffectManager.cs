@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PostProcessing;
-
+using CameraTransitions;
 
 
 public class AdditionalComponent<T> : ReferenceCountBase where T : class {
@@ -33,13 +33,14 @@ public class AdditionalComponent<T> : ReferenceCountBase where T : class {
 public class eSkyPlayerCameraEffectManager {
 	public enum ADDITIONAL_COMPONENT_TYPE{
 		POST_PROCESSING_BEHAVIOUR,
+		CAMERA_TRANSITIONS,
 	};
 
 	protected Dictionary<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase> m_additionalComponents = new Dictionary<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase>();
 	protected Dictionary<int, IeSkyPlayerCameraEffectBase> m_effects = new Dictionary<int, IeSkyPlayerCameraEffectBase>();
 	protected int m_effectIndexFactory = 0;
 	protected Camera m_mainCamera = null;
-	protected List<ADDITIONAL_COMPONENT_TYPE> _list = new List<ADDITIONAL_COMPONENT_TYPE>();
+	protected Camera m_secondCamera = null;
 
 	public eSkyPlayerCameraEffectManager() {
 
@@ -48,13 +49,32 @@ public class eSkyPlayerCameraEffectManager {
 	public PostProcessingBehaviour getComponentPostProcessingBehaviour(){
 		ADDITIONAL_COMPONENT_TYPE type = ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR;
 		if (m_additionalComponents.ContainsKey (type) == false) {
-			PostProcessingBehaviour m_pp = m_mainCamera.gameObject.AddComponent<PostProcessingBehaviour> ();
-			m_pp.profile = new PostProcessingProfile ();
+			PostProcessingBehaviour pp = m_mainCamera.gameObject.AddComponent<PostProcessingBehaviour> ();
+			pp.profile = new PostProcessingProfile ();
 //			m_additionalComponents [type] = new AdditionalComponent<PostProcessingBehaviour> (m_pp);
-			ReferenceCountBase value = new AdditionalComponent<PostProcessingBehaviour> (m_pp);
-			m_additionalComponents.Add(type,value);
+			ReferenceCountBase value = new AdditionalComponent<PostProcessingBehaviour> (pp);
+			m_additionalComponents.Add (type, value);
 		}
 		var obj = m_additionalComponents [type] as AdditionalComponent<PostProcessingBehaviour> ;
+		return obj.getObject ();
+	}
+
+	public CameraTransition getComponentCameraTransitionBehaviour() {
+		ADDITIONAL_COMPONENT_TYPE type = ADDITIONAL_COMPONENT_TYPE.CAMERA_TRANSITIONS;
+		if (m_additionalComponents.ContainsKey(type) == false) {
+			CameraTransition ct = m_mainCamera.gameObject.AddComponent<CameraTransition> ();
+			ct.ProgressMode = CameraTransition.ProgressModes.Manual;
+			ct.Progress = 0;
+			// TODO: 下面3个参数可以作为将来的性能选项开关。
+//			ct.RenderTextureMode;
+//			ct.RenderTextureSize;
+//			ct.RenderTextureUpdateMode;
+
+			ReferenceCountBase value = new AdditionalComponent<CameraTransition> (ct);
+			m_additionalComponents.Add (type, value);
+		}
+
+		var obj = m_additionalComponents [type] as AdditionalComponent<CameraTransition>;
 		return obj.getObject ();
 	}
 
@@ -100,12 +120,21 @@ public class eSkyPlayerCameraEffectManager {
 //		}
 	}
 
+	public Camera getMainCamera() {
+		return m_mainCamera;
+	}
 
-	public bool initialize(Camera cam) {
+
+	public Camera getSecondCamera() {
+		return m_secondCamera;
+	}
+
+	public bool initialize(Camera cam, Camera secondCam = null) {
 		if (cam == null) {
 			return false;
 		}
 		m_mainCamera = cam;
+		m_secondCamera = secondCam;
 
 		return true;
 	}
@@ -164,6 +193,20 @@ public class eSkyPlayerCameraEffectManager {
 		eSkyPlayerCameraEffectVignette vignette = new eSkyPlayerCameraEffectVignette (this);
 		int index = getNewEffectIndex ();
 		m_effects.Add (index, vignette);
+		return index;
+	}
+
+
+	public int createCrossFadeEffect(float duration) {
+		if (m_mainCamera == null) {
+			return -1;
+		}
+
+		eSkyPlayerCameraEffectTransitions effect = new eSkyPlayerCameraEffectTransitions (this);
+		effect.duration = duration;
+
+		int index = getNewEffectIndex ();
+		m_effects.Add (index, effect);
 		return index;
 	}
 

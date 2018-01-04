@@ -32,10 +32,6 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
     public void dispose() {
 		var type = eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR;
 		manager.releaseAdditionalComponent (type);
-
-//        m_bloomModelSettings = null;
-//        m_bloomModelBloomSetting = null;
-//		return true;
     }
 
     public bool start() {
