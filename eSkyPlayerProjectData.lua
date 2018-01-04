@@ -5,7 +5,6 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     self.projectFile_ = nil;
     self.trackMaxLength_ = 0;
-    self.isSkip = false;
 end
 
 
