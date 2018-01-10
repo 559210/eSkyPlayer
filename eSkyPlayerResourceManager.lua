@@ -28,6 +28,7 @@ end
 
 
 -- 参数resInfo，数组，里面内容是{path = , count = }. resPath是资源所在路径， count是需要使用的次数
+-- callback汇报资源加载情况，带一个参数，true表示全部加载成功，false表示碰到一个加载失败，从而中途中断加载
 function prototype:prepare(resInfo, callback)
     async.mapSeries(resInfo, 
         function(res, done)
@@ -47,7 +48,14 @@ function prototype:prepare(resInfo, callback)
                 done(nil);
                 return;
             end
-        end, callback);
+        end, function (err)
+            if err ~= nil then
+                callback(false);
+                return;
+            end
+
+            callback(true);
+        end);
 end
 
 
