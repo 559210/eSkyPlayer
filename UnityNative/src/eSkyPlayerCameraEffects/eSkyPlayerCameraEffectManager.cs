@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PostProcessing;
 using CameraTransitions;
-
+using UnityStandardAssets.ImageEffects;
 
 public class AdditionalComponent<T> : ReferenceCountBase where T : class {
 	protected T m_object;
@@ -34,6 +34,7 @@ public class eSkyPlayerCameraEffectManager {
 	public enum ADDITIONAL_COMPONENT_TYPE{
 		POST_PROCESSING_BEHAVIOUR,
 		CAMERA_TRANSITIONS,
+		SCREEN_OVERLAY,
 	};
 
 	protected Dictionary<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase> m_additionalComponents = new Dictionary<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase>();
@@ -75,6 +76,19 @@ public class eSkyPlayerCameraEffectManager {
 		}
 
 		var obj = m_additionalComponents [type] as AdditionalComponent<CameraTransition>;
+		return obj.getObject ();
+	}
+
+	public ScreenOverlay getComponentScreenOverlayBehaviour() {
+		ADDITIONAL_COMPONENT_TYPE type = ADDITIONAL_COMPONENT_TYPE.SCREEN_OVERLAY;
+		if (m_additionalComponents.ContainsKey(type) == false) {
+			ScreenOverlay so = m_mainCamera.gameObject.AddComponent<ScreenOverlay> ();
+
+			ReferenceCountBase value = new AdditionalComponent<ScreenOverlay> (so);
+			m_additionalComponents.Add (type, value);
+		}
+
+		var obj = m_additionalComponents [type] as AdditionalComponent<ScreenOverlay>;
 		return obj.getObject ();
 	}
 
@@ -204,6 +218,18 @@ public class eSkyPlayerCameraEffectManager {
 
 		eSkyPlayerCameraEffectTransitions effect = new eSkyPlayerCameraEffectTransitions (this);
 		effect.duration = duration;
+
+		int index = getNewEffectIndex ();
+		m_effects.Add (index, effect);
+		return index;
+	}
+
+	public int createScreenOverlayEffect() {
+		if (m_mainCamera == null) {
+			return -1;
+		}
+
+		eSkyPlayerCameraEffectScreenOverlay effect = new eSkyPlayerCameraEffectScreenOverlay (this);
 
 		int index = getNewEffectIndex ();
 		m_effects.Add (index, effect);
