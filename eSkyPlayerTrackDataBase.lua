@@ -13,8 +13,7 @@ end
 
 
 function prototype:initialize()
-    self.trackFile_ = {events = {}};
-    return true;
+
 end
 
 
@@ -41,7 +40,7 @@ end
 
 
 function prototype:getEventCount()
-    return self.trackFile_.eventCount;
+    return #self.events_;
 end
 
 
@@ -49,31 +48,35 @@ function prototype:getTrackType()
     return self.trackType_;
 end
 
-function prototype:getTrackData()
-    return self.trackFile_;
-end
+-- function prototype:getTrackData()
+--     return self.trackFile_;
+-- end
 
 
 function prototype:getEventAt(index)
     if index < 1 or index > #self.events_ then
         return false;
     end
-    return self.events_[index];
+    return self.events_[index].eventObj;
 end
 
 
 function prototype:getEventBeginTimeAt(index)
-    if index < 1 or index > self.trackFile_.eventCount then
+    if index < 1 or index > #self.events_ then
         return false;
     end
-    return self.trackFile_.events[index].beginTime;
+    return self.events_[index].eventFile.beginTime;
 end
 
 
+function prototype:getResources()
+    return nil;
+end
+
 function prototype:isOverlapped()
-    for i = 1, self.trackFile_.eventCount - 1 do
-        if self.events_[i] : isProject() == false then
-            if self.trackFile_.events[i].beginTime + self.events_[i].eventData_.timeLength > self.trackFile_.events[i + 1].beginTime then
+    for i = 1, #self.events_ - 1 do
+        if self.events_[i].eventObj : isProject() == false then
+            if self.events_[i].eventFile.beginTime + self.events_[i].eventObj.eventData_.timeLength > self.events_[i + 1].eventFile.beginTime then
                 return true;
             end
         end
@@ -82,112 +85,94 @@ function prototype:isOverlapped()
 end
 
 function prototype:_loadHeaderFromBuff(buff)
-
     if buff == nil then 
         return false; 
     end
 
-    self.trackFile_.version = buff:ReadShort();
-    self.trackFile_.smallVersion = buff:ReadShort();
-    self.trackFile_.trackType = buff:ReadByte();
-    if self.trackFile_.trackType ~= self.trackFileType_ then
+    local version = buff:ReadShort();
+    local smallVersion = buff:ReadShort();
+    local trackType = buff:ReadByte();
+    if trackType ~= self.trackFileType_ then
         return false;
     end
-    self.trackFile_.trackTitle = buff:ReadString();
-    self.trackFile_.eventCount = buff:ReadShort();
+    self.trackTitle = buff:ReadString();
+    local eventCount = buff:ReadShort();
 
-    if self.trackFile_.eventCount == 0 then
+    if eventCount == 0 then
         return true;
     end
 
 
-    for e = 1, self.trackFile_.eventCount do
-        local event = {};
-        local eventData = nil;
+    for e = 1, eventCount do
+        local eventFile = {};
+        local eventObj = nil;
 
 
-        event.beginTime = buff:ReadFloat();
-        event.name = buff:ReadString();
-        event.storeType = buff:ReadByte();
-        event.isLoopPlay = misc.getBoolByByte(buff:ReadByte());
-        event.labelID = buff:ReadByte();
+        eventFile.beginTime = buff:ReadFloat();
+        eventFile.name = buff:ReadString();
+        eventFile.storeType = buff:ReadByte();
+        eventFile.isLoopPlay = misc.getBoolByByte(buff:ReadByte());
+        eventFile.labelID = buff:ReadByte();
 
         --需要考虑event类型，不一定是camera；
         
-        
         if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN then 
-            eventData = newClass("eSkyPlayer/eSkyPlayerCameraPlanEventData");
-            eventData:initialize();
-            if eventData:loadEvent( "mod/plans/camera/" .. event.name) == false then 
+            eventObj = newClass("eSkyPlayer/eSkyPlayerCameraPlanEventData");
+            eventObj:initialize();
+            if eventObj:loadEvent( "mod/plans/camera/" .. eventFile.name) == false then 
                 return false;
             end
         elseif self.trackType_ == definations.TRACK_TYPE.MOTION_PLAN then
-            eventData = newClass("eSkyPlayer/eSkyPlayerMotionPlanEventData");
-            eventData:initialize();
-            if eventData:loadEvent( "mod/plans/motion/" .. event.name) == false then
+            eventObj = newClass("eSkyPlayer/eSkyPlayerMotionPlanEventData");
+            eventObj:initialize();
+            if eventObj:loadEvent( "mod/plans/motion/" .. eventFile.name) == false then
                 return false;
             end
         elseif self.trackType_ == definations.TRACK_TYPE.MUSIC_PLAN then
-            eventData = newClass("eSkyPlayer/eSkyPlayerMusicPlanEventData");
-            eventData:initialize();
-            if eventData:loadEvent( "mod/plans/music/" .. event.name) == false then
+            eventObj = newClass("eSkyPlayer/eSkyPlayerMusicPlanEventData");
+            eventObj:initialize();
+            if eventObj:loadEvent( "mod/plans/music/" .. eventFile.name) == false then
                 return false;
             end
         elseif self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
-            eventData = newClass("eSkyPlayer/eSkyPlayerScenePlanEventData");
-            eventData:initialize();
-            if eventData:loadEvent( "mod/plans/scene/" .. event.name) == false then
+            eventObj = newClass("eSkyPlayer/eSkyPlayerScenePlanEventData");
+            eventObj:initialize();
+            if eventObj:loadEvent( "mod/plans/scene/" .. eventFile.name) == false then
                 return false;
             end
-        elseif  self.trackType_ == definations.TRACK_TYPE.CAMERA_MOTION then
-            if event.storeType == 1 then
-                eventData = newClass("eSkyPlayer/eSkyPlayerCameraMotionEventData");
-                eventData:initialize();
-                
-                if eventData:loadEvent( "mod/plans/camera/" .. self.title_ .. "/camera/" .. event.name .. ".byte") == false then
+        elseif self.trackType_ == definations.TRACK_TYPE.CAMERA_MOTION then
+            eventObj = newClass("eSkyPlayer/eSkyPlayerCameraMotionEventData");
+            eventObj:initialize();
+            if eventFile.storeType == 1 then
+                if eventObj:loadEvent( "mod/plans/camera/" .. self.title_ .. "/camera/" .. eventFile.name .. ".byte") == false then
                     return false;
                 end
             else
-                eventData = newClass("eSkyPlayer/eSkyPlayerCameraMotionEventData");
-                eventData:initialize();
-                if eventData:loadEvent( "mod/events/camera/" .. event.name .. ".byte") == false then
+                if eventObj:loadEvent( "mod/events/camera/" .. eventFile.name .. ".byte") == false then
+                    return false;
+                end
+            end
+        elseif self.trackType_ == definations.TRACK_TYPE.CAMERA_EFFECT then
+            local path = Util.AppDataRoot .. "/mod/plans/camera/" .. self.title_ .. "/cameraMotion/" .. eventFile.name .. ".byte";
+            local buff = misc.readAllBytes(path);
+            buff:SetReaderPosition(9);
+            local temp = buff:ReadByte();
+            if temp == definations.CAMERA_MOTION_TYPE.BLOOM then
+                eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectBloomEventData");
+                eventObj:initialize();
+                eventObj.eventData_ = {};
+                local temp = buff:SetReaderPosition(0);
+                if eventObj:_loadHeaderFromBuff(buff) == false then
+                    return false;
+                end
+                if eventObj:_loadFromBuff(buff) == false then
                     return false;
                 end
             end
         else
             return true;
         end
-        
-        --排序
-        if #self.events_ == 0 then
-            self.events_[1] = eventData;
-            self.trackFile_.events [1] = event;
-        else
-            local isSorted = false;
-            for m = 1, #self.events_ do
-                local i = #self.events_ - m + 1;
-                if self.trackFile_.events[i].beginTime < event.beginTime then
-                    for j = i, #self.events_ do
-                        local index = #self.events_ - j + i;
-                        self.events_[index + 2] = self.events_[index + 1];
-                        self.trackFile_.events[index + 2] = self.trackFile_.events[index + 1];
-                    end
-                    self.events_[i + 1] = eventData;
-                    self.trackFile_.events [i + 1] = event;
-                    isSorted = true;
-                    break;
-                end
-            end
-            if isSorted == false then
-                for i = 1, #self.events_ do
-                    local index = #self.events_ - i + 1;
-                    self.events_[index + 1] = self.events_[index];
-                    self.trackFile_.events[index + 1] = self.trackFile_.events[index];
-                end
-                self.events_[1] = eventData;
-                self.trackFile_.events [1] = event;
-            end
-        end
+        self:_insertEvent(eventFile,eventObj);
     end
 
     if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN or
@@ -195,13 +180,45 @@ function prototype:_loadHeaderFromBuff(buff)
         self.trackType_ == definations.TRACK_TYPE.MUSIC_PLAN or
         self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
         
-        local project = self.events_[#self.events_]:getProjectData();
+        local project = self.events_[#self.events_].eventObj:getProjectData();
         self.trackTimeLength_ = project:getTimeLength();
     else
-        self.trackTimeLength_ = self.trackFile_.events[self.trackFile_.eventCount].beginTime + self.events_[self.trackFile_.eventCount].eventData_.timeLength;
+        self.trackTimeLength_ = self.events_[#self.events_].eventFile.beginTime + self.events_[#self.events_].eventObj.eventData_.timeLength;
     end
     return true;
 end
+
+
+function prototype:_insertEvent(eventFile,eventObj)
+    local event = {};
+    event.eventFile = eventFile;
+    event.eventObj = eventObj;
+    if #self.events_ == 0 then
+        self.events_[1] = event;
+        return;
+    end
+    local isSorted = false;
+    for m = 1, #self.events_ do
+        local i = #self.events_ - m + 1;
+        if self.events_[i].eventFile.beginTime < eventFile.beginTime then
+            for j = i, #self.events_ do
+                local index = #self.events_ - j + i;
+                self.events_[index + 2] = self.events_[index + 1];
+            end
+            self.events_[i + 1] = event;
+            isSorted = true;
+            break;
+        end
+    end
+    if isSorted == false then
+        for i = 1, #self.events_ do
+            local index = #self.events_ - i + 1;
+            self.events_[index + 1] = self.events_[index];
+        end
+        self.events_[1] = event;
+    end
+end
+
 
 function prototype:_loadFromBuff()
     return true;

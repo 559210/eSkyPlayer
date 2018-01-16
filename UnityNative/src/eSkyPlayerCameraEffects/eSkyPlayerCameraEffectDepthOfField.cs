@@ -43,6 +43,16 @@ public class eSkyPlayerCameraEffectDepthOfField : IeSkyPlayerCameraEffectBase {
         return true;
     }
 
+	public bool close(){
+		pp = manager.getComponentPostProcessingBehaviour ();
+		if (pp == null) {
+			return false;
+		}
+
+		pp.profile.depthOfField.enabled = false;
+		return true;
+	}
+
     public bool stop() {
         dispose ();
         return true;

@@ -56,6 +56,12 @@ function prototype:_loadTracks(trackPath)
         if trackData:loadTrack(trackPath) == false then
             return false;
         end
+    elseif string.match(trackPath,"mod/plans/camera/.+/cameraMotionTrack") then
+        trackData = newClass("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath) == false then
+            return false;
+        end
     else
         return true;
     end

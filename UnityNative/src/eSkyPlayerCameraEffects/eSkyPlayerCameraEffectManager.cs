@@ -244,8 +244,16 @@ public class eSkyPlayerCameraEffectManager {
 		}
 			
 		effect.start ();
-//		foreach (KeyValuePair<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase> item in m_additionalComponents)
-//			Debug.LogError ("11111111111111111111111111111");
+		return true;
+	}
+
+	public bool close(int effectId){
+		var effect = getEffectObjectById (effectId);
+		if (effect == null) {
+			return false;
+		}
+
+		effect.close ();
 		return true;
 	}
 

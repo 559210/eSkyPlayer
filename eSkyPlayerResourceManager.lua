@@ -76,7 +76,6 @@ function prototype:prepareImmediately(resInfo)
         end
         self:_pushResource(res.path, resObj, res.count);
     end
-
     return true;
 end
 
@@ -103,6 +102,7 @@ function prototype:releaseResource(pathName)
         ddResManager.unloadAsset(pathName);
         self:_popResource(pathName);
     end
+
 end
 
 local obj = prototype:create();

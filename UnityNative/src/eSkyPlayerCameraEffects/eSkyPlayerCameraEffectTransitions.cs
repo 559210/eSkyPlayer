@@ -50,6 +50,9 @@ public class eSkyPlayerCameraEffectTransitions : IeSkyPlayerCameraEffectBase {
 		return true;
 	}
 
+	public bool close(){
+		return true;
+	}
 
 	public bool stop()
 	{

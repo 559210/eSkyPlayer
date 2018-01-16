@@ -32,6 +32,11 @@ function prototype:isLoaded()
 end
 
 
+function prototype:getResources()
+    return nil;
+end
+
+
 function prototype:_update()
     return;
 end

@@ -41,4 +41,18 @@ function prototype.isEditorModel()
 end
 
 
+function prototype.setValuesByWeight(valueInfo)
+    local values = {};
+    if #valueInfo.ranges  == 1 then
+        values[1] = valueInfo.ranges[1] * valueInfo.weights[1];
+    else
+        for _, weight in ipairs(valueInfo.weights) do
+            values[#values + 1] = weight * (valueInfo.ranges[2] - valueInfo.ranges[1]) + valueInfo.ranges[1];
+        end
+    end
+    
+    valueInfo.values = values;
+end
+
+
 return prototype;

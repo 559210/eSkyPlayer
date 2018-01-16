@@ -4,21 +4,16 @@ local prototype = class("eSkyPlayerCameraMotionPlayer",require "eSkyPlayer/eSkyP
 function prototype:ctor(director)
     self.base:ctor(director);
     self.cameraTrack_ = nil;
-    self.additionalCamera_ = nil;
     self.isNeedAdditionalCamera_ = false;
 end
 
 
 function prototype:initialize(trackObj)
     self.cameraTrack_ = trackObj;
-    self.cameras_ = {};
+    --self.cameras_目前有两个Camera，第一个默认为主Camera，第二个为需要时另外创建的Camera。
+    self.cameras_ = {{camera = self.director_.camera_;
+    isUsed = false},};
     self.cameraJobsQueue_ = {};
-    self.cameras_[1] = {};
-    self.cameras_[1].camera = self.director_.camera_;
-    self.cameras_[1].isUsed = false;
-    self.cameras_[2] = {};
-    self.cameras_[2].camera = self.additionalCamera_;
-    self.cameras_[2].isUsed = false;
     self:_isNeedAdditionalCamera();
     return self.base:initialize(trackObj);
 end
@@ -31,7 +26,7 @@ function prototype:play()
         return false;
     end
 
-    self.cameras_[2].camera = self.additionalCamera_;
+
     self.base:play();
     return true;
 end
@@ -41,11 +36,14 @@ function prototype:isNeedAdditionalCamera()
 end
 
 function prototype:setAdditionalCamera(camera)
-    self.additionalCamera_ = camera;
+    local cam = {};
+    cam.camera = camera;
+    cam.isUsed = false;
+    self.cameras_[#self.cameras_ + 1] = cam;
 end
 
 function prototype:_update()
-    if self.director_.timeLine_ > self.trackLength_ then
+    if self.director_.timeLine_ > self.director_.timeLength_ then
         self.base.isPlaying_ = false;
         return;
     end
@@ -58,6 +56,7 @@ function prototype:_update()
         if self.director_.timeLine_ >= beginTime and self.director_.timeLine_ <= endTime then
             local isEnterEvent = true;
             if #self.cameraJobsQueue_ > 0 then 
+
                 for j = 1, #self.cameraJobsQueue_ do
                     local queue = self.cameraJobsQueue_[j];
                     if queue.event == event then
@@ -67,7 +66,7 @@ function prototype:_update()
             end
 
             if isEnterEvent == true then
-                local cam = self:_giveCamera();
+                local cam = self:_requestCamera();
                 if cam ~= nil then
                     local queue = {};
                     queue.camera = cam;
@@ -88,7 +87,7 @@ function prototype:_update()
                             self:_returnCamera(self.cameraJobsQueue_[j].camera);
                         end
                         for k = j,#self.cameraJobsQueue_ do
-                            local cam = self:_giveCamera();
+                            local cam = self:_requestCamera();
                             if cam ~= nil then
                                 self.cameraJobsQueue_[k].camera = cam;
                             end
@@ -113,12 +112,12 @@ function prototype:_transformCamera(queue)
     camera.transform.rotation = Quaternion.Lerp (event.eventData_.beginDr, event.eventData_.endDr, deltaTime );
 end
 
-function prototype:_giveCamera()
+function prototype:_requestCamera()
     for i = 1,#self.cameras_ do
         if self.cameras_[i].isUsed == false then
             self.cameras_[i].isUsed = true;
-            if i == 2 then
-                self.director_:setAdditionalCameraEnabled(true);
+            if i > 1 then    --i>1时表示主camera已经在播放event，申请的camera需要enable
+                self.cameras_[i].camera.enabled = true;
             end
             return self.cameras_[i].camera;
         end
@@ -130,8 +129,8 @@ function prototype:_returnCamera(cam)
     for i = 1,#self.cameras_ do
         if self.cameras_[i].camera == cam then
             self.cameras_[i].isUsed = false;
-            if i == 2 then
-                self.director_:setAdditionalCameraEnabled(false);
+            if i > 1 then
+                self.cameras_[i].camera.enabled = false;
             end
             for j = i,#self.cameras_ do
                 if self.cameras_[j].isUsed == true then

@@ -47,6 +47,16 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
         return true;
     }
 
+	public bool close(){
+		pp = manager.getComponentPostProcessingBehaviour ();
+		if (pp == null) {
+			return false;
+		}
+
+		pp.profile.vignette.enabled = false;
+		return true;
+	}
+
     public bool stop() {
         dispose ();
         return true;
