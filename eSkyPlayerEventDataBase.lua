@@ -8,7 +8,7 @@ end
 
 
 function prototype:initialize()
-
+    self.resList_ = {};
 end
 
 
@@ -42,6 +42,17 @@ function prototype:getProjectData()
     return self.projectData_;
 end
 
+
+function prototype:getEventData()
+    return self.eventData_;
+end
+
+
+function prototype:getResources()
+    return nil;
+end
+
+
 function prototype:_loadHeaderFromBuff(buff)
     if buff == nil then 
         return false; 
@@ -54,10 +65,6 @@ function prototype:_loadHeaderFromBuff(buff)
     return true;
 end
 
-
-function prototype:getEventData()
-    return self.eventData_;
-end
 
 
 return prototype;

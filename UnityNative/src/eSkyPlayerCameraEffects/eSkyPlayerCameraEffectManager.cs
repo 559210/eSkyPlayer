@@ -99,7 +99,6 @@ public class eSkyPlayerCameraEffectManager {
 				if (m_additionalComponents.ContainsKey (eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR) == true) {
 					var obj = m_additionalComponents [type] as AdditionalComponent<PostProcessingBehaviour>;
 					if (obj.releaseObject () == true)
-//						m_additionalComponents [type] = null;
 					m_additionalComponents.Remove (type);
 				}
 				break;
@@ -109,27 +108,28 @@ public class eSkyPlayerCameraEffectManager {
 		}
 	}
 		
-
-	public void clear(){
-		List<ADDITIONAL_COMPONENT_TYPE> list = new List<ADDITIONAL_COMPONENT_TYPE>();
-		foreach (KeyValuePair<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase> item in m_additionalComponents) {
-			var obj = m_additionalComponents [item.Key] as AdditionalComponent<PostProcessingBehaviour>;
-			if (obj.releaseObject () == true) {
-				list.Add (item.Key);
-			}
-		}
-		foreach (ADDITIONAL_COMPONENT_TYPE type in list) {
-			m_additionalComponents.Remove (type);
-		}
-	}
-
+	//实现手动删除不需要的资源的功能，未完善
+//	public void clear(){
+//		List<ADDITIONAL_COMPONENT_TYPE> list = new List<ADDITIONAL_COMPONENT_TYPE>();
+//		foreach (KeyValuePair<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase> item in m_additionalComponents) {
+//			var obj = m_additionalComponents [item.Key] as AdditionalComponent<PostProcessingBehaviour>;
+//			if (obj.releaseObject () == true) {
+//				list.Add (item.Key);
+//			}
+//		}
+//		foreach (ADDITIONAL_COMPONENT_TYPE type in list) {
+//			releaseAdditionalComponent (type);
+//			//m_additionalComponents.Remove (type);
+//		}
+//	}
+	//播放完成后清空资源
 	public void dispose(){
 		if (m_mainCamera != null) {
+			Object.Destroy(m_mainCamera.gameObject.GetComponent<PostProcessingBehaviour>());
+			m_additionalComponents = null;
 			m_mainCamera = null;
 		}
-		m_additionalComponents.Clear ();
 //		foreach (KeyValuePair<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase> item in m_additionalComponents) {
-//			Debug.LogError ("111111111111111111");
 //			releaseAdditionalComponent (item.Key);
 //		}
 	}
@@ -244,8 +244,16 @@ public class eSkyPlayerCameraEffectManager {
 		}
 			
 		effect.start ();
-//		foreach (KeyValuePair<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase> item in m_additionalComponents)
-//			Debug.LogError ("11111111111111111111111111111");
+		return true;
+	}
+
+	public bool close(int effectId){
+		var effect = getEffectObjectById (effectId);
+		if (effect == null) {
+			return false;
+		}
+
+		effect.close ();
 		return true;
 	}
 

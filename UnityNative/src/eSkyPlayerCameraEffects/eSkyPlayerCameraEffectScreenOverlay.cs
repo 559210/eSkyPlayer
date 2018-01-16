@@ -31,6 +31,10 @@ public class eSkyPlayerCameraEffectScreenOverlay : IeSkyPlayerCameraEffectBase {
 		return true;
 	}
 
+	public bool close(){
+		return true;
+	}
+
 	public bool stop() {
 		dispose ();
 		return true;
