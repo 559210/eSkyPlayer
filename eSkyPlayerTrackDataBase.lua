@@ -207,4 +207,16 @@ function prototype:_loadFromBuff()
     return true;
 end
 
+
+function prototype.createObject()
+    logError("eSkyPlayerTrackDataBase.createObject -----> ");
+    return nil;
+end
+
+
+function prototype:addEvent(eventDataObject)
+
+end
+
+
 return prototype;

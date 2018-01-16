@@ -9,4 +9,12 @@ function prototype:ctor()
 end
 
 
+-- param是一个table，必须包含元素：
+-- trackTimeLength  track的总时长
+function prototype.createObject()
+    local obj = prototype:create();
+    return obj;
+end
+
+
 return prototype;

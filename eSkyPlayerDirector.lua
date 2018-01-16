@@ -7,7 +7,7 @@ function prototype:ctor()
     self.timeLength_ = 0;
     self.timeLine_ = 0;
     self.isPlaying_ = false;
-    self.isLoaded_ = false;
+    self.isLoaded_ = false;     -- TODO: 这个变量无需存在，工程除了从文件load，还可以动态代码创建，只需要判断self.players数组里是否有元素即可
     self.players_ = nil;
     self.camera_ = nil;
     self.additionalCamera_ = nil;
@@ -195,5 +195,17 @@ function prototype:_update()
 end
 
 
+--------------------------------------------------------------------------
+-- 下面是动态创建track，event的代码，其他代码往上写
+function prototype:getPlayerByTrackType(trackType)
+end
+
+
+function prototype:createTrackPlayer(trackObj)   -- trackObj由track类的静态函数createObject生成
+end
+
+
+function prototype:createEventToTrackPlayer(trackPlayer, eventObj) -- eventObj由event类的静态函数createObject生成
+end
 
 return prototype;
