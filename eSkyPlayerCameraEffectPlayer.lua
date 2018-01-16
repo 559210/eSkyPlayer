@@ -20,6 +20,11 @@ function prototype:initialize(trackObj)
     return self.base:initialize(trackObj);
 end
 
+function prototype:uninitialize()
+    self.cameraEffectManager:dispose();
+    self.cameraEffectManager = nil;
+end
+
 function prototype:play()
     if self.cameraTrack_ == nil  then
         return false; 
@@ -33,7 +38,6 @@ function prototype:play()
 end
 
 function prototype:stop()
-    self.cameraEffectManager = nil;
     return true;
 end
 
@@ -87,8 +91,12 @@ end
 
 function prototype:_creatBloomEffect(event)
     self.effectId = self.cameraEffectManager:createBloomEffect();
-    self.cameraEffectManager:start(self.effectId);
+    if self.cameraEffectManager:start(self.effectId) == false then 
+        logError("xxxxxxxxxxxxxxxx");
+    end
+    logError("vvvvvvvvvvvvvvvv")
     local param = self.cameraEffectManager:getParam(self.effectId);
+    logError("get")
     param.antiFlicker = misc.getBoolByByte(event.eventData_.antiFlicker)
     param.lenDirtTexture = self.director_.resourceManager_:getResource(event.texturePath);
     return param; 

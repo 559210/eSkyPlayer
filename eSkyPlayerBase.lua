@@ -16,6 +16,9 @@ function prototype:initialize(trackObj)
     return true;
 end
 
+function prototype:uninitialize()
+    return true;
+end
 
 function prototype:isNeedAdditionalCamera()
     return false;

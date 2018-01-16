@@ -25,6 +25,11 @@ end
 
 function prototype:uninitialize()
     self.time_ = nil;
+    if #self.players_ ~= 0 then
+        for i = 1,#self.players_ do
+            self.players_[i]:uninitialize();
+        end
+    end
     self.players_ = nil; 
     self.camera_ = nil;
     if self.timerId_ ~= nil then
