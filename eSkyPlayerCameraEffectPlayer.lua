@@ -65,6 +65,10 @@ function prototype:_update()
         local event = self.cameraTrack_:getEventAt(i);
         local endTime = beginTime + event.eventData_.timeLength;
 
+        if self.cameraTrack_:isSupported(event) == false then
+            return;
+        end
+
         if self.director_.timeLine_ >= beginTime and self.director_.timeLine_ <= endTime then
             if event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.BLOOM then
                 if self.isEventPlaying_ == false then

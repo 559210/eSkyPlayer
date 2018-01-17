@@ -10,6 +10,7 @@ function prototype:ctor()
     self.events_ = {};
     self.title_ = nil;
     self.pathHeader_ = nil;
+    self.eventsSupportted_ = nil;
 end
 
 
@@ -78,6 +79,7 @@ function prototype:getResources()
     return nil;
 end
 
+
 function prototype:isOverlapped()
     for i = 1, #self.events_ - 1 do
         if self.events_[i].eventObj : isProject() == false then
@@ -112,6 +114,9 @@ function prototype:_loadHeaderFromBuff(buff)
         local eventFile = {};
         local eventObj = nil;
 
+        if self.eventsSupportted_ == nil then
+            return false;
+        end
 
         eventFile.beginTime = buff:ReadFloat();
         eventFile.name = buff:ReadString();
@@ -124,6 +129,9 @@ function prototype:_loadHeaderFromBuff(buff)
         if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN then 
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraPlanEventData");
             eventObj:initialize();
+            if self:isSupported(eventObj) == false then
+                return false;
+            end
             if eventFile.storeType == 1 then
                 if eventObj:loadEvent( self.pathHeader_ .. "plans/camera/" .. eventFile.name) == false then 
                     return false;
@@ -136,24 +144,36 @@ function prototype:_loadHeaderFromBuff(buff)
         elseif self.trackType_ == definations.TRACK_TYPE.MOTION_PLAN then
             eventObj = newClass("eSkyPlayer/eSkyPlayerMotionPlanEventData");
             eventObj:initialize();
+            if self:isSupported(eventObj) == false then
+                return false;
+            end
             if eventObj:loadEvent( "mod/plans/motion/" .. eventFile.name) == false then
                 return false;
             end
         elseif self.trackType_ == definations.TRACK_TYPE.MUSIC_PLAN then
             eventObj = newClass("eSkyPlayer/eSkyPlayerMusicPlanEventData");
             eventObj:initialize();
+            if self:isSupported(eventObj) == false then
+                return false;
+            end
             if eventObj:loadEvent( "mod/plans/music/" .. eventFile.name) == false then
                 return false;
             end
         elseif self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
             eventObj = newClass("eSkyPlayer/eSkyPlayerScenePlanEventData");
             eventObj:initialize();
+            if self:isSupported(eventObj) == false then
+                return false;
+            end
             if eventObj:loadEvent( "mod/plans/scene/" .. eventFile.name) == false then
                 return false;
             end
         elseif self.trackType_ == definations.TRACK_TYPE.CAMERA_MOTION then
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraMotionEventData");
             eventObj:initialize();
+            if self:isSupported(eventObj) == false then
+                return false;
+            end
             if eventFile.storeType == 0 then
                 if eventObj:loadEvent( "mod/events/camera/" .. eventFile.name .. ".byte") == false then
                     return false;
@@ -186,6 +206,9 @@ function prototype:_loadHeaderFromBuff(buff)
             if temp == definations.CAMERA_MOTION_TYPE.BLOOM then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectBloomEventData");
                 eventObj:initialize();
+                if self:isSupported(eventObj) == false then
+                    return false;
+                end
                 eventObj.eventData_ = {};
                 local temp = buff:SetReaderPosition(0);
                 if eventObj:_loadHeaderFromBuff(buff) == false then
@@ -243,6 +266,15 @@ function prototype:_insertEvent(eventFile,eventObj)
         end
         self.events_[1] = event;
     end
+end
+
+function prototype:isSupported(eventObj)
+    for i = 1,#self.eventsSupportted_ do
+        if self.eventsSupportted_[i] == eventObj:getEventType() then
+            return true;
+        end
+    end
+    return false;
 end
 
 

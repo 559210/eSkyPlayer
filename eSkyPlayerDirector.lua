@@ -7,7 +7,6 @@ function prototype:ctor()
     self.timeLength_ = 0;
     self.timeLine_ = 0;
     self.isPlaying_ = false;
-    self.isLoaded_ = false;     -- TODO: 这个变量无需存在，工程除了从文件load，还可以动态代码创建，只需要判断self.players数组里是否有元素即可
     self.players_ = nil;
     self.camera_ = nil;
     self.additionalCamera_ = nil;
@@ -64,7 +63,6 @@ function prototype:loadImmediately(filename)                --filename暂时只�
         if self.resourceManager_:prepareImmediately(resList_) == false then
             return false;
         end
-        self.isLoaded_ = true;
         self:_createAdditionalCamera();
         return true;
     --end
@@ -84,7 +82,7 @@ function prototype:load(filename,callback)
                 callback(false);
                 return;
             end
-            self.isLoaded_ = true;
+
             self:_createAdditionalCamera();
             callback(isPrepared);
         end);
@@ -92,7 +90,7 @@ end
 
 
 function prototype:play()
-    if self.isLoaded_ == false then
+    if #self.players_ == false then
         return false;
     end
     self.isPlaying_ = true;

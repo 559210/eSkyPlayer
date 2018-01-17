@@ -1,9 +1,11 @@
 local prototype = class("eSkyPlayerEventDataBase");
 local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
+local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
     self.eventData_ = nil;
     self.projectData_ = nil;
+    self.eventType_ = definations.EVENT_TYPE.UNKOWN;
 end
 
 
@@ -45,6 +47,11 @@ end
 
 function prototype:getEventData()
     return self.eventData_;
+end
+
+
+function prototype:getEventType()
+    return self.eventType_;
 end
 
 

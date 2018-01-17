@@ -1,10 +1,11 @@
 local prototype = class("eSkyPlayerCameraMotionEventData", require("eSkyPlayer/eSkyPlayerEventDataBase"));
+local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 
-
--- function prototype:ctor()
---  -- body
--- end
+function prototype:ctor()
+    self.base:ctor();
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_MOTION;
+end
 
 
 

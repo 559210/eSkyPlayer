@@ -10,6 +10,16 @@ local definations = {
         CAMERA_EFFECT = 6,
     };
 
+    EVENT_TYPE = {
+        UNKOWN = 0,
+        CAMERA_PLAN = 1,
+        MOTION_PLAN = 2,
+        MUSIC_PLAN = 3,
+        SCENE_PLAN = 4,
+        CAMERA_MOTION = 5,
+        CAMERA_EFFECT = 6,
+    };
+
     TRACK_FILE_TYPE = {
         UNKOWN = 0,
         MOTION = 1,

@@ -6,6 +6,7 @@ function prototype:ctor()
     self.base:ctor();
     self.trackType_ = definations.TRACK_TYPE.CAMERA_EFFECT;
     self.trackFileType_ = definations.TRACK_FILE_TYPE.CAMERA_MOTION;
+    self.eventsSupportted_ = {definations.EVENT_TYPE.CAMERA_EFFECT};
 end
 
 function prototype:getResources()

@@ -47,12 +47,16 @@ function prototype:_update()
         self.base.isPlaying_ = false;
         return;
     end
-    
+
     for i = 1, self.eventCount_  do
         local beginTime = self.cameraTrack_:getEventBeginTimeAt(i);
         local event = self.cameraTrack_:getEventAt(i);
         local endTime = beginTime + event.eventData_.timeLength;
 
+        if self.cameraTrack_:isSupported(event) == false then
+            return;
+        end
+        
         if self.director_.timeLine_ >= beginTime and self.director_.timeLine_ <= endTime then
             local isEnterEvent = true;
             if #self.cameraJobsQueue_ > 0 then 

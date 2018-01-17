@@ -5,6 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     self.base:ctor();
     self.motionType_ = definations.CAMERA_MOTION_TYPE.DEPTH_OF_FIELD;
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT;
 end
 
 function prototype:_loadFromBuff(buff)

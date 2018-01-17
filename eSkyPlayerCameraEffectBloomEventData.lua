@@ -6,6 +6,7 @@ function prototype:ctor()
     self.base:ctor();
     self.texturePath = nil;
     self.motionType_ = definations.CAMERA_MOTION_TYPE.BLOOM;
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT;
 end
 
 function prototype:initialize()
