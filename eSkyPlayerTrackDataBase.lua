@@ -9,6 +9,7 @@ function prototype:ctor()
     self.trackTimeLength_ = 0;
     self.events_ = {};
     self.title_ = nil;
+    self.pathHeader_ = nil;
 end
 
 
@@ -18,14 +19,18 @@ end
 
 
 function prototype:loadTrack(filename)
+    self.filename = filename;
     local path = Util.AppDataRoot .. "/" ..filename;
-
     if string.match(filename,"^mod/plans") ~= nil then
         local a,b = string.find(filename,"mod/plans/.-/");
         local c,d = string.find(filename,"mod/plans/.-/.-/");
         self.title_ = string.sub(filename,b + 1,d - 1);
+    elseif string.match(filename,"^mod/projects") ~= nil then
+        local a,b = string.find(filename,"mod/projects/");
+        local c,d = string.find(filename,"mod/projects/.-/");
+        self.title_ = string.sub(filename, b + 1, d - 1);
+        self.pathHeader_ = string.match(filename,"mod/projects/.+/");
     end
-
     local buff = misc.readAllBytes(path);
     if self:_loadHeaderFromBuff(buff) == false then
         return false;
@@ -119,8 +124,14 @@ function prototype:_loadHeaderFromBuff(buff)
         if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN then 
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraPlanEventData");
             eventObj:initialize();
-            if eventObj:loadEvent( "mod/plans/camera/" .. eventFile.name) == false then 
-                return false;
+            if eventFile.storeType == 1 then
+                if eventObj:loadEvent( self.pathHeader_ .. "plans/camera/" .. eventFile.name) == false then 
+                    return false;
+                end
+            else 
+                if eventObj:loadEvent( "mod/plans/camera/" .. eventFile.name) == false then 
+                    return false;
+                end
             end
         elseif self.trackType_ == definations.TRACK_TYPE.MOTION_PLAN then
             eventObj = newClass("eSkyPlayer/eSkyPlayerMotionPlanEventData");
@@ -143,17 +154,32 @@ function prototype:_loadHeaderFromBuff(buff)
         elseif self.trackType_ == definations.TRACK_TYPE.CAMERA_MOTION then
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraMotionEventData");
             eventObj:initialize();
-            if eventFile.storeType == 1 then
-                if eventObj:loadEvent( "mod/plans/camera/" .. self.title_ .. "/camera/" .. eventFile.name .. ".byte") == false then
-                    return false;
-                end
-            else
+            if eventFile.storeType == 0 then
                 if eventObj:loadEvent( "mod/events/camera/" .. eventFile.name .. ".byte") == false then
                     return false;
                 end
+            else
+                if self.pathHeader_ == nil then 
+                    if eventObj:loadEvent( "mod/plans/camera/" .. self.title_ .. "/camera/" .. eventFile.name .. ".byte") == false then
+                        return false;
+                    end 
+                else 
+                    if eventObj:loadEvent(self.pathHeader_ .. "camera/" .. eventFile.name) ==false then
+                        return false;
+                    end
+                end
             end
         elseif self.trackType_ == definations.TRACK_TYPE.CAMERA_EFFECT then
-            local path = Util.AppDataRoot .. "/mod/plans/camera/" .. self.title_ .. "/cameraMotion/" .. eventFile.name .. ".byte";
+            local path = nil;
+            if self.storeType == 0 then
+                path = Util.AppDataRoot .. "/mod/events/cameraMotion" .. eventFile.name .. ".byte";
+            else
+                if self.pathHeader_ == nil then 
+                    path = Util.AppDataRoot .. "/mod/plans/camera/" .. self.title_ .. "/cameraMotion/" .. eventFile.name .. ".byte";
+                else 
+                    path = Util.AppDataRoot .. "/" .. self.pathHeader_ .. "cameraMotion/" .. eventFile.name .. ".byte";
+                end
+            end
             local buff = misc.readAllBytes(path);
             buff:SetReaderPosition(9);
             local temp = buff:ReadByte();

@@ -91,12 +91,8 @@ end
 
 function prototype:_creatBloomEffect(event)
     self.effectId = self.cameraEffectManager:createBloomEffect();
-    if self.cameraEffectManager:start(self.effectId) == false then 
-        logError("xxxxxxxxxxxxxxxx");
-    end
-    logError("vvvvvvvvvvvvvvvv")
+    self.cameraEffectManager:start(self.effectId);
     local param = self.cameraEffectManager:getParam(self.effectId);
-    logError("get")
     param.antiFlicker = misc.getBoolByByte(event.eventData_.antiFlicker)
     param.lenDirtTexture = self.director_.resourceManager_:getResource(event.texturePath);
     return param; 

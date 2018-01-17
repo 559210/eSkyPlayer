@@ -44,7 +44,8 @@ end
 
 function prototype:_loadTracks(trackPath)
     local trackData = nil;
-    if string.match(trackPath,"mod/plans/camera/.+/cameraTrack") then
+    if string.match(trackPath,"mod/plans/camera/.+/cameraTrack") or
+        string.match(trackPath,"mod/projects/.-/plans/camera/.+/cameraTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerCameraMotionTrackData");
         trackData:initialize();
         if trackData:loadTrack(trackPath) == false then
@@ -56,7 +57,8 @@ function prototype:_loadTracks(trackPath)
         if trackData:loadTrack(trackPath) == false then
             return false;
         end
-    elseif string.match(trackPath,"mod/plans/camera/.+/cameraMotionTrack") then
+    elseif string.match(trackPath,"mod/plans/camera/.+/cameraMotionTrack") or
+        string.match(trackPath,"mod/projects/.-/plans/camera/.+/cameraMotionTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
         trackData:initialize();
         if trackData:loadTrack(trackPath) == false then
