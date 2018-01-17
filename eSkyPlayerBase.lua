@@ -1,5 +1,5 @@
 local prototype = class("eSkyPlayerBase");
-
+local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor(director)
     self.director_ = director;
@@ -57,6 +57,15 @@ end
 
 function prototype:seek(time)
     return true;
+end
+
+
+function prototype:getTrackType()
+    if self.trackObj_ == nil then
+        return definations.TRACK_FILE_TYPE.UNKOWN;
+    end
+
+    return self.trackObj_:getTrackType();
 end
 
 
