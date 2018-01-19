@@ -205,32 +205,22 @@ function prototype:_loadHeaderFromBuff(buff)
             local temp = buff:ReadByte();
             if temp == definations.CAMERA_MOTION_TYPE.BLOOM then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectBloomEventData");
-                eventObj:initialize();
-                if self:isSupported(eventObj) == false then
-                    return false;
-                end
-                eventObj.eventData_ = {};
-                local temp = buff:SetReaderPosition(0);
-                if eventObj:_loadHeaderFromBuff(buff) == false then
-                    return false;
-                end
-                if eventObj:_loadFromBuff(buff) == false then
-                    return false;
-                end
             elseif temp == definations.CAMERA_MOTION_TYPE.CHROMATIC_ABERRATION then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectChromaticAberrationEventData");
-                eventObj:initialize();
-                if self:isSupported(eventObj) == false then
-                    return false;
-                end
-                eventObj.eventData_ = {};
-                local temp = buff:SetReaderPosition(0);
-                if eventObj:_loadHeaderFromBuff(buff) == false then
-                    return false;
-                end
-                if eventObj:_loadFromBuff(buff) == false then
-                    return false;
-                end
+            elseif temp == definations.CAMERA_MOTION_TYPE.DEPTH_OF_FIELD then
+                eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectDepthOfFieldEventData");
+            end
+            eventObj:initialize();
+            if self:isSupported(eventObj) == false then
+                return false;
+            end
+            eventObj.eventData_ = {};
+            local temp = buff:SetReaderPosition(0);
+            if eventObj:_loadHeaderFromBuff(buff) == false then
+                return false;
+            end
+            if eventObj:_loadFromBuff(buff) == false then
+                return false;
             end
         else
             return true;

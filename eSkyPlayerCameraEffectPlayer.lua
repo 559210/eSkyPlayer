@@ -88,6 +88,15 @@ function prototype:_update()
                 else
                     self:_updateChromaticAberrationEffect(event, self.param, beginTime);
                 end
+            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.DEPTH_OF_FIELD then
+                if self.isEventPlaying_ == false then
+                    self.param = self:_creatDepthOfFieldEffect(event);
+                    self:_updateDepthOfFieldEffect(event, self.param, beginTime);
+                    self.isEventPlaying_ = true;
+                    self.playingEvent = event;
+                else
+                    self:_updateDepthOfFieldEffect(event, self.param, beginTime);
+                end
             end
         end
 
@@ -144,6 +153,25 @@ function prototype:_updateChromaticAberrationEffect(event, param, beginTime)
     local deltaTime = (self.director_.timeLine_ - beginTime) / event.eventData_.timeLength ;
     local names = {"intensity", "spectralTexture"};
     param.intensity = event.eventData_.intensity.values[1] + deltaTime * (event.eventData_.intensity.values[2] - event.eventData_.intensity.values[1]);
+
+    self.cameraEffectManager:setParam(self.effectId,param);
+end
+
+function prototype:_creatDepthOfFieldEffect(event)
+    self.effectId = self.cameraEffectManager:createDepthOfFieldEffect();
+    self.cameraEffectManager:start(self.effectId);
+    local param = self.cameraEffectManager:getParam(self.effectId);
+
+    return param; 
+end
+
+function prototype:_updateDepthOfFieldEffect(event, param, beginTime)
+    if event == nil or param == nil then
+        return;
+    end 
+    local deltaTime = (self.director_.timeLine_ - beginTime) / event.eventData_.timeLength ;
+    local names = {"aperture"};
+    param.aperture = event.eventData_.aperture.values[1] + deltaTime * (event.eventData_.aperture.values[2] - event.eventData_.aperture.values[1]);
 
     self.cameraEffectManager:setParam(self.effectId,param);
 end
