@@ -79,6 +79,15 @@ function prototype:_update()
                 else
                     self:_updateBloomEffect(event, self.param, beginTime);
                 end
+            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.CHROMATIC_ABERRATION then
+                if self.isEventPlaying_ == false then
+                    self.param = self:_creatChromaticAberrationEffect(event);
+                    self:_updateChromaticAberrationEffect(event, self.param, beginTime);
+                    self.isEventPlaying_ = true;
+                    self.playingEvent = event;
+                else
+                    self:_updateChromaticAberrationEffect(event, self.param, beginTime);
+                end
             end
         end
 
@@ -119,5 +128,24 @@ function prototype:_updateBloomEffect(event, param, beginTime)
     self.cameraEffectManager:setParam(self.effectId,param);
 end
 
+function prototype:_creatChromaticAberrationEffect(event)
+    self.effectId = self.cameraEffectManager:createChromaticAberrationEffect();
+    self.cameraEffectManager:start(self.effectId);
+    local param = self.cameraEffectManager:getParam(self.effectId);
+
+    param.spectralTexture = self.director_.resourceManager_:getResource(event.texturePath);
+    return param; 
+end
+
+function prototype:_updateChromaticAberrationEffect(event, param, beginTime)
+    if event == nil or param == nil then
+        return;
+    end 
+    local deltaTime = (self.director_.timeLine_ - beginTime) / event.eventData_.timeLength ;
+    local names = {"intensity", "spectralTexture"};
+    param.intensity = event.eventData_.intensity.values[1] + deltaTime * (event.eventData_.intensity.values[2] - event.eventData_.intensity.values[1]);
+
+    self.cameraEffectManager:setParam(self.effectId,param);
+end
 
 return prototype;

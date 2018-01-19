@@ -8,6 +8,20 @@ function prototype:ctor()
     self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT;
 end
 
+function prototype:initialize()
+    self.base:initialize();
+    self.textures_ = {
+    "camera/textures/SpectralLut_BlueRed",
+    "camera/textures/SpectralLut_GreenPurple",
+    "camera/textures/SpectralLut_PurpleGreen",
+    "camera/textures/SpectralLut_RedBlue",
+    };
+end
+
+function prototype:getResources()
+    return self.resList_;
+end
+
 function prototype:_loadFromBuff(buff)
     self.eventData_.motionType = buff:ReadByte();
     local names = {"intensity", "spectralTexture"};
@@ -20,7 +34,9 @@ function prototype:_loadFromBuff(buff)
     end
     misc.setValuesByWeight(info);
 
-    self.eventData_["spectralTexture"] = buff:ReadByte();
+    local textureID = buff:ReadByte();
+        self.texturePath = self.textures_[textureID];
+        self.resList_[#self.resList_ + 1] = self.texturePath;
     return true;
 end
 
