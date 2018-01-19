@@ -97,6 +97,15 @@ function prototype:_update()
                 else
                     self:_updateDepthOfFieldEffect(event, self.param, beginTime);
                 end
+            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.VIGNETTE then
+                if self.isEventPlaying_ == false then
+                    self.param = self:_creatVignetteEffect(event);
+                    self:_updateVignetteEffect(event, self.param, beginTime);
+                    self.isEventPlaying_ = true;
+                    self.playingEvent = event;
+                else
+                    self:_updateVignetteEffect(event, self.param, beginTime);
+                end
             end
         end
 
@@ -115,7 +124,7 @@ function prototype:_creatBloomEffect(event)
     self.effectId = self.cameraEffectManager:createBloomEffect();
     self.cameraEffectManager:start(self.effectId);
     local param = self.cameraEffectManager:getParam(self.effectId);
-    param.antiFlicker = misc.getBoolByByte(event.eventData_.antiFlicker)
+    param.antiFlicker = misc.getBoolByByte(event.eventData_.antiFlicker);
     param.lenDirtTexture = self.director_.resourceManager_:getResource(event.texturePath);
     return param; 
 end
@@ -172,6 +181,38 @@ function prototype:_updateDepthOfFieldEffect(event, param, beginTime)
     local deltaTime = (self.director_.timeLine_ - beginTime) / event.eventData_.timeLength ;
     local names = {"aperture"};
     param.aperture = event.eventData_.aperture.values[1] + deltaTime * (event.eventData_.aperture.values[2] - event.eventData_.aperture.values[1]);
+
+    self.cameraEffectManager:setParam(self.effectId,param);
+end
+
+function prototype:_creatVignetteEffect(event)
+    self.effectId = self.cameraEffectManager:createVignetteEffect();
+    self.cameraEffectManager:start(self.effectId);
+    local param = self.cameraEffectManager:getParam(self.effectId);
+    param.mode = event.eventData_.mode;
+    param.rounded = misc.getBoolByByte(event.eventData_.rounded);
+    param.mask = self.director_.resourceManager_:getResource(event.texturePath);
+    return param; 
+end
+
+function prototype:_updateVignetteEffect(event, param, beginTime)
+    if event == nil or param == nil then
+        return;
+    end 
+    local deltaTime = (self.director_.timeLine_ - beginTime) / event.eventData_.timeLength ;
+    local names = {"mode", "allColor", "intensity", "smoothness", "roundness", "mask", "opacity", "rounded"};
+    for _, name in ipairs(names) do
+        if name == "allColor" then
+            local allColor = event.eventData_[name].values[1] + deltaTime * (event.eventData_[name].values[2] - event.eventData_[name].values[1]);
+            local _color = Color.New();
+            _color.r = allColor / 255;
+            _color.g = allColor / 255;
+            _color.b = allColor / 255;
+            param.color = _color;
+        elseif name ~= "mode" and name ~= "mask" and name ~= "rounded" then
+            param[name] = event.eventData_[name].values[1] + deltaTime * (event.eventData_[name].values[2] - event.eventData_[name].values[1]);
+        end
+    end
 
     self.cameraEffectManager:setParam(self.effectId,param);
 end
