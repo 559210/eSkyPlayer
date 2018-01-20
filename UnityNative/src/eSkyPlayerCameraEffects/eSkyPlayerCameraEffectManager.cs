@@ -126,6 +126,8 @@ public class eSkyPlayerCameraEffectManager {
 	public void dispose(){
 		if (m_mainCamera != null) {
 			Object.Destroy(m_mainCamera.gameObject.GetComponent<PostProcessingBehaviour>());
+			Object.Destroy(m_mainCamera.gameObject.GetComponent<CameraTransition>());
+			Object.Destroy(m_mainCamera.gameObject.GetComponent<ScreenOverlay>());
 			m_additionalComponents = null;
 			m_mainCamera = null;
 		}

@@ -106,6 +106,15 @@ function prototype:_update()
                 else
                     self:_updateVignetteEffect(event, self.param, beginTime);
                 end
+            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.BLACK then
+                if self.isEventPlaying_ == false then
+                    self.param = self:_creatBlackEffect(event);
+                    self:_updateBlackEffect(event, self.param, beginTime);
+                    self.isEventPlaying_ = true;
+                    self.playingEvent = event;
+                else
+                    self:_updateBlackEffect(event, self.param, beginTime);
+                end
             elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
                 self.playingEvent = event;
                 self:_updateFieldOfViewEffect(event, beginTime)
@@ -114,16 +123,13 @@ function prototype:_update()
 
         if self.director_.timeLine_ < beginTime or self.director_.timeLine_ > endTime then
             if self.playingEvent == event then
-                if event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.BLOOM or
-                    event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.CHROMATIC_ABERRATION or
-                    event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.DEPTH_OF_FIELD or
-                    event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.VIGNETTE then
+                if event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
+                    self.mainCamera_.fieldOfView = 60;
+                else
                     self.cameraEffectManager:close(self.effectId);
                     self.director_.resourceManager_:releaseResource(event.texturePath);
                     self.isEventPlaying_ = false;
                     self.playingEvent = nil;
-                elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
-                    self.mainCamera_.fieldOfView = 60;
                 end
             end
         end
@@ -227,15 +233,6 @@ function prototype:_updateVignetteEffect(event, param, beginTime)
     self.cameraEffectManager:setParam(self.effectId,param);
 end
 
--- function prototype:_creatFieldOfViewEffect(event)
---     self.effectId = self.cameraEffectManager:createBloomEffect();
---     self.cameraEffectManager:start(self.effectId);
---     local param = self.cameraEffectManager:getParam(self.effectId);
---     param.antiFlicker = misc.getBoolByByte(event.eventData_.antiFlicker);
---     param.lenDirtTexture = self.director_.resourceManager_:getResource(event.texturePath);
---     return param; 
--- end
-
 function prototype:_updateFieldOfViewEffect(event, beginTime)
     if event == nil then
         return;
@@ -245,6 +242,26 @@ function prototype:_updateFieldOfViewEffect(event, beginTime)
     local fov = 60;
     fov = event.eventData_.fov.values[1] + deltaTime * (event.eventData_.fov.values[2] - event.eventData_.fov.values[1]);
     self.mainCamera_.fieldOfView = fov;
+end
+
+function prototype:_creatBlackEffect(event)
+    self.effectId = self.cameraEffectManager:createScreenOverlayEffect();
+    self.cameraEffectManager:start(self.effectId);
+    local param = self.cameraEffectManager:getParam(self.effectId);
+    param.blendMode = event.eventData_.blendMode;
+    param.texture = self.director_.resourceManager_:getResource(event.texturePath);
+    return param; 
+end
+
+function prototype:_updateBlackEffect(event, param, beginTime)
+    if event == nil or param == nil then
+        return;
+    end 
+    local deltaTime = (self.director_.timeLine_ - beginTime) / event.eventData_.timeLength ;
+    local names = {"blendMode", "texture", "intensity"};
+    param.intensity = event.eventData_.intensity.values[1] + deltaTime * (event.eventData_.intensity.values[2] - event.eventData_.intensity.values[1]);
+
+    self.cameraEffectManager:setParam(self.effectId,param);
 end
 
 return prototype;

@@ -124,7 +124,6 @@ function prototype:_loadHeaderFromBuff(buff)
         eventFile.isLoopPlay = misc.getBoolByByte(buff:ReadByte());
         eventFile.labelID = buff:ReadByte();
 
-        --需要考虑event类型，不一定是camera；
         
         if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN then 
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraPlanEventData");
@@ -213,6 +212,8 @@ function prototype:_loadHeaderFromBuff(buff)
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectVignetteEventData");
             elseif temp == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectFieldOfViewEventData");
+            elseif temp == definations.CAMERA_MOTION_TYPE.BLACK then
+                eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectBlackEventData");
             end
             eventObj:initialize();
             if self:isSupported(eventObj) == false then
