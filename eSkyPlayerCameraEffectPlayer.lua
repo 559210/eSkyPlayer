@@ -106,15 +106,25 @@ function prototype:_update()
                 else
                     self:_updateVignetteEffect(event, self.param, beginTime);
                 end
+            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
+                self.playingEvent = event;
+                self:_updateFieldOfViewEffect(event, beginTime)
             end
         end
 
         if self.director_.timeLine_ < beginTime or self.director_.timeLine_ > endTime then
             if self.playingEvent == event then
-                self.cameraEffectManager:close(self.effectId);
-                self.director_.resourceManager_:releaseResource(event.texturePath);
-                self.isEventPlaying_ = false;
-                self.playingEvent = nil;
+                if event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.BLOOM or
+                    event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.CHROMATIC_ABERRATION or
+                    event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.DEPTH_OF_FIELD or
+                    event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.VIGNETTE then
+                    self.cameraEffectManager:close(self.effectId);
+                    self.director_.resourceManager_:releaseResource(event.texturePath);
+                    self.isEventPlaying_ = false;
+                    self.playingEvent = nil;
+                elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
+                    self.mainCamera_.fieldOfView = 60;
+                end
             end
         end
     end
@@ -215,6 +225,26 @@ function prototype:_updateVignetteEffect(event, param, beginTime)
     end
 
     self.cameraEffectManager:setParam(self.effectId,param);
+end
+
+-- function prototype:_creatFieldOfViewEffect(event)
+--     self.effectId = self.cameraEffectManager:createBloomEffect();
+--     self.cameraEffectManager:start(self.effectId);
+--     local param = self.cameraEffectManager:getParam(self.effectId);
+--     param.antiFlicker = misc.getBoolByByte(event.eventData_.antiFlicker);
+--     param.lenDirtTexture = self.director_.resourceManager_:getResource(event.texturePath);
+--     return param; 
+-- end
+
+function prototype:_updateFieldOfViewEffect(event, beginTime)
+    if event == nil then
+        return;
+    end 
+    local deltaTime = (self.director_.timeLine_ - beginTime) / event.eventData_.timeLength ;
+    local names = {"fov"};
+    local fov = 60;
+    fov = event.eventData_.fov.values[1] + deltaTime * (event.eventData_.fov.values[2] - event.eventData_.fov.values[1]);
+    self.mainCamera_.fieldOfView = fov;
 end
 
 return prototype;

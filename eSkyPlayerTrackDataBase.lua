@@ -211,6 +211,8 @@ function prototype:_loadHeaderFromBuff(buff)
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectDepthOfFieldEventData");
             elseif temp == definations.CAMERA_MOTION_TYPE.VIGNETTE then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectVignetteEventData");
+            elseif temp == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
+                eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectFieldOfViewEventData");
             end
             eventObj:initialize();
             if self:isSupported(eventObj) == false then
