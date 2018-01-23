@@ -9,6 +9,7 @@ public class eSkyPlayerCameraEffectTransitionParam : eSkyPlayerCameraEffectParam
 
 
 public class eSkyPlayerCameraEffectTransitions : IeSkyPlayerCameraEffectBase {
+	protected CameraTransition m_ct = null;
 	protected eSkyPlayerCameraEffectManager m_manager = null;
 	protected CameraTransition m_cameraTransition = null;
 
@@ -36,7 +37,12 @@ public class eSkyPlayerCameraEffectTransitions : IeSkyPlayerCameraEffectBase {
 
 
 	public bool start()
-	{
+	{	m_ct = m_manager.getComponentCameraTransitionBehaviour ();
+		if (m_ct == null) {
+			return false;
+		}
+		m_ct.enabled = true;
+
 		if (m_cameraTransition == null || m_manager == null || m_duration <= 0) {
 			return false;
 		}
@@ -51,6 +57,11 @@ public class eSkyPlayerCameraEffectTransitions : IeSkyPlayerCameraEffectBase {
 	}
 
 	public bool close(){
+		if (m_ct == null) {
+			return false;
+		}
+
+		m_ct.enabled = false;
 		return true;
 	}
 
@@ -75,10 +86,8 @@ public class eSkyPlayerCameraEffectTransitions : IeSkyPlayerCameraEffectBase {
 
 		eSkyPlayerCameraEffectTransitionParam p = param as eSkyPlayerCameraEffectTransitionParam;
 		m_cameraTransition.Progress = p.progress;
-
 		return true;
 	}
-
 
 	public eSkyPlayerCameraEffectParamBase getParam()
 	{

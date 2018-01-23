@@ -15,7 +15,7 @@ public class eSkyPlayerCameraEffectDepthOfFieldParam : eSkyPlayerCameraEffectPar
 
 public class eSkyPlayerCameraEffectDepthOfField : IeSkyPlayerCameraEffectBase {
 //    protected Camera m_camera = null;
-    protected PostProcessingBehaviour pp = null;
+    protected PostProcessingBehaviour m_pp = null;
 	protected eSkyPlayerCameraEffectManager manager = null;
     protected DepthOfFieldModel.Settings m_depthOfFieldModelSettings;
 
@@ -32,24 +32,23 @@ public class eSkyPlayerCameraEffectDepthOfField : IeSkyPlayerCameraEffectBase {
     }
 
     public bool start() {
-		pp = manager.getComponentPostProcessingBehaviour ();
-		if (pp == null) {
+		m_pp = manager.getComponentPostProcessingBehaviour ();
+		if (m_pp == null) {
 			return false;
 		}
-		pp.profile.depthOfField.enabled = true;
+		m_pp.profile.depthOfField.enabled = true;
 
-		m_depthOfFieldModelSettings = pp.profile.depthOfField.settings;
+		m_depthOfFieldModelSettings = m_pp.profile.depthOfField.settings;
 
         return true;
     }
 
 	public bool close(){
-		pp = manager.getComponentPostProcessingBehaviour ();
-		if (pp == null) {
+		if (m_pp == null) {
 			return false;
 		}
 
-		pp.profile.depthOfField.enabled = false;
+		m_pp.profile.depthOfField.enabled = false;
 		return true;
 	}
 
@@ -59,7 +58,7 @@ public class eSkyPlayerCameraEffectDepthOfField : IeSkyPlayerCameraEffectBase {
     }
 
     public bool pause() {
-		if (pp == null) {
+		if (m_pp == null) {
             return false;
         }
 
@@ -67,22 +66,22 @@ public class eSkyPlayerCameraEffectDepthOfField : IeSkyPlayerCameraEffectBase {
     }
 
 //    public bool resume() {
-//		if (pp == null) {
+//		if (m_pp == null) {
 //            return false;
 //        }
-////		pp.profile.depthOfField.enabled = true;
+////		m_pp.profile.depthOfField.enabled = true;
 //
 //        return true;
 //    }
 
     public bool setParam(eSkyPlayerCameraEffectParamBase param) {
-		if (pp == null) {
+		if (m_pp == null) {
             return false;
         }
 
         if (param is eSkyPlayerCameraEffectDepthOfFieldParam) {
             eSkyPlayerCameraEffectDepthOfFieldParam p = param as eSkyPlayerCameraEffectDepthOfFieldParam;
-			if (pp.profile.depthOfField.enabled == false) {
+			if (m_pp.profile.depthOfField.enabled == false) {
                 return false;
             }
 			m_depthOfFieldModelSettings.focusDistance = p.focusDistance;
@@ -105,7 +104,7 @@ public class eSkyPlayerCameraEffectDepthOfField : IeSkyPlayerCameraEffectBase {
 				break;
 			}
 
-			pp.profile.depthOfField.settings = m_depthOfFieldModelSettings;
+			m_pp.profile.depthOfField.settings = m_depthOfFieldModelSettings;
         } else {
             return false;
         }
@@ -114,7 +113,7 @@ public class eSkyPlayerCameraEffectDepthOfField : IeSkyPlayerCameraEffectBase {
     }
 
     public eSkyPlayerCameraEffectParamBase getParam() {
-		if (pp == null) {
+		if (m_pp == null) {
             return null;
         }
 

@@ -149,7 +149,7 @@ function prototype:_returnCamera(cam)
 end
 
 function prototype:_isNeedAdditionalCamera()
-    if self.cameraTrack_:isOverlapped() == true then
+    if self.cameraTrack_:isNeedAdditionalCamera() == true then
         self.isNeedAdditionalCamera_ = true;
     else 
         self.isNeedAdditionalCamera_ = false;

@@ -25,4 +25,14 @@ function prototype:getResources()
     end
     return resList_;
 end
+
+function prototype:isNeedAdditionalCamera()
+    for i = 1, #self.events_ do
+        if self.events_[i].eventObj.motionType_ == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
+            return true;
+        end
+    end
+    return false;
+end
+
 return prototype;

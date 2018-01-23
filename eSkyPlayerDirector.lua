@@ -90,7 +90,7 @@ end
 
 
 function prototype:play()
-    if #self.players_ == false then
+    if #self.players_ == 0 then
         return false;
     end
     self.isPlaying_ = true;
@@ -193,37 +193,36 @@ function prototype:_createPlayer(obj)
             if event_:isProject() then
                 self:_createPlayer(event_:getProjectData());
             end
-        end
  
-        
-        if track:getTrackLength() > self.timeLength_ then
-            self.timeLength_ = track:getTrackLength();
-        end
+            if track:getTrackLength() > self.timeLength_ then
+                self.timeLength_ = track:getTrackLength();
+            end
 
-        local trackType = track:getTrackType();
-        if trackType == definations.TRACK_TYPE.CAMERA_MOTION then
-            local player = newClass ("eSkyPlayer/eSkyPlayerCameraMotionPlayer",self);
-            self.players_[#self.players_ + 1] = player;
-            player:initialize(track);
-        elseif trackType == definations.TRACK_TYPE.CAMERA_PLAN then
-            local player = newClass ("eSkyPlayer/eSkyPlayerCameraPlanPlayer",self);
-            self.players_[#self.players_ + 1] = player;
-            player:initialize(track);
-        elseif trackType == definations.TRACK_TYPE.CAMERA_EFFECT then
-            local player = newClass ("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
-            self.players_[#self.players_ + 1] = player;
-            player:initialize(track);
-         -- elseif trackType == TrackEventType.MusicType then
-         --     local player = newClass ("eSkyPlayer/eSkyPlayerMusicPlayer",self);
-         --     player:initialize(track);
-         --     self.players_[#self.players_ + 1] = player;
-         -- elseif trackType == TrackEventType.SceneType then
-         --     local player = newClass ("eSkyPlayer/eSkyPlayerScenePlayer",self);
-         --     player:initialize(track);
-         --     self.players_[#self.players_ + 1] = player;
-         -- elseif trackType == TrackEventType.SceneType then
-        else 
-            return false;
+            local trackType = track:getTrackType();
+            if trackType == definations.TRACK_TYPE.CAMERA_MOTION then
+                local player = newClass ("eSkyPlayer/eSkyPlayerCameraMotionPlayer",self);
+                self.players_[#self.players_ + 1] = player;
+                player:initialize(track);
+            elseif trackType == definations.TRACK_TYPE.CAMERA_PLAN then
+                local player = newClass ("eSkyPlayer/eSkyPlayerCameraPlanPlayer",self);
+                self.players_[#self.players_ + 1] = player;
+                player:initialize(track);
+            elseif trackType == definations.TRACK_TYPE.CAMERA_EFFECT then
+                local player = newClass ("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
+                self.players_[#self.players_ + 1] = player;
+                player:initialize(track);
+             -- elseif trackType == TrackEventType.MusicType then
+             --     local player = newClass ("eSkyPlayer/eSkyPlayerMusicPlayer",self);
+             --     player:initialize(track);
+             --     self.players_[#self.players_ + 1] = player;
+             -- elseif trackType == TrackEventType.SceneType then
+             --     local player = newClass ("eSkyPlayer/eSkyPlayerScenePlayer",self);
+             --     player:initialize(track);
+             --     self.players_[#self.players_ + 1] = player;
+             -- elseif trackType == TrackEventType.SceneType then
+            else 
+                return false;
+            end
         end
     end
     return true;

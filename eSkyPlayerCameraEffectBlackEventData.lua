@@ -4,7 +4,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
     self.base:ctor();
-    self.motionType_ = definations.CAMERA_MOTION_TYPE.BLACK;
+    self.motionType_ = definations.CAMERA_EFFECT_TYPE.BLACK;
     self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT;
 end
 

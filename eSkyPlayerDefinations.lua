@@ -36,7 +36,7 @@ local definations = {
         TWO_D_OBJECT = 12,
     };
 
-    CAMERA_MOTION_TYPE ={
+    CAMERA_EFFECT_TYPE ={
         UNKNOW = 0,
         BLOOM = 1,
         BLACK = 2,

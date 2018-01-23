@@ -4,7 +4,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
     self.base:ctor();
-    self.motionType_ = definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW;
+    self.motionType_ = definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW;
     self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT;
 end
 
@@ -18,7 +18,7 @@ function prototype:_loadFromBuff(buff)
         info.ranges[#info.ranges + 1] =  buff:ReadFloat();
     end
     misc.setValuesByWeight(info);
-    logError("00000000000000" .. type(self.eventData_.fov))
+
     return true;
 end
 

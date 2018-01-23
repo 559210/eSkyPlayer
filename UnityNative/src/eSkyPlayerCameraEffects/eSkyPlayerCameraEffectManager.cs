@@ -42,6 +42,8 @@ public class eSkyPlayerCameraEffectManager {
 	protected int m_effectIndexFactory = 0;
 	protected Camera m_mainCamera = null;
 	protected Camera m_secondCamera = null;
+	protected static int ms_gameObjectCount = 0;
+	protected GameObject m_gameObject = null;
 
 	public eSkyPlayerCameraEffectManager() {
 
@@ -63,7 +65,7 @@ public class eSkyPlayerCameraEffectManager {
 	public CameraTransition getComponentCameraTransitionBehaviour() {
 		ADDITIONAL_COMPONENT_TYPE type = ADDITIONAL_COMPONENT_TYPE.CAMERA_TRANSITIONS;
 		if (m_additionalComponents.ContainsKey(type) == false) {
-			CameraTransition ct = m_mainCamera.gameObject.AddComponent<CameraTransition> ();
+			CameraTransition ct = m_gameObject.AddComponent<CameraTransition> ();
 			ct.ProgressMode = CameraTransition.ProgressModes.Manual;
 			ct.Progress = 0;
 			// TODO: 下面3个参数可以作为将来的性能选项开关。
@@ -99,13 +101,38 @@ public class eSkyPlayerCameraEffectManager {
 				if (m_additionalComponents.ContainsKey (eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR) == true) {
 					var obj = m_additionalComponents [type] as AdditionalComponent<PostProcessingBehaviour>;
 					if (obj.releaseObject () == true)
-					m_additionalComponents.Remove (type);
+						m_additionalComponents.Remove (type);
 				}
-				break;
 			}
+			break;
+		case eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.CAMERA_TRANSITIONS:
+			{
+				if (m_additionalComponents.ContainsKey (eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.CAMERA_TRANSITIONS) == true) {
+					var obj = m_additionalComponents [type] as AdditionalComponent<CameraTransition>;
+					if (obj.releaseObject () == true)
+						m_additionalComponents.Remove (type);
+				}
+			}
+			break;
+		case eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.SCREEN_OVERLAY:
+			{
+				if (m_additionalComponents.ContainsKey (eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.SCREEN_OVERLAY) == true) {
+					var obj = m_additionalComponents [type] as AdditionalComponent<ScreenOverlay>;
+					if (obj.releaseObject () == true)
+						m_additionalComponents.Remove (type);
+				}
+			}
+			break;
+
 		default:
 			break;
 		}
+	}
+
+	public void creatGameObject(){
+		m_gameObject = new GameObject();
+		m_gameObject.name = "GameObject" + ms_gameObjectCount;
+		ms_gameObjectCount++;
 	}
 		
 	//实现手动删除不需要的资源的功能，未完善
@@ -126,10 +153,11 @@ public class eSkyPlayerCameraEffectManager {
 	public void dispose(){
 		if (m_mainCamera != null) {
 			Object.Destroy(m_mainCamera.gameObject.GetComponent<PostProcessingBehaviour>());
-			Object.Destroy(m_mainCamera.gameObject.GetComponent<CameraTransition>());
 			Object.Destroy(m_mainCamera.gameObject.GetComponent<ScreenOverlay>());
+			Object.Destroy(m_gameObject.GetComponent<CameraTransition>());
 			m_additionalComponents = null;
 			m_mainCamera = null;
+			GameObject.Destroy (m_gameObject);
 		}
 //		foreach (KeyValuePair<ADDITIONAL_COMPONENT_TYPE, ReferenceCountBase> item in m_additionalComponents) {
 //			releaseAdditionalComponent (item.Key);
@@ -146,11 +174,14 @@ public class eSkyPlayerCameraEffectManager {
 	}
 
 	public bool initialize(Camera cam, Camera secondCam = null) {
-		if (cam == null) {
+		if (cam == null || m_mainCamera != null) {
 			return false;
 		}
 		m_mainCamera = cam;
 		m_secondCamera = secondCam;
+		if (m_gameObject == null) {
+			creatGameObject ();
+		}
 
 		return true;
 	}

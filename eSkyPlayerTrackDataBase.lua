@@ -80,7 +80,7 @@ function prototype:getResources()
 end
 
 
-function prototype:isOverlapped()
+function prototype:isNeedAdditionalCamera()
     for i = 1, #self.events_ - 1 do
         if self.events_[i].eventObj : isProject() == false then
             if self.events_[i].eventFile.beginTime + self.events_[i].eventObj.eventData_.timeLength > self.events_[i + 1].eventFile.beginTime then
@@ -202,18 +202,20 @@ function prototype:_loadHeaderFromBuff(buff)
             local buff = misc.readAllBytes(path);
             buff:SetReaderPosition(9);
             local temp = buff:ReadByte();
-            if temp == definations.CAMERA_MOTION_TYPE.BLOOM then
+            if temp == definations.CAMERA_EFFECT_TYPE.BLOOM then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectBloomEventData");
-            elseif temp == definations.CAMERA_MOTION_TYPE.CHROMATIC_ABERRATION then
+            elseif temp == definations.CAMERA_EFFECT_TYPE.CHROMATIC_ABERRATION then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectChromaticAberrationEventData");
-            elseif temp == definations.CAMERA_MOTION_TYPE.DEPTH_OF_FIELD then
+            elseif temp == definations.CAMERA_EFFECT_TYPE.DEPTH_OF_FIELD then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectDepthOfFieldEventData");
-            elseif temp == definations.CAMERA_MOTION_TYPE.VIGNETTE then
+            elseif temp == definations.CAMERA_EFFECT_TYPE.VIGNETTE then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectVignetteEventData");
-            elseif temp == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
+            elseif temp == definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectFieldOfViewEventData");
-            elseif temp == definations.CAMERA_MOTION_TYPE.BLACK then
+            elseif temp == definations.CAMERA_EFFECT_TYPE.BLACK then
                 eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectBlackEventData");
+            elseif temp == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
+                eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectCrossFadeEventData");
             end
             eventObj:initialize();
             if self:isSupported(eventObj) == false then

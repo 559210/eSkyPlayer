@@ -19,7 +19,7 @@ public class eSkyPlayerCameraEffectVignetteParam : eSkyPlayerCameraEffectParamBa
 
 public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     protected Camera m_camera = null;
-    protected PostProcessingBehaviour pp = null;
+    protected PostProcessingBehaviour m_pp = null;
 	protected eSkyPlayerCameraEffectManager manager = null;
 	protected VignetteModel.Settings m_vignetteModelSettings;
 
@@ -36,24 +36,23 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     }
 
     public bool start() {
-		pp = manager.getComponentPostProcessingBehaviour ();
-		if (pp == null) {
+		m_pp = manager.getComponentPostProcessingBehaviour ();
+		if (m_pp == null) {
 			return false;
 		}
-		pp.profile.vignette.enabled = true;
+		m_pp.profile.vignette.enabled = true;
 
-		m_vignetteModelSettings = pp.profile.vignette.settings;
+		m_vignetteModelSettings = m_pp.profile.vignette.settings;
 
         return true;
     }
 
 	public bool close(){
-		pp = manager.getComponentPostProcessingBehaviour ();
-		if (pp == null) {
+		if (m_pp == null) {
 			return false;
 		}
 
-		pp.profile.vignette.enabled = false;
+		m_pp.profile.vignette.enabled = false;
 		return true;
 	}
 
@@ -63,7 +62,7 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     }
 
     public bool pause() {
-        if (pp == null) {
+        if (m_pp == null) {
             return false;
         }
 
@@ -71,22 +70,22 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     }
 
 //    public bool resume() {
-//        if (pp == null) {
+//        if (m_pp == null) {
 //            return false;
 //        }
-//		pp.profile.vignette.enabled = true;
+//		m_pp.profile.vignette.enabled = true;
 //
 //        return true;
 //    }
 
     public bool setParam(eSkyPlayerCameraEffectParamBase param) {
-        if (pp == null) {
+        if (m_pp == null) {
             return false;
         }
 
 		if (param is eSkyPlayerCameraEffectVignetteParam) {
 			eSkyPlayerCameraEffectVignetteParam p = param as eSkyPlayerCameraEffectVignetteParam;
-			if (pp.profile.vignette.enabled == false) {
+			if (m_pp.profile.vignette.enabled == false) {
                 return false;
             }
 			m_vignetteModelSettings.color = p.color;
@@ -107,7 +106,7 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
                 break;
             }
 
-			pp.profile.vignette.settings = m_vignetteModelSettings;
+			m_pp.profile.vignette.settings = m_vignetteModelSettings;
         } else {
             return false;
         }
@@ -116,7 +115,7 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     }
 
     public eSkyPlayerCameraEffectParamBase getParam() {
-        if (pp == null) {
+        if (m_pp == null) {
             return null;
         }
 

@@ -6,17 +6,17 @@ function prototype:ctor(director)
     self.base:ctor(director);
     self.mainCamera_ = director.camera_;
     self.cameraTrack_ = nil;
-    self.additionalCamera_ = nil;
     self.isNeedAdditionalCamera_ = false;
     self.playingEvent = nil;
     self.cameraEffectManager = eSkyPlayerCameraEffectManager.New();
     self.param = nil;
+    self.additionalCamera_ = nil;
 end
 
 function prototype:initialize(trackObj)
     self.cameraTrack_ = trackObj;
     self.isEventPlaying_ = false;
-    self.cameraEffectManager:initialize(self.mainCamera_,nil);
+    self:_isNeedAdditionalCamera();
     return self.base:initialize(trackObj);
 end
 
@@ -32,7 +32,7 @@ function prototype:play()
     if self.mainCamera_ == nil then
         return false;
     end
-
+    self.cameraEffectManager:initialize(self.mainCamera_,self.additionalCamera_);
     self.base:play();
     return true;
 end
@@ -54,6 +54,18 @@ function prototype:isNeedAdditionalCamera()
     return self.isNeedAdditionalCamera_;
 end
 
+function prototype:setAdditionalCamera(camera)
+    self.additionalCamera_ = camera;
+end
+
+function prototype:_isNeedAdditionalCamera()
+    if self.cameraTrack_:isNeedAdditionalCamera() == true then
+        self.isNeedAdditionalCamera_ = true;
+    else 
+        self.isNeedAdditionalCamera_ = false;
+    end
+end
+
 function prototype:_update()
     if self.director_.timeLine_ >= self.director_.timeLength_ then
         self.base.isPlaying_ = false;
@@ -70,7 +82,7 @@ function prototype:_update()
         end
 
         if self.director_.timeLine_ >= beginTime and self.director_.timeLine_ <= endTime then
-            if event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.BLOOM then
+            if event.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.BLOOM then
                 if self.isEventPlaying_ == false then
                     self.param = self:_creatBloomEffect(event);
                     self:_updateBloomEffect(event, self.param, beginTime);
@@ -79,7 +91,7 @@ function prototype:_update()
                 else
                     self:_updateBloomEffect(event, self.param, beginTime);
                 end
-            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.CHROMATIC_ABERRATION then
+            elseif event.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.CHROMATIC_ABERRATION then
                 if self.isEventPlaying_ == false then
                     self.param = self:_creatChromaticAberrationEffect(event);
                     self:_updateChromaticAberrationEffect(event, self.param, beginTime);
@@ -88,7 +100,7 @@ function prototype:_update()
                 else
                     self:_updateChromaticAberrationEffect(event, self.param, beginTime);
                 end
-            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.DEPTH_OF_FIELD then
+            elseif event.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.DEPTH_OF_FIELD then
                 if self.isEventPlaying_ == false then
                     self.param = self:_creatDepthOfFieldEffect(event);
                     self:_updateDepthOfFieldEffect(event, self.param, beginTime);
@@ -97,7 +109,7 @@ function prototype:_update()
                 else
                     self:_updateDepthOfFieldEffect(event, self.param, beginTime);
                 end
-            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.VIGNETTE then
+            elseif event.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.VIGNETTE then
                 if self.isEventPlaying_ == false then
                     self.param = self:_creatVignetteEffect(event);
                     self:_updateVignetteEffect(event, self.param, beginTime);
@@ -106,7 +118,7 @@ function prototype:_update()
                 else
                     self:_updateVignetteEffect(event, self.param, beginTime);
                 end
-            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.BLACK then
+            elseif event.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.BLACK then
                 if self.isEventPlaying_ == false then
                     self.param = self:_creatBlackEffect(event);
                     self:_updateBlackEffect(event, self.param, beginTime);
@@ -115,15 +127,26 @@ function prototype:_update()
                 else
                     self:_updateBlackEffect(event, self.param, beginTime);
                 end
-            elseif event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
+            elseif event.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
+                if self.isEventPlaying_ == false then
+                    if self.additionalCamera_.enabled == true then
+                        self.param = self:_creatCrossFadeEffect(event);
+                        self:_updateCrossFadeEffect(event, self.param, beginTime);
+                        self.isEventPlaying_ = true;
+                        self.playingEvent = event;
+                    end
+                else
+                    self:_updateCrossFadeEffect(event, self.param, beginTime);
+                end
+            elseif event.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW then
                 self.playingEvent = event;
-                self:_updateFieldOfViewEffect(event, beginTime)
+                self:_updateFieldOfViewEffect(event, beginTime);
             end
         end
 
         if self.director_.timeLine_ < beginTime or self.director_.timeLine_ > endTime then
             if self.playingEvent == event then
-                if event.eventData_.motionType == definations.CAMERA_MOTION_TYPE.FIELD_OF_VIEW then
+                if event.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW then
                     self.mainCamera_.fieldOfView = 60;
                 else
                     self.cameraEffectManager:close(self.effectId);
@@ -263,5 +286,27 @@ function prototype:_updateBlackEffect(event, param, beginTime)
 
     self.cameraEffectManager:setParam(self.effectId,param);
 end
+
+function prototype:_creatCrossFadeEffect(event)
+    self.effectId = self.cameraEffectManager:createCrossFadeEffect(event.eventData_.timeLength);
+    self.cameraEffectManager:start(self.effectId);
+    local param = self.cameraEffectManager:getParam(self.effectId);
+
+    return param; 
+end
+
+function prototype:_updateCrossFadeEffect(event, param, beginTime)
+    if event == nil or param == nil then
+        return;
+    end 
+    param.progress = (self.director_.timeLine_ - beginTime) / event.eventData_.timeLength;
+    -- local deltaTime = (self.director_.timeLine_ - beginTime) / event.eventData_.timeLength ;
+    -- local names = {"alphaFrom", "alphaTo"};
+    -- for _, name in ipairs(names) do
+    --     param[name] = event.eventData_[name].values[1] + deltaTime * (event.eventData_[name].values[2] - event.eventData_[name].values[1]);
+    -- end
+    self.cameraEffectManager:setParam(self.effectId,param);
+end
+
 
 return prototype;
