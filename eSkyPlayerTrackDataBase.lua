@@ -102,7 +102,7 @@ function prototype:_loadHeaderFromBuff(buff)
     if trackType ~= self.trackFileType_ then
         return false;
     end
-    self.trackTitle = buff:ReadString();
+    local trackTitle = buff:ReadString();
     local eventCount = buff:ReadShort();
 
     if eventCount == 0 then

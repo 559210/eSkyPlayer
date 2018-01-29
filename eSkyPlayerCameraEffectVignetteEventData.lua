@@ -29,7 +29,10 @@ function prototype:_loadFromBuff(buff)
         elseif name == "mask" then
             local textureID = buff:ReadByte();
             self.texturePath = self.textures_[textureID];
-            self.resList_[#self.resList_ + 1] = self.texturePath;
+            local res = {};
+            res.path = self.texturePath;
+            res.count = -1;
+            self.resList_[#self.resList_ + 1] = res;
         elseif name == "rounded" then
             self.eventData_[name] = buff:ReadByte();
         else

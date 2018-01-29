@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.PostProcessing;
 using CameraTransitions;
 using UnityStandardAssets.ImageEffects;
+using System;
 
 public class AdditionalComponent<T> : ReferenceCountBase where T : class {
 	protected T m_object;
@@ -54,33 +55,13 @@ public class eSkyPlayerCameraEffectManager {
 		if (m_additionalComponents.ContainsKey (type) == false) {
 			PostProcessingBehaviour pp = m_mainCamera.gameObject.AddComponent<PostProcessingBehaviour> ();
 			pp.profile = new PostProcessingProfile ();
-//			m_additionalComponents [type] = new AdditionalComponent<PostProcessingBehaviour> (m_pp);
 			ReferenceCountBase value = new AdditionalComponent<PostProcessingBehaviour> (pp);
 			m_additionalComponents.Add (type, value);
 		}
 		var obj = m_additionalComponents [type] as AdditionalComponent<PostProcessingBehaviour> ;
 		return obj.getObject ();
 	}
-
-	public CameraTransition getComponentCameraTransitionBehaviour() {
-		ADDITIONAL_COMPONENT_TYPE type = ADDITIONAL_COMPONENT_TYPE.CAMERA_TRANSITIONS;
-		if (m_additionalComponents.ContainsKey(type) == false) {
-			CameraTransition ct = m_gameObject.AddComponent<CameraTransition> ();
-			ct.ProgressMode = CameraTransition.ProgressModes.Manual;
-			ct.Progress = 0;
-			// TODO: 下面3个参数可以作为将来的性能选项开关。
-//			ct.RenderTextureMode;
-//			ct.RenderTextureSize;
-//			ct.RenderTextureUpdateMode;
-
-			ReferenceCountBase value = new AdditionalComponent<CameraTransition> (ct);
-			m_additionalComponents.Add (type, value);
-		}
-
-		var obj = m_additionalComponents [type] as AdditionalComponent<CameraTransition>;
-		return obj.getObject ();
-	}
-
+		
 	public ScreenOverlay getComponentScreenOverlayBehaviour() {
 		ADDITIONAL_COMPONENT_TYPE type = ADDITIONAL_COMPONENT_TYPE.SCREEN_OVERLAY;
 		if (m_additionalComponents.ContainsKey(type) == false) {
@@ -93,6 +74,15 @@ public class eSkyPlayerCameraEffectManager {
 		var obj = m_additionalComponents [type] as AdditionalComponent<ScreenOverlay>;
 		return obj.getObject ();
 	}
+		
+	public Component addComponent(Type c){
+		Component component = m_gameObject.AddComponent(c);
+		return component;
+	}
+
+	public void removeComponent(Type c){
+		UnityEngine.Object.Destroy(m_gameObject.GetComponent(c));
+	}
 
 	public void releaseAdditionalComponent(ADDITIONAL_COMPONENT_TYPE type){
 		switch(type){
@@ -100,17 +90,10 @@ public class eSkyPlayerCameraEffectManager {
 			{
 				if (m_additionalComponents.ContainsKey (eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR) == true) {
 					var obj = m_additionalComponents [type] as AdditionalComponent<PostProcessingBehaviour>;
-					if (obj.releaseObject () == true)
+					if (obj.releaseObject () == true) {
 						m_additionalComponents.Remove (type);
-				}
-			}
-			break;
-		case eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.CAMERA_TRANSITIONS:
-			{
-				if (m_additionalComponents.ContainsKey (eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.CAMERA_TRANSITIONS) == true) {
-					var obj = m_additionalComponents [type] as AdditionalComponent<CameraTransition>;
-					if (obj.releaseObject () == true)
-						m_additionalComponents.Remove (type);
+						UnityEngine.Object.DestroyImmediate(m_mainCamera.gameObject.GetComponent<PostProcessingBehaviour> ());
+					}
 				}
 			}
 			break;
@@ -118,8 +101,10 @@ public class eSkyPlayerCameraEffectManager {
 			{
 				if (m_additionalComponents.ContainsKey (eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.SCREEN_OVERLAY) == true) {
 					var obj = m_additionalComponents [type] as AdditionalComponent<ScreenOverlay>;
-					if (obj.releaseObject () == true)
+					if (obj.releaseObject () == true) {
 						m_additionalComponents.Remove (type);
+						UnityEngine.Object.DestroyImmediate (m_mainCamera.gameObject.GetComponent<ScreenOverlay> ());
+					}
 				}
 			}
 			break;
@@ -152,9 +137,9 @@ public class eSkyPlayerCameraEffectManager {
 	//播放完成后清空资源
 	public void dispose(){
 		if (m_mainCamera != null) {
-			Object.Destroy(m_mainCamera.gameObject.GetComponent<PostProcessingBehaviour>());
-			Object.Destroy(m_mainCamera.gameObject.GetComponent<ScreenOverlay>());
-			Object.Destroy(m_gameObject.GetComponent<CameraTransition>());
+			UnityEngine.Object.DestroyImmediate(m_mainCamera.gameObject.GetComponent<PostProcessingBehaviour>());
+			UnityEngine.Object.DestroyImmediate(m_mainCamera.gameObject.GetComponent<ScreenOverlay>());
+			UnityEngine.Object.DestroyImmediate(m_gameObject.GetComponent<CameraTransition>());
 			m_additionalComponents = null;
 			m_mainCamera = null;
 			GameObject.Destroy (m_gameObject);
@@ -280,22 +265,13 @@ public class eSkyPlayerCameraEffectManager {
 		return true;
 	}
 
-	public bool close(int effectId){
+	public bool destroy(int effectId) {
 		var effect = getEffectObjectById (effectId);
 		if (effect == null) {
 			return false;
 		}
-
-		effect.close ();
-		return true;
-	}
-
-	public bool stop(int effectId) {
-		var effect = getEffectObjectById (effectId);
-		if (effect == null) {
-			return false;
-		}
-		return effect.stop ();
+		return effect.destroy ();
+		m_effects.Remove (effectId);
 	}
 
 	public bool pause (int effectId) {
@@ -306,16 +282,7 @@ public class eSkyPlayerCameraEffectManager {
 
 		return effect.pause ();
 	}
-
-//	public bool resume (int effectId) {
-//		var effect = getEffectObjectById (effectId);
-//		if (effect == null) {
-//			return false;
-//		}
-//
-//		return effect.resume ();
-//	}
-
+		
 	public bool setParam(int effectId, eSkyPlayerCameraEffectParamBase param) {
 		var effect = getEffectObjectById (effectId);
 		if (effect == null) {

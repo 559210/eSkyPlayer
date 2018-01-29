@@ -12,6 +12,11 @@ function prototype:_pushResource(resPathName, res, count)
         self.resourcePool[resPathName] = {resourceObj = res, count = 0};
         resInfo = self.resourcePool[resPathName];
     end
+    
+    if count == -1 then
+        self.resourcePool[resPathName].count = -1;
+        return;
+    end
 
     resInfo.count = resInfo.count + count;
 end
@@ -53,7 +58,6 @@ function prototype:prepare(resInfo, callback)
                 callback(false);
                 return;
             end
-
             callback(true);
         end);
 end
@@ -96,14 +100,26 @@ function prototype:releaseResource(pathName)
         return;
     end
 
+    if res.count == -1 then
+        return;
+    end
+
     res.count = res.count - 1;
 
     if res.count <= 0 then
         ddResManager.unloadAsset(pathName);
         self:_popResource(pathName);
     end
-
 end
+
+
+function prototype:releaseAllResource()
+    for pathName,v in pairs(self.resourcePool) do
+        ddResManager.unloadAsset(pathName);
+    end
+    self.resourcePool = nil;
+end
+
 
 local obj = prototype:create();
 

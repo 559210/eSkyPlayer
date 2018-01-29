@@ -9,10 +9,8 @@ public interface IeSkyPlayerCameraEffectBase {
 //    bool create(Camera cam);
     void dispose();
     bool start();
-	bool close ();
-    bool stop();
+	bool destroy();
 	bool pause ();
-//	bool resume ();
     bool setParam(eSkyPlayerCameraEffectParamBase param);
     eSkyPlayerCameraEffectParamBase getParam();
 }

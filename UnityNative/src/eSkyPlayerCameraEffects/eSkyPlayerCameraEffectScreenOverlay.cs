@@ -12,30 +12,27 @@ public class eSkyPlayerCameraEffectScreenOverlayParam : eSkyPlayerCameraEffectPa
 
 public class eSkyPlayerCameraEffectScreenOverlay : IeSkyPlayerCameraEffectBase {
 	protected eSkyPlayerCameraEffectManager m_manager = null;
-	protected ScreenOverlay m_screenOverlay;
+	protected ScreenOverlay m_screenOverlay = null;
 
 	public eSkyPlayerCameraEffectScreenOverlay(eSkyPlayerCameraEffectManager obj){
 		m_manager = obj;
 	}
 
 	public void dispose() {
-		m_manager.releaseAdditionalComponent (eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.SCREEN_OVERLAY);
+		var type = eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.SCREEN_OVERLAY;
+		m_screenOverlay.enabled = false;
+		m_manager.releaseAdditionalComponent (type);
 	}
 
 	public bool start() {
-		m_screenOverlay = m_manager.getComponentScreenOverlayBehaviour ();
-		if (m_screenOverlay == null) {
+		if (m_screenOverlay != null) {
 			return false;
 		}
-
+		m_screenOverlay = m_manager.getComponentScreenOverlayBehaviour ();
 		return true;
 	}
-
-	public bool close(){
-		return true;
-	}
-
-	public bool stop() {
+		
+	public bool destroy() {
 		dispose ();
 		return true;
 	}
@@ -47,15 +44,6 @@ public class eSkyPlayerCameraEffectScreenOverlay : IeSkyPlayerCameraEffectBase {
 
 		return true;
 	}
-
-	//	public bool resume() {
-	//		if (pp == null) {
-	//			return false;
-	//		}
-	////		pp.profile.bloom.enabled = true;
-	//
-	//		return true;
-	//	}
 
 	public bool setParam(eSkyPlayerCameraEffectParamBase param) {
 		if (m_screenOverlay == null) {

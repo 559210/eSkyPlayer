@@ -24,10 +24,12 @@ function prototype:_loadFromBuff(buff)
     self.eventData_.motionType = buff:ReadByte();
     local names = {"blendMode", "texture", "intensity"};
     self.eventData_.blendMode = buff:ReadByte();
-
     local textureID = buff:ReadByte();
     self.texturePath = self.textures_[textureID];
-    self.resList_[#self.resList_ + 1] = self.texturePath;
+    local res = {};
+    res.path = self.texturePath;
+    res.count = -1;
+    self.resList_[#self.resList_ + 1] = res;
 
     local info = {weights = {}, ranges = {}};
     self.eventData_.intensity = info;

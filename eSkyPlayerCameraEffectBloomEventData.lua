@@ -32,7 +32,10 @@ function prototype:_loadFromBuff(buff)
         elseif name == "textureBloom" then
             local textureID = buff:ReadByte();
             self.texturePath = self.textures_[textureID];
-            self.resList_[#self.resList_ + 1] = self.texturePath;
+            local res = {};
+            res.path = self.texturePath;
+            res.count = -1;
+            self.resList_[#self.resList_ + 1] = res;
         else
             local info = {weights = {}, ranges = {}};
             self.eventData_[name] = info;

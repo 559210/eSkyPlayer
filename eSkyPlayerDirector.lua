@@ -10,6 +10,7 @@ function prototype:ctor()
     self.players_ = nil;
     self.camera_ = nil;
     self.additionalCamera_ = nil;
+    self.cameraEffectManager_ = nil;
 end
 
 
@@ -19,16 +20,12 @@ function prototype:initialize(camera)
     self.players_ = {}; 
     self.camera_ = camera;
     self.resourceManager_ = newClass("eSkyPlayer/eSkyPlayerResourceManager");
+    self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
 end
 
 
 function prototype:uninitialize()
     self.time_ = nil;
-    if #self.players_ ~= 0 then
-        for i = 1,#self.players_ do
-            self.players_[i]:uninitialize();
-        end
-    end
     self.players_ = nil; 
     self.camera_ = nil;
     if self.timerId_ ~= nil then
@@ -39,6 +36,10 @@ function prototype:uninitialize()
         GameObject.Destroy(self.additionalCamera_.gameObject); 
         self.additionalCamera_ = nil;
     end
+    self.cameraEffectManager_:dispose();
+    self.cameraEffectManager_ = nil;
+    self.resourceManager_:releaseAllResource();
+    self.resourceManager_ = nil;
 end
 
 
@@ -76,13 +77,13 @@ function prototype:load(filename,callback)
             callback(false);
             return;
         end
+        if self:_createPlayer(project) == false then
+            callback(false);
+            return;
+        end
+
         local resList_ = self:_getResources();
         self.resourceManager_:prepare(resList_,function (isPrepared)
-            if self:_createPlayer(project) == false then
-                callback(false);
-                return;
-            end
-
             self:_createAdditionalCamera();
             callback(isPrepared);
         end);
@@ -90,6 +91,7 @@ end
 
 
 function prototype:play()
+    self.cameraEffectManager_:initialize(self.camera_,self.additionalCamera_);
     if #self.players_ == 0 then
         return false;
     end
@@ -151,10 +153,7 @@ function prototype:_getResources()
         local res = self.players_[i]:getResources();
         if res ~= nil then
             for j = 1,#res do
-                local resource = {};
-                resource.path = res[j];
-                resource.count = 1;
-                resList_[#resList_ + 1] = resource;
+                resList_[#resList_ + 1] = res[j];
             end
         end
     end

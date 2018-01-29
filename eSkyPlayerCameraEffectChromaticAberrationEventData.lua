@@ -36,7 +36,10 @@ function prototype:_loadFromBuff(buff)
 
     local textureID = buff:ReadByte();
         self.texturePath = self.textures_[textureID];
-        self.resList_[#self.resList_ + 1] = self.texturePath;
+        local res = {};
+        res.path = self.texturePath;
+        res.count = -1;
+        self.resList_[#self.resList_ + 1] = res;
     return true;
 end
 

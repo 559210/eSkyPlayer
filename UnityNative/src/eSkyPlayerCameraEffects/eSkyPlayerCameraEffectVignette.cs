@@ -19,73 +19,55 @@ public class eSkyPlayerCameraEffectVignetteParam : eSkyPlayerCameraEffectParamBa
 
 public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     protected Camera m_camera = null;
-    protected PostProcessingBehaviour m_pp = null;
-	protected eSkyPlayerCameraEffectManager manager = null;
+	protected PostProcessingBehaviour m_postProcessing = null;
+	protected eSkyPlayerCameraEffectManager m_manager = null;
 	protected VignetteModel.Settings m_vignetteModelSettings;
 
 	public eSkyPlayerCameraEffectVignette(eSkyPlayerCameraEffectManager obj){
-		manager = obj;
+		m_manager = obj;
 	}
 
 
     public void dispose() {
 		var type = eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR;
-		manager.releaseAdditionalComponent(type);
+		m_postProcessing.profile.vignette.enabled = false;
+		m_manager.releaseAdditionalComponent(type);
+
 //        m_depthOfFieldModelSettings = null;
 //        m_depthOfFieldModelDepthOfFieldSetting = null;
     }
 
     public bool start() {
-		m_pp = manager.getComponentPostProcessingBehaviour ();
-		if (m_pp == null) {
+		if (m_postProcessing != null) {
 			return false;
 		}
-		m_pp.profile.vignette.enabled = true;
-
-		m_vignetteModelSettings = m_pp.profile.vignette.settings;
+		m_postProcessing = m_manager.getComponentPostProcessingBehaviour ();
+		m_postProcessing.profile.vignette.enabled = true;
+		m_vignetteModelSettings = m_postProcessing.profile.vignette.settings;
 
         return true;
     }
-
-	public bool close(){
-		if (m_pp == null) {
-			return false;
-		}
-
-		m_pp.profile.vignette.enabled = false;
-		return true;
-	}
-
-    public bool stop() {
+		
+	public bool destroy() {
         dispose ();
         return true;
     }
 
     public bool pause() {
-        if (m_pp == null) {
+		if (m_postProcessing == null) {
             return false;
         }
-
         return true;
     }
 
-//    public bool resume() {
-//        if (m_pp == null) {
-//            return false;
-//        }
-//		m_pp.profile.vignette.enabled = true;
-//
-//        return true;
-//    }
-
     public bool setParam(eSkyPlayerCameraEffectParamBase param) {
-        if (m_pp == null) {
+		if (m_postProcessing == null) {
             return false;
         }
 
 		if (param is eSkyPlayerCameraEffectVignetteParam) {
 			eSkyPlayerCameraEffectVignetteParam p = param as eSkyPlayerCameraEffectVignetteParam;
-			if (m_pp.profile.vignette.enabled == false) {
+			if (m_postProcessing.profile.vignette.enabled == false) {
                 return false;
             }
 			m_vignetteModelSettings.color = p.color;
@@ -106,7 +88,7 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
                 break;
             }
 
-			m_pp.profile.vignette.settings = m_vignetteModelSettings;
+			m_postProcessing.profile.vignette.settings = m_vignetteModelSettings;
         } else {
             return false;
         }
@@ -115,7 +97,7 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
     }
 
     public eSkyPlayerCameraEffectParamBase getParam() {
-        if (m_pp == null) {
+		if (m_postProcessing == null) {
             return null;
         }
 
@@ -137,7 +119,6 @@ public class eSkyPlayerCameraEffectVignette : IeSkyPlayerCameraEffectBase {
 			p.mode = 2;
             break;
         }
-
         return p;
     }
 }

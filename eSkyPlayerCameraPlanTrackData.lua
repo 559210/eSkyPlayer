@@ -8,9 +8,4 @@ function prototype:ctor()
     self.eventsSupportted_ = {definations.EVENT_TYPE.CAMERA_PLAN};
 end
 
-
-function prototype:_loadFromBuff(buff)
-    
-end
-
 return prototype;

@@ -9,7 +9,6 @@ public class eSkyPlayerCameraEffectTransitionParam : eSkyPlayerCameraEffectParam
 
 
 public class eSkyPlayerCameraEffectTransitions : IeSkyPlayerCameraEffectBase {
-	protected CameraTransition m_ct = null;
 	protected eSkyPlayerCameraEffectManager m_manager = null;
 	protected CameraTransition m_cameraTransition = null;
 
@@ -26,22 +25,26 @@ public class eSkyPlayerCameraEffectTransitions : IeSkyPlayerCameraEffectBase {
 
 	public eSkyPlayerCameraEffectTransitions(eSkyPlayerCameraEffectManager obj){
 		m_manager = obj;
-		m_cameraTransition = m_manager.getComponentCameraTransitionBehaviour ();
 	}
 
 
 	public void dispose()
 	{
-		m_manager.releaseAdditionalComponent (eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR);
+		m_cameraTransition.enabled = false;
+		m_manager.removeComponent (typeof(CameraTransition));
 	}
 
 
 	public bool start()
-	{	m_ct = m_manager.getComponentCameraTransitionBehaviour ();
-		if (m_ct == null) {
+	{	
+		if (m_cameraTransition != null) {
 			return false;
 		}
-		m_ct.enabled = true;
+		// TODO: CameraTransitionBehaviour不能支持多个transition特效公用一个behaviour对象
+		m_cameraTransition = m_manager.addComponent(typeof(CameraTransition)) as CameraTransition;
+		m_cameraTransition.ProgressMode = CameraTransition.ProgressModes.Manual;
+		m_cameraTransition.Progress = 0;
+		m_cameraTransition.enabled = true;
 
 		if (m_cameraTransition == null || m_manager == null || m_duration <= 0) {
 			return false;
@@ -51,21 +54,11 @@ public class eSkyPlayerCameraEffectTransitions : IeSkyPlayerCameraEffectBase {
 		if (from == null || to == null) {
 			return false;
 		}
-
 		m_cameraTransition.DoTransition (CameraTransitionEffects.CrossFade, from, to, m_duration, null);
 		return true;
 	}
 
-	public bool close(){
-		if (m_ct == null) {
-			return false;
-		}
-
-		m_ct.enabled = false;
-		return true;
-	}
-
-	public bool stop()
+	public bool destroy()
 	{
 		dispose ();
 		return true;
