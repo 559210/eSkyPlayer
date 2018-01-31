@@ -11,6 +11,7 @@ function prototype:ctor()
     self.title_ = nil;
     self.pathHeader_ = nil;
     self.eventsSupportted_ = nil;
+    self.mainSceneModelPath_ = nil;
 end
 
 
@@ -100,16 +101,16 @@ function prototype:_loadHeaderFromBuff(buff)
     local smallVersion = buff:ReadShort();
     local trackType = buff:ReadByte();
     if trackType ~= self.trackFileType_ then
-        return false;
+       return false;
     end
     self.trackTitle = buff:ReadString();
+    if trackType == definations.TRACK_FILE_TYPE.SCENE then
+        self.mainSceneModelPath_ = buff:ReadString(); --目前仅发现场景文件不同与其他,场景文件多读取一个modelpath,后续如果此处无法通用,可考虑修改成虚函数形式
+    end
     local eventCount = buff:ReadShort();
-
     if eventCount == 0 then
         return true;
     end
-
-
     for e = 1, eventCount do
         local eventFile = {};
         local eventObj = nil;
@@ -117,15 +118,12 @@ function prototype:_loadHeaderFromBuff(buff)
         if self.eventsSupportted_ == nil then
             return false;
         end
-
         eventFile.beginTime = buff:ReadFloat();
         eventFile.name = buff:ReadString();
         eventFile.storeType = buff:ReadByte();
         eventFile.isLoopPlay = misc.getBoolByByte(buff:ReadByte());
-        eventFile.labelID = buff:ReadByte();
-
-        
-        if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN then 
+        eventFile.labelID = buff:ReadByte(); 
+        if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN then
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraPlanEventData");
             eventObj:initialize();
             if self:isSupported(eventObj) == false then
@@ -164,9 +162,20 @@ function prototype:_loadHeaderFromBuff(buff)
             if self:isSupported(eventObj) == false then
                 return false;
             end
-            if eventObj:loadEvent( "mod/plans/scene/" .. eventFile.name) == false then
+            if eventObj:loadEvent("mod/plans/scene/" .. eventFile.name) == false then
                 return false;
             end
+        elseif self.trackType_ == definations.TRACK_TYPE.SCENE_MOTION then
+            eventObj = newClass("eSkyPlayer/eSkyPlayerSceneMotionEventData");
+            eventObj:initialize();
+            if self:isSupported(eventObj) == false then
+                return false;
+            end
+            local scene_path = string.format("mod/plans/scene/" ..self.title_ .."/scene/" ..eventFile.name ..".byte");
+            if eventObj:loadEvent(scene_path) == false then
+                return false;
+            end
+
         elseif self.trackType_ == definations.TRACK_TYPE.CAMERA_MOTION then
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraMotionEventData");
             eventObj:initialize();
@@ -292,7 +301,7 @@ function prototype:_loadFromBuff()
 end
 
 
-function prototype.createObject()
+function prototype.createObject(param)      -- param是一个table,里面存放具体创建某个track需要的参数
     logError("eSkyPlayerTrackDataBase.createObject -----> ");
     return nil;
 end

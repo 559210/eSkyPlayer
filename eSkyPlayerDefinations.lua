@@ -8,6 +8,8 @@ local definations = {
         SCENE_PLAN = 4,
         CAMERA_MOTION = 5,
         CAMERA_EFFECT = 6,
+        SCENE_MOTION = 7,
+        SCENE_EFFECT = 8,
     };
 
     EVENT_TYPE = {
@@ -18,6 +20,8 @@ local definations = {
         SCENE_PLAN = 4,
         CAMERA_MOTION = 5,
         CAMERA_EFFECT = 6,
+        SCENE_MOTION = 7,
+        SCENE_EFFECT = 8,
     };
 
     TRACK_FILE_TYPE = {
@@ -34,6 +38,8 @@ local definations = {
         EFFECT = 10,
         AVATAR_PART = 11,
         TWO_D_OBJECT = 12,
+        SCENE_MOTION = 13,
+        SCENE_EFFECT = 14,
     };
 
     CAMERA_MOTION_TYPE ={
@@ -47,6 +53,7 @@ local definations = {
         USER_LUT = 7,
         VIGNETTE = 8,
     };
+
 }
 
 return definations;

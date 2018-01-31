@@ -1,7 +1,6 @@
 local prototype = class("eSkyPlayerDirector");
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
-
 function prototype:ctor()
     self.timerId_ = 0;
     self.timeLength_ = 0;
@@ -49,10 +48,9 @@ function prototype:loadImmediately(filename)                --filename暂时只�
     -- else                                         -- filename is project
         local project = newClass("eSkyPlayer/eSkyPlayerProjectData");
         project:initialize();
-        if project:loadProject(filename) == false then 
+        if project:loadProject(filename) == false then
             return false;
         end
-
         if self:_createPlayer(project) == false then
             return false;
         end
@@ -60,6 +58,7 @@ function prototype:loadImmediately(filename)                --filename暂时只�
         if resList_ == nil then
             return false;
         end
+
         if self.resourceManager_:prepareImmediately(resList_) == false then
             return false;
         end
@@ -76,18 +75,30 @@ function prototype:load(filename,callback)
             callback(false);
             return;
         end
+        if self:_createPlayer(project) == false then
+            callback(false);
+            return;
+        end
         local resList_ = self:_getResources();
         self.resourceManager_:prepare(resList_,function (isPrepared)
-            if self:_createPlayer(project) == false then
-                callback(false);
-                return;
-            end
-
             self:_createAdditionalCamera();
+            for i = 1, #self.players_ do
+                self.players_[i]:onResourceLoaded(self.resourceManager_);    
+            end
             callback(isPrepared);
         end);
 end
 
+function prototype:uninitialize()
+    logError("uninitialize()");
+    if nil == self.players_ or #self.players_ < 1 then
+        logError("self.players_ is nil");
+        return;
+    end
+    for i = 1, #self.players_ do
+        self.players_[i]:uninitialize(self.resourceManager_);
+    end
+end
 
 function prototype:play()
     if #self.players_ == false then
@@ -185,11 +196,11 @@ end
 
 
 function prototype:_createPlayer(obj)
+
     for i = 1, obj:getTrackCount() do
         local track = obj:getTrackAt(i);
         if track:getEventCount() > 0 then    
             local event_ = track:getEventAt(1);
-            
             if event_:isProject() then
                 self:_createPlayer(event_:getProjectData());
             end
@@ -199,8 +210,8 @@ function prototype:_createPlayer(obj)
         if track:getTrackLength() > self.timeLength_ then
             self.timeLength_ = track:getTrackLength();
         end
-
         local trackType = track:getTrackType();
+        logError("trackType =" ..trackType);
         if trackType == definations.TRACK_TYPE.CAMERA_MOTION then
             local player = newClass ("eSkyPlayer/eSkyPlayerCameraMotionPlayer",self);
             self.players_[#self.players_ + 1] = player;
@@ -213,16 +224,11 @@ function prototype:_createPlayer(obj)
             local player = newClass ("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
             self.players_[#self.players_ + 1] = player;
             player:initialize(track);
-         -- elseif trackType == TrackEventType.MusicType then
-         --     local player = newClass ("eSkyPlayer/eSkyPlayerMusicPlayer",self);
-         --     player:initialize(track);
-         --     self.players_[#self.players_ + 1] = player;
-         -- elseif trackType == TrackEventType.SceneType then
-         --     local player = newClass ("eSkyPlayer/eSkyPlayerScenePlayer",self);
-         --     player:initialize(track);
-         --     self.players_[#self.players_ + 1] = player;
-         -- elseif trackType == TrackEventType.SceneType then
-        else 
+          elseif trackType == definations.TRACK_TYPE.SCENE_PLAN then
+            local player = newClass ("eSkyPlayer/eSkyPlayerScenePlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        else
             return false;
         end
     end

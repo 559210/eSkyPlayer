@@ -15,6 +15,10 @@ end
 
 
 function prototype:loadProject(filename)
+    local isScene = string.match(filename,"mod/plans/scene/.+");
+    if isScene then
+        self:_loadSceneConfig(filename);
+    end
     local tracks, isLoopPlay = self:_loadConfig(filename);
     for i = 1,#tracks do
         local trackPath = filename .. "/" .. tracks[i].name .. ".byte";
@@ -25,6 +29,21 @@ function prototype:loadProject(filename)
     return true;
 end
 
+function prototype:_loadSceneConfig(filename)
+    local path = Util.AppDataRoot .. "/" ..filename .. "/@sceneconfig.byte";
+    local buff = misc.readAllBytes(path);
+    if nil == buff then return false; end;
+    local stageName = buff:ReadString();
+    local stagePath = buff:ReadString();
+
+    local sceneTrack = require("eSkyPlayer/eSkyMainSceneVirtualTrack");
+    local virtualTrack = sceneTrack.createObject({stagePath = stagePath});
+    -- TODO: 考虑是否要将track放入容器的功能抽成函数
+    if nil ~= virtualTrack then
+        self.projectFile_.tracks[#self.projectFile_.tracks + 1] = virtualTrack;    
+    end
+
+end
 
 function  prototype:_loadConfig(filename)
     local path = Util.AppDataRoot .. "/" ..filename .. "/config.byte";
@@ -37,9 +56,9 @@ function  prototype:_loadConfig(filename)
         track.name = buff:ReadString();
         tracks[#tracks + 1] = track;
     end
+    
     return tracks, isLoopPlay;
 end
-
 
 
 function prototype:_loadTracks(trackPath)
@@ -64,18 +83,32 @@ function prototype:_loadTracks(trackPath)
         if trackData:loadTrack(trackPath) == false then
             return false;
         end
+    elseif string.match(trackPath,"mod/plans/scene/.-/sceneTrack") then
+        trackData = newClass("eSkyPlayer/eSkyPlayerSceneTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath) == false then
+            return false;
+        end
+     elseif string.match(trackPath,"mod/projects/.+/sceneTrack")then
+        trackData = newClass("eSkyPlayer/eSkyPlayerScenePlanTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath) == false then
+            return false;
+        end
     else
         return true;
     end
 
-    self.projectFile_.tracks[#self.projectFile_.tracks + 1] = trackData;
-    if trackData:getTrackType() ~= definations.TRACK_TYPE.CAMERA_PLAN and
-        trackData:getTrackType() ~= definations.TRACK_TYPE.MOTION_PLAN and
-        trackData:getTrackType() ~= definations.TRACK_TYPE.MUSIC_PLAN and
-        trackData:getTrackType() ~= definations.TRACK_TYPE.SCENE_PLAN then
+    if trackData ~= nil then
+        self.projectFile_.tracks[#self.projectFile_.tracks + 1] = trackData;
+        if trackData:getTrackType() ~= definations.TRACK_TYPE.CAMERA_PLAN and
+            trackData:getTrackType() ~= definations.TRACK_TYPE.MOTION_PLAN and
+            trackData:getTrackType() ~= definations.TRACK_TYPE.MUSIC_PLAN and
+            trackData:getTrackType() ~= definations.TRACK_TYPE.SCENE_PLAN then
 
-        if trackData:getTrackLength() > self.trackMaxLength_ then
-            self.trackMaxLength_ = trackData:getTrackLength();
+            if trackData:getTrackLength() > self.trackMaxLength_ then
+                self.trackMaxLength_ = trackData:getTrackLength();
+            end
         end
     end
     return true;

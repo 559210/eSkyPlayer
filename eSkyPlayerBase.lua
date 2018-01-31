@@ -20,6 +20,11 @@ function prototype:uninitialize()
     return true;
 end
 
+
+function prototype:onResourceLoaded()
+end
+
+
 function prototype:isNeedAdditionalCamera()
     return false;
 end
