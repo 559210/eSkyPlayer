@@ -58,9 +58,6 @@ function prototype:loadImmediately(filename)                --filename暂时只�
             return false;
         end
         local resList_ = self:_getResources();
-        if resList_ == nil then
-            return false;
-        end
         if self.resourceManager_:prepareImmediately(resList_) == false then
             return false;
         end
@@ -81,7 +78,6 @@ function prototype:load(filename,callback)
             callback(false);
             return;
         end
-
         local resList_ = self:_getResources();
         self.resourceManager_:prepare(resList_,function (isPrepared)
             self:_createAdditionalCamera();
@@ -184,6 +180,7 @@ end
 
 
 function prototype:_createPlayer(obj)
+
     for i = 1, obj:getTrackCount() do
         local track = obj:getTrackAt(i);
         if track:getEventCount() > 0 then    

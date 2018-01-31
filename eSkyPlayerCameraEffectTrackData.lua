@@ -1,9 +1,9 @@
-local prototype = class("eSkyPlayerCameraEffectTrackData", require("eSkyPlayer/eSkyPlayerTrackDataBase"));
+local prototype = class("eSkyPlayerCameraEffectTrackData", require("eSkyPlayer/eSkyPlayerCameraTrackDataBase"));
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 
 function prototype:ctor()
-    self.base:ctor();
+    prototype.super.ctor(self);       --由于多重继承，只能用prototype.super这种写法
     self.trackType_ = definations.TRACK_TYPE.CAMERA_EFFECT;
     self.trackFileType_ = definations.TRACK_FILE_TYPE.CAMERA_MOTION;
     self.eventsSupportted_ = {definations.EVENT_TYPE.CAMERA_EFFECT};
