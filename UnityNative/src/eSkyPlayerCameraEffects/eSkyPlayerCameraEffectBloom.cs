@@ -18,76 +18,60 @@ public class eSkyPlayerCameraEffectBloomParam : eSkyPlayerCameraEffectParamBase 
 
 public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
 //    protected Camera m_camera = null;
-    protected PostProcessingBehaviour pp = null;
-	protected eSkyPlayerCameraEffectManager manager = null;
+	protected PostProcessingBehaviour m_postProcessing = null;
+	protected eSkyPlayerCameraEffectManager m_manager = null;
+
+
     protected BloomModel.Settings m_bloomModelSettings;
     protected BloomModel.BloomSettings m_bloomModelBloomSetting;
 
 
 	public eSkyPlayerCameraEffectBloom(eSkyPlayerCameraEffectManager obj){
-		manager = obj;
+		m_manager = obj;
 	}
 
 
     public void dispose() {
 		var type = eSkyPlayerCameraEffectManager.ADDITIONAL_COMPONENT_TYPE.POST_PROCESSING_BEHAVIOUR;
-		manager.releaseAdditionalComponent (type);
+		m_postProcessing.profile.bloom.enabled = false;
+		m_manager.releaseAdditionalComponent (type);
     }
 
     public bool start() {
-		pp = manager.getComponentPostProcessingBehaviour ();
-		if (pp == null) {
+		if (m_postProcessing != null) {
 			return false;
 		}
+		m_postProcessing = m_manager.getComponentPostProcessingBehaviour ();
+		m_postProcessing.profile.bloom.enabled = true;
 
-		pp.profile.bloom.enabled = true;
-
-        m_bloomModelSettings = pp.profile.bloom.settings;
+		m_bloomModelSettings = m_postProcessing.profile.bloom.settings;
         m_bloomModelBloomSetting = m_bloomModelSettings.bloom;
 
         return true;
     }
-
-	public bool close(){
-		pp = manager.getComponentPostProcessingBehaviour ();
-		if (pp == null) {
-			return false;
-		}
-
-		pp.profile.bloom.enabled = false;
-		return true;
-	}
-
-    public bool stop() {
+		
+	public bool destroy() {
 		dispose ();
 		return true;
     }
 
 	public bool pause() {
-		if (pp == null) {
+		if (m_postProcessing == null) {
 			return false;
 		}
 
 		return true;
 	}
 
-//	public bool resume() {
-//		if (pp == null) {
-//			return false;
-//		}
-////		pp.profile.bloom.enabled = true;
-//
-//		return true;
-//	}
 
     public bool setParam(eSkyPlayerCameraEffectParamBase param) {
-		if (pp == null) {
+		if (m_postProcessing == null) {
 			return false;
 		}
 
 		if (param is eSkyPlayerCameraEffectBloomParam) {
 			eSkyPlayerCameraEffectBloomParam p = param as eSkyPlayerCameraEffectBloomParam;
-			if (pp.profile.bloom.enabled == false) {
+			if (m_postProcessing.profile.bloom.enabled == false) {
 				return false;
 			}
 			m_bloomModelBloomSetting.intensity = p.intensity;
@@ -100,7 +84,7 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
 			m_bloomModelSettings.lensDirt.texture = p.lenDirtTexture;
 
 			m_bloomModelSettings.bloom = m_bloomModelBloomSetting;
-			pp.profile.bloom.settings = m_bloomModelSettings;
+			m_postProcessing.profile.bloom.settings = m_bloomModelSettings;
 		} else {
 			return false;
 		}
@@ -109,7 +93,7 @@ public class eSkyPlayerCameraEffectBloom : IeSkyPlayerCameraEffectBase {
     }
 
     public eSkyPlayerCameraEffectParamBase getParam() {
-		if (pp == null) {
+		if (m_postProcessing == null) {
 			return null;
 		}
 
