@@ -42,7 +42,7 @@ local definations = {
         SCENE_EFFECT = 14,
     };
 
-    CAMERA_MOTION_TYPE ={
+    CAMERA_EFFECT_TYPE ={
         UNKNOW = 0,
         BLOOM = 1,
         BLACK = 2,
