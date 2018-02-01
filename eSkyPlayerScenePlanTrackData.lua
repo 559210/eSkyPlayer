@@ -21,11 +21,6 @@ function prototype:getResources()
         for j = 1, #tracks do
             local path = tracks[j]:getResources();
             local modelpath = tracks[j].mainSceneModelPath_;
-<<<<<<< HEAD
-            local trackTimeLength_ = tracks[j].trackTimeLength_;
-            logError("trackTimeLength_ =" ..inspect(trackTimeLength_));
-=======
->>>>>>> 1d71da900a5290accefce6c0b171ed5628b81f9d
             if nil ~= path then
                 resList_[#resList_ + 1] = path;
             end

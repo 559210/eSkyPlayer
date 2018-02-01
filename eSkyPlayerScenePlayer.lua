@@ -53,10 +53,6 @@ function prototype:setResouces(resPath)
 end
 
 function prototype:play()
-<<<<<<< HEAD
-	logError("self.trackObj =" ..inspect(self.trackObj));
-=======
->>>>>>> 1d71da900a5290accefce6c0b171ed5628b81f9d
     return true;
 end
 
