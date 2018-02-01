@@ -3,7 +3,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 
 function prototype:ctor()
-    prototype.super.ctor(self);       --由于多重继承，只能用prototype.super这种写法
+    prototype.super.ctor(self);       --鐢变簬澶氶噸缁ф壙锛屽彧鑳界敤prototype.super杩欑鍐欐硶
     self.trackType_ = definations.TRACK_TYPE.CAMERA_EFFECT;
     self.trackFileType_ = definations.TRACK_FILE_TYPE.CAMERA_MOTION;
     self.eventsSupportted_ = {definations.EVENT_TYPE.CAMERA_EFFECT};
