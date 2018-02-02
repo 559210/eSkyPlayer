@@ -32,7 +32,14 @@ end
 
 function prototype:getResources()
 	self.resList_ = self.trackObj:getResources();
-	return self.resList_;
+	local loadResList = {}
+	for i = 1, #self.resList_ do
+		local t = {}
+		t.path = self.resList_[i];
+		t.count = 1;
+		loadResList[#loadResList + 1] = t;
+	end
+	return loadResList;
 end
 
 function prototype:onResourceLoaded(resManager)

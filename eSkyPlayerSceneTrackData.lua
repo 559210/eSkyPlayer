@@ -1,9 +1,9 @@
-local prototype = class("eSkyPlayerSceneTrackData", require("eSkyPlayer/eSkyPlayerTrackDataBase"));
+local prototype = class("eSkyPlayerSceneTrackData", require("eSkyPlayer/eSkyPlayerSceneTrackDataBase"));
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 
 function prototype:ctor()
-    self.base:ctor();
+    prototype.super.ctor(self);
     self.trackType_ = definations.TRACK_TYPE.SCENE_MOTION; --7
     self.trackFileType_ = definations.TRACK_FILE_TYPE.SCENE;--6
     self.eventsSupportted_ = {definations.EVENT_TYPE.SCENE_MOTION};--7

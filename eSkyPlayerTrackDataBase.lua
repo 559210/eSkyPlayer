@@ -11,6 +11,7 @@ function prototype:ctor()
     self.title_ = nil;
     self.pathHeader_ = nil;
     self.eventsSupportted_ = nil;
+    self.mainSceneModelPath_ = nil;
 end
 
 
@@ -102,7 +103,10 @@ function prototype:_loadHeaderFromBuff(buff)
     if trackType ~= self.trackFileType_ then
         return false;
     end
-    
+    if trackType == definations.TRACK_FILE_TYPE.SCENE then
+        local name = buff:ReadString();
+        self.mainSceneModelPath_ = buff:ReadString();
+    end
     return true;
 end
 

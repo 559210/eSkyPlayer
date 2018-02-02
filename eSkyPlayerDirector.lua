@@ -53,11 +53,11 @@ function prototype:loadImmediately(filename)                --filename暂时只�
         if project:loadProject(filename) == false then 
             return false;
         end
-
         if self:_createPlayer(project) == false then
             return false;
         end
         local resList_ = self:_getResources();
+
         if self.resourceManager_:prepareImmediately(resList_) == false then
             return false;
         end
@@ -81,6 +81,9 @@ function prototype:load(filename,callback)
         local resList_ = self:_getResources();
         self.resourceManager_:prepare(resList_,function (isPrepared)
             self:_createAdditionalCamera();
+            for i = 1, #self.players_ do
+                self.players_[i]:onResourceLoaded(self.resourceManager_);    
+            end
             callback(isPrepared);
         end);
 end
@@ -207,15 +210,10 @@ function prototype:_createPlayer(obj)
                 local player = newClass ("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
                 self.players_[#self.players_ + 1] = player;
                 player:initialize(track);
-             -- elseif trackType == TrackEventType.MusicType then
-             --     local player = newClass ("eSkyPlayer/eSkyPlayerMusicPlayer",self);
-             --     player:initialize(track);
-             --     self.players_[#self.players_ + 1] = player;
-             -- elseif trackType == TrackEventType.SceneType then
-             --     local player = newClass ("eSkyPlayer/eSkyPlayerScenePlayer",self);
-             --     player:initialize(track);
-             --     self.players_[#self.players_ + 1] = player;
-             -- elseif trackType == TrackEventType.SceneType then
+            elseif trackType == definations.TRACK_TYPE.SCENE_PLAN then
+                local player = newClass ("eSkyPlayer/eSkyPlayerScenePlayer",self);
+                self.players_[#self.players_ + 1] = player;
+                player:initialize(track);
             else 
                 return false;
             end
