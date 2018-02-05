@@ -11,6 +11,7 @@ function prototype:ctor(director)
     self.cameraEffectManager_ = director.cameraEffectManager_;
     self.param = nil;
     self.additionalCamera_ = nil;
+    self.resourceManager = require("eSkyPlayer/eSkyPlayerResourceManager");
 end
 
 function prototype:initialize(trackObj)
@@ -146,7 +147,7 @@ function prototype:_update()
                     self.mainCamera_.fieldOfView = 60;
                 else
                     self.cameraEffectManager_:destroy(self.effectId);
-                    self.director_.resourceManager_:releaseResource(event.texturePath);
+                    self.resourceManager:releaseResource(event.texturePath);
                 end
                 self.isEventPlaying_ = false;
                 self.playingEvent = nil;
@@ -161,7 +162,7 @@ function prototype:_creatBloomEffect(event)
     self.cameraEffectManager_:start(self.effectId);
     local param = self.cameraEffectManager_:getParam(self.effectId);
     param.antiFlicker = misc.getBoolByByte(event.eventData_.antiFlicker);
-    param.lenDirtTexture = self.director_.resourceManager_:getResource(event.texturePath);
+    param.lenDirtTexture = self.resourceManager:getResource(event.texturePath);
     return param; 
 end
 
@@ -187,7 +188,7 @@ function prototype:_creatChromaticAberrationEffect(event)
     self.cameraEffectManager_:start(self.effectId);
     local param = self.cameraEffectManager_:getParam(self.effectId);
 
-    param.spectralTexture = self.director_.resourceManager_:getResource(event.texturePath);
+    param.spectralTexture = self.resourceManager:getResource(event.texturePath);
     return param; 
 end
 
@@ -227,7 +228,7 @@ function prototype:_creatVignetteEffect(event)
     local param = self.cameraEffectManager_:getParam(self.effectId);
     param.mode = event.eventData_.mode - 1;
     param.rounded = misc.getBoolByByte(event.eventData_.rounded);
-    param.mask = self.director_.resourceManager_:getResource(event.texturePath);
+    param.mask = self.resourceManager:getResource(event.texturePath);
     return param; 
 end
 
@@ -269,7 +270,7 @@ function prototype:_creatBlackEffect(event)
     self.cameraEffectManager_:start(self.effectId);
     local param = self.cameraEffectManager_:getParam(self.effectId);
     param.blendMode = event.eventData_.blendMode - 1;
-    param.texture = self.director_.resourceManager_:getResource(event.texturePath);
+    param.texture = self.resourceManager:getResource(event.texturePath);
     return param; 
 end
 

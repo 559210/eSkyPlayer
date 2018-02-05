@@ -19,7 +19,6 @@ function prototype:initialize(camera)
     self.timerId_ = TimersEx.Add(0, 0, delegate(self, self._update));
     self.players_ = {}; 
     self.camera_ = camera;
-    self.resourceManager_ = newClass("eSkyPlayer/eSkyPlayerResourceManager");
     self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
 end
 
@@ -38,8 +37,8 @@ function prototype:uninitialize()
     end
     self.cameraEffectManager_:dispose();
     self.cameraEffectManager_ = nil;
-    self.resourceManager_:releaseAllResource();
-    self.resourceManager_ = nil;
+    local resourceManager = require("eSkyPlayer/eSkyPlayerResourceManager");
+    resourceManager:releaseAllResource();
 end
 
 
@@ -57,8 +56,9 @@ function prototype:loadImmediately(filename)                --filename暂时只�
             return false;
         end
         local resList_ = self:_getResources();
-
-        if self.resourceManager_:prepareImmediately(resList_) == false then
+        
+        local resourceManager = require("eSkyPlayer/eSkyPlayerResourceManager");
+        if resourceManager:prepareImmediately(resList_) == false then
             return false;
         end
         self:_createAdditionalCamera();
@@ -79,10 +79,11 @@ function prototype:load(filename,callback)
             return;
         end
         local resList_ = self:_getResources();
-        self.resourceManager_:prepare(resList_,function (isPrepared)
+        local resourceManager = require("eSkyPlayer/eSkyPlayerResourceManager");
+        resourceManager:prepare(resList_,function (isPrepared)
             self:_createAdditionalCamera();
             for i = 1, #self.players_ do
-                self.players_[i]:onResourceLoaded(self.resourceManager_);    
+                self.players_[i]:onResourceLoaded();    
             end
             callback(isPrepared);
         end);
