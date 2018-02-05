@@ -29,11 +29,11 @@ function prototype:_loadFromBuff(buff)
             return false;
         end
 
-        eventFile.beginTime = buff:ReadFloat();
-        eventFile.name = buff:ReadString();
-        eventFile.storeType = buff:ReadByte();
-        eventFile.isLoopPlay = misc.getBoolByByte(buff:ReadByte());
-        eventFile.labelID = buff:ReadByte();
+        eventFile.beginTime_ = buff:ReadFloat();
+        eventFile.name_ = buff:ReadString();
+        eventFile.storeType_ = buff:ReadByte();
+        eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
+        eventFile.labelID_ = buff:ReadByte();
 
         
         if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN then 
@@ -43,11 +43,11 @@ function prototype:_loadFromBuff(buff)
                 return false;
             end
             if eventFile.storeType == 1 then
-                if eventObj:loadEvent( self.pathHeader_ .. "plans/camera/" .. eventFile.name) == false then 
+                if eventObj:loadEvent( self.pathHeader_ .. "plans/camera/" .. eventFile.name_) == false then 
                     return false;
                 end
             else 
-                if eventObj:loadEvent( "mod/plans/camera/" .. eventFile.name) == false then 
+                if eventObj:loadEvent( "mod/plans/camera/" .. eventFile.name_) == false then 
                     return false;
                 end
             end
@@ -57,30 +57,30 @@ function prototype:_loadFromBuff(buff)
             if self:isSupported(eventObj) == false then
                 return false;
             end
-            if eventFile.storeType == 0 then
-                if eventObj:loadEvent( "mod/events/camera/" .. eventFile.name .. ".byte") == false then
+            if eventFile.storeType_ == 0 then
+                if eventObj:loadEvent( "mod/events/camera/" .. eventFile.name_ .. ".byte") == false then
                     return false;
                 end
             else
                 if self.pathHeader_ == nil then 
-                    if eventObj:loadEvent( "mod/plans/camera/" .. self.title_ .. "/camera/" .. eventFile.name .. ".byte") == false then
+                    if eventObj:loadEvent( "mod/plans/camera/" .. self.title_ .. "/camera/" .. eventFile.name_ .. ".byte") == false then
                         return false;
                     end 
                 else 
-                    if eventObj:loadEvent(self.pathHeader_ .. "camera/" .. eventFile.name) ==false then
+                    if eventObj:loadEvent(self.pathHeader_ .. "camera/" .. eventFile.name_) ==false then
                         return false;
                     end
                 end
             end
         elseif self.trackType_ == definations.TRACK_TYPE.CAMERA_EFFECT then
             local path = nil;
-            if self.storeType == 0 then
-                path = Util.AppDataRoot .. "/mod/events/cameraMotion" .. eventFile.name .. ".byte";
+            if eventFile.storeType_ == 0 then
+                path = Util.AppDataRoot .. "/mod/events/cameraMotion" .. eventFile.name_ .. ".byte";
             else
                 if self.pathHeader_ == nil then 
-                    path = Util.AppDataRoot .. "/mod/plans/camera/" .. self.title_ .. "/cameraMotion/" .. eventFile.name .. ".byte";
+                    path = Util.AppDataRoot .. "/mod/plans/camera/" .. self.title_ .. "/cameraMotion/" .. eventFile.name_ .. ".byte";
                 else 
-                    path = Util.AppDataRoot .. "/" .. self.pathHeader_ .. "cameraMotion/" .. eventFile.name .. ".byte";
+                    path = Util.AppDataRoot .. "/" .. self.pathHeader_ .. "cameraMotion/" .. eventFile.name_ .. ".byte";
                 end
             end
             local buff = misc.readAllBytes(path);
@@ -124,10 +124,10 @@ function prototype:_loadFromBuff(buff)
         self.trackType_ == definations.TRACK_TYPE.MUSIC_PLAN or
         self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
         
-        local project = self.events_[#self.events_].eventObj:getProjectData();
+        local project = self.events_[#self.events_].eventObj_:getProjectData();
         self.trackTimeLength_ = project:getTimeLength();
     else
-        self.trackTimeLength_ = self.events_[#self.events_].eventFile.beginTime + self.events_[#self.events_].eventObj.eventData_.timeLength;
+        self.trackTimeLength_ = self.events_[#self.events_].eventFile_.beginTime_ + self.events_[#self.events_].eventObj_.eventData_.timeLength_;
     end
     return true;
 end

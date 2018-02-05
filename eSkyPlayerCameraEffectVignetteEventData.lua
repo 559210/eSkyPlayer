@@ -10,6 +10,7 @@ end
 
 function prototype:initialize()
     self.base:initialize();
+    self.texturePath_ = nil;
     self.textures_ = {
     "camera/textures/LensDirt00",
     "camera/textures/LensDirt01",
@@ -21,26 +22,26 @@ function prototype:getResources()
 end
 
 function prototype:_loadFromBuff(buff)
-    self.eventData_.motionType = buff:ReadByte();
+    self.eventData_.motionType_ = buff:ReadByte();
     local names = {"mode", "allColor", "intensity", "smoothness", "roundness", "mask", "opacity", "rounded"};
     for _, name in ipairs(names) do
         if name == "mode"  then
             self.eventData_[name] = buff:ReadByte();
         elseif name == "mask" then
             local textureID = buff:ReadByte();
-            self.texturePath = self.textures_[textureID];
+            self.texturePath_ = self.textures_[textureID];
             local res = {};
-            res.path = self.texturePath;
+            res.path = self.texturePath_;
             res.count = -1;
             self.resList_[#self.resList_ + 1] = res;
         elseif name == "rounded" then
             self.eventData_[name] = buff:ReadByte();
         else
-            local info = {weights = {}, ranges = {}};
+            local info = {weights_ = {}, ranges_ = {}};
             self.eventData_[name] = info;
             for index = 1, 2 do
-                info.weights[#info.weights + 1] =  buff:ReadFloat();
-                info.ranges[#info.ranges + 1] =  buff:ReadFloat();
+                info.weights_[#info.weights_ + 1] =  buff:ReadFloat();
+                info.ranges_[#info.ranges_ + 1] =  buff:ReadFloat();
             end
             misc.setValuesByWeight(info);
         end

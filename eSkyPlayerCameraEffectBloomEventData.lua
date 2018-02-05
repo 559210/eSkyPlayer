@@ -4,13 +4,13 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
     self.base:ctor();
-    self.texturePath = nil;
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.BLOOM;
     self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT;
 end
 
 function prototype:initialize()
     self.base:initialize();
+    self.texturePath_ = nil;
     self.textures_ = {
     "camera/textures/LensDirt00",
     "camera/textures/LensDirt01",
@@ -24,24 +24,24 @@ function prototype:getResources()
 end
 
 function prototype:_loadFromBuff(buff)
-    self.eventData_.motionType = buff:ReadByte();
+    self.eventData_.motionType_ = buff:ReadByte();
     local names = {"intensity", "threshold", "softKnee", "radius", "antiFlicker", "intensityBloom", "textureBloom"};
     for _, name in ipairs(names) do
         if name == "antiFlicker" then
             self.eventData_[name] = buff:ReadByte();
         elseif name == "textureBloom" then
             local textureID = buff:ReadByte();
-            self.texturePath = self.textures_[textureID];
+            self.texturePath_ = self.textures_[textureID];
             local res = {};
-            res.path = self.texturePath;
+            res.path = self.texturePath_;
             res.count = -1;
             self.resList_[#self.resList_ + 1] = res;
         else
-            local info = {weights = {}, ranges = {}};
+            local info = {weights_ = {}, ranges_ = {}};
             self.eventData_[name] = info;
             for index = 1, 2 do
-                info.weights[index] =  buff:ReadFloat();
-                info.ranges[index] =  buff:ReadFloat();
+                info.weights_[index] =  buff:ReadFloat();
+                info.ranges_[index] =  buff:ReadFloat();
             end
             misc.setValuesByWeight(info);
         end

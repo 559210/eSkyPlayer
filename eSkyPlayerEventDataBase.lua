@@ -64,10 +64,10 @@ function prototype:_loadHeaderFromBuff(buff)
     if buff == nil then 
         return false; 
     end
-    self.eventData_.version = buff:ReadShort();
-    self.eventData_.smallVersion = buff:ReadShort();
-    self.eventData_.eventType = buff:ReadByte();
-    self.eventData_.timeLength = buff:ReadFloat();
+    self.eventData_.version_ = buff:ReadShort();
+    self.eventData_.smallVersion_ = buff:ReadShort();
+    self.eventData_.eventType_ = buff:ReadByte();
+    self.eventData_.timeLength_ = buff:ReadFloat();
 
     return true;
 end

@@ -64,7 +64,7 @@ function prototype:getEventAt(index)
     if index < 1 or index > #self.events_ then
         return false;
     end
-    return self.events_[index].eventObj;
+    return self.events_[index].eventObj_;
 end
 
 
@@ -72,7 +72,7 @@ function prototype:getEventBeginTimeAt(index)
     if index < 1 or index > #self.events_ then
         return false;
     end
-    return self.events_[index].eventFile.beginTime;
+    return self.events_[index].eventFile_.beginTime_;
 end
 
 
@@ -83,8 +83,8 @@ end
 
 function prototype:isNeedAdditionalCamera()
     for i = 1, #self.events_ - 1 do
-        if self.events_[i].eventObj : isProject() == false then
-            if self.events_[i].eventFile.beginTime + self.events_[i].eventObj.eventData_.timeLength > self.events_[i + 1].eventFile.beginTime then
+        if self.events_[i].eventObj_ : isProject() == false then
+            if self.events_[i].eventFile_.beginTime_ + self.events_[i].eventObj_.eventData_.timeLength_ > self.events_[i + 1].eventFile_.beginTime_ then
                 return true;
             end
         end
@@ -118,8 +118,8 @@ end
 
 function prototype:_insertEvent(eventFile,eventObj)
     local event = {};
-    event.eventFile = eventFile;
-    event.eventObj = eventObj;
+    event.eventFile_ = eventFile;
+    event.eventObj_ = eventObj;
     if #self.events_ == 0 then
         self.events_[1] = event;
         return;
@@ -127,7 +127,7 @@ function prototype:_insertEvent(eventFile,eventObj)
     local isSorted = false;
     for m = 1, #self.events_ do
         local i = #self.events_ - m + 1;
-        if self.events_[i].eventFile.beginTime < eventFile.beginTime then
+        if self.events_[i].eventFile_.beginTime_ < eventFile.beginTime_ then
             for j = i, #self.events_ do
                 local index = #self.events_ - j + i;
                 self.events_[index + 2] = self.events_[index + 1];

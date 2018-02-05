@@ -11,8 +11,8 @@ end
 function prototype:initialize(trackObj)
     self.cameraTrack_ = trackObj;
     --self.cameras_目前有两个Camera，第一个默认为主Camera，第二个为需要时另外创建的Camera。
-    self.cameras_ = {{camera = self.director_.camera_;
-    isUsed = false},};
+    self.cameras_ = {{camera_ = self.director_.camera_;
+    isUsed_ = false},};
     self.cameraJobsQueue_ = {};
     self:_isNeedAdditionalCamera();
     return self.base:initialize(trackObj);
@@ -37,8 +37,8 @@ end
 
 function prototype:setAdditionalCamera(camera)
     local cam = {};
-    cam.camera = camera;
-    cam.isUsed = false;
+    cam.camera_ = camera;
+    cam.isUsed_ = false;
     self.cameras_[#self.cameras_ + 1] = cam;
 end
 
@@ -50,10 +50,10 @@ function prototype:_update()
 
     for i = 1, self.eventCount_  do
         local beginTime = self.cameraTrack_:getEventBeginTimeAt(i);
-        local event = self.cameraTrack_:getEventAt(i);
-        local endTime = beginTime + event.eventData_.timeLength;
+        local eventObj = self.cameraTrack_:getEventAt(i);
+        local endTime = beginTime + eventObj.eventData_.timeLength_;
 
-        if self.cameraTrack_:isSupported(event) == false then
+        if self.cameraTrack_:isSupported(eventObj) == false then
             return;
         end
         
@@ -62,7 +62,7 @@ function prototype:_update()
             if #self.cameraJobsQueue_ > 0 then 
                 for j = 1, #self.cameraJobsQueue_ do
                     local queue = self.cameraJobsQueue_[j];
-                    if queue.event == event then
+                    if queue.eventObj_ == eventObj then
                         isEnterEvent = false;
                     end
                 end
@@ -72,9 +72,9 @@ function prototype:_update()
                 local cam = self:_requestCamera();
                 if cam ~= nil then
                     local queue = {};
-                    queue.camera = cam;
-                    queue.event = event;
-                    queue.beginTime = beginTime;
+                    queue.camera_ = cam;
+                    queue.eventObj_ = eventObj;
+                    queue.beginTime_ = beginTime;
                     self.cameraJobsQueue_[#self.cameraJobsQueue_ + 1] = queue;
                 end
             end
@@ -83,16 +83,16 @@ function prototype:_update()
         if self.director_.timeLine_ >= endTime or self.director_.timeLine_ <= beginTime then
             for j = 1, #self.cameraJobsQueue_ do
                 local queue = self.cameraJobsQueue_[j];
-                if queue.event == event then
+                if queue.eventObj_ == eventObj then
                     table.remove(self.cameraJobsQueue_, j);
-                    if self:_returnCamera(queue.camera) == false then    --true表示返回Camera后面没有其他Camera
+                    if self:_returnCamera(queue.camera_) == false then    --true表示返回Camera后面没有其他Camera
                         for k = j,#self.cameraJobsQueue_ do
-                            self:_returnCamera(self.cameraJobsQueue_[j].camera);
+                            self:_returnCamera(self.cameraJobsQueue_[j].camera_);
                         end
                         for k = j,#self.cameraJobsQueue_ do
                             local cam = self:_requestCamera();
                             if cam ~= nil then
-                                self.cameraJobsQueue_[k].camera = cam;
+                                self.cameraJobsQueue_[k].camera_ = cam;
                             end
                         end
                     end
@@ -108,28 +108,28 @@ function prototype:_update()
 end
 
 function prototype:_transformCamera(queue)
-    local camera = queue.camera;
-    local event = queue.event;
-    local deltaTime = self.director_.timeLine_ - queue.beginTime;
-    if event.eventData_.tweenType == 0 then
-        deltaTime = self:_getTime(deltaTime, event.eventData_.timeLength, event.eventData_.pos1, event.eventData_.pos2);
-        if deltaTime > event.eventData_.timeLength then
-            deltaTime = event.eventData_.timeLength;
+    local camera = queue.camera_;
+    local eventObj = queue.eventObj_;
+    local deltaTime = self.director_.timeLine_ - queue.beginTime_;
+    if eventObj.eventData_.tweenType_ == 0 then
+        deltaTime = self:_getTime(deltaTime, eventObj.eventData_.timeLength_, eventObj.eventData_.pos1_, eventObj.eventData_.pos2_);
+        if deltaTime > eventObj.eventData_.timeLength_ then
+            deltaTime = eventObj.eventData_.timeLength_;
         end
     end
-    local ratio = deltaTime / event.eventData_.timeLength ;
-    camera.transform.position = Vector3.Lerp (event.eventData_.beginFrame, event.eventData_.endFrame, ratio );
-    camera.transform.rotation = Quaternion.Lerp (event.eventData_.beginDr, event.eventData_.endDr, ratio );
+    local ratio = deltaTime / eventObj.eventData_.timeLength_ ;
+    camera.transform.position = Vector3.Lerp (eventObj.eventData_.beginFrame_, eventObj.eventData_.endFrame_, ratio );
+    camera.transform.rotation = Quaternion.Lerp (eventObj.eventData_.beginDr_, eventObj.eventData_.endDr_, ratio );
 end
 
 function prototype:_requestCamera()
     for i = 1,#self.cameras_ do
-        if self.cameras_[i].isUsed == false then
-            self.cameras_[i].isUsed = true;
+        if self.cameras_[i].isUsed_ == false then
+            self.cameras_[i].isUsed_ = true;
             if i > 1 then    --i>1时表示主camera已经在播放event，申请的camera需要enable
-                self.cameras_[i].camera.enabled = true;
+                self.cameras_[i].camera_.enabled = true;
             end
-            return self.cameras_[i].camera;
+            return self.cameras_[i].camera_;
         end
     end
     return nil;
@@ -137,13 +137,13 @@ end
 
 function prototype:_returnCamera(cam)
     for i = 1,#self.cameras_ do
-        if self.cameras_[i].camera == cam then
-            self.cameras_[i].isUsed = false;
+        if self.cameras_[i].camera_ == cam then
+            self.cameras_[i].isUsed_ = false;
             if i > 1 then
-                self.cameras_[i].camera.enabled = false;
+                self.cameras_[i].camera_.enabled = false;
             end
             for j = i,#self.cameras_ do
-                if self.cameras_[j].isUsed == true then
+                if self.cameras_[j].isUsed_ == true then
                     return false;
                 end
             end

@@ -9,7 +9,7 @@ end
 
 
 function prototype:initialize()
-    self.projectFile_ = {tracks = {}};
+    self.projectFile_ = {tracks_ = {}};
     return true;
 end
 
@@ -40,7 +40,7 @@ function prototype:_loadSceneConfig(filename)
     local virtualTrack = sceneTrack.createObject({stagePath = stagePath});
     -- TODO: 考虑是否要将track放入容器的功能抽成函数
     if nil ~= virtualTrack then
-        self.projectFile_.tracks[#self.projectFile_.tracks + 1] = virtualTrack;    
+        self.projectFile_.tracks_[#self.projectFile_.tracks_ + 1] = virtualTrack;    
     end
 
 end
@@ -99,7 +99,7 @@ function prototype:_loadTracks(trackPath)
         return true;
     end
 
-    self.projectFile_.tracks[#self.projectFile_.tracks + 1] = trackData;
+    self.projectFile_.tracks_[#self.projectFile_.tracks_ + 1] = trackData;
     if trackData:getTrackType() ~= definations.TRACK_TYPE.CAMERA_PLAN and
         trackData:getTrackType() ~= definations.TRACK_TYPE.MOTION_PLAN and
         trackData:getTrackType() ~= definations.TRACK_TYPE.MUSIC_PLAN and
@@ -114,15 +114,15 @@ end
 
 
 function prototype:getTrackCount()
-    return #self.projectFile_.tracks;
+    return #self.projectFile_.tracks_;
 end
 
 
 function prototype:getTrackAt(index)
-    if index < 1 or index > #self.projectFile_.tracks then
+    if index < 1 or index > #self.projectFile_.tracks_ then
         return false;
     end
-    return self.projectFile_.tracks[index];
+    return self.projectFile_.tracks_[index];
 end
 
 
