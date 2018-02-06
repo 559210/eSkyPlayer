@@ -27,11 +27,11 @@ function prototype:_loadFromBuff(buff)
     self.eventData_.motionType_ = buff:ReadByte();
     local names = {"intensity", "spectralTexture"};
 
-    local info = {weights_ = {}, ranges_ = {}};
+    local info = {weights = {}, ranges = {}};
     self.eventData_.intensity = info;
     for index = 1, 2 do
-        info.weights_[#info.weights_ + 1] =  buff:ReadFloat();
-        info.ranges_[#info.ranges_ + 1] =  buff:ReadFloat();
+        info.weights[#info.weights + 1] =  buff:ReadFloat();
+        info.ranges[#info.ranges + 1] =  buff:ReadFloat();
     end
     misc.setValuesByWeight(info);
 

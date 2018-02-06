@@ -71,7 +71,7 @@ function prototype:_update()
     for i = 1, self.eventCount_  do
         local beginTime = self.cameraTrack_:getEventBeginTimeAt(i);
         local eventObj = self.cameraTrack_:getEventAt(i);
-        local endTime = beginTime + eventObj.eventData_.timeLength;
+        local endTime = beginTime + eventObj.eventData_.timeLength_;
 
         if self.cameraTrack_:isSupported(eventObj) == false then
             return;

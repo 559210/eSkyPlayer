@@ -32,11 +32,11 @@ function prototype:_loadFromBuff(buff)
     res.count = -1;
     self.resList_[#self.resList_ + 1] = res;
 
-    local info = {weights_ = {}, ranges = {}};
+    local info = {weights = {}, ranges = {}};
     self.eventData_.intensity = info;
     for index = 1, 2 do
-        info.weights_[#info.weights_ + 1] =  buff:ReadFloat();
-        info.ranges_[#info.ranges_ + 1] =  buff:ReadFloat();
+        info.weights[#info.weights + 1] =  buff:ReadFloat();
+        info.ranges[#info.ranges + 1] =  buff:ReadFloat();
     end
     misc.setValuesByWeight(info);
 
