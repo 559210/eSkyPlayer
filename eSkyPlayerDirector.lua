@@ -193,7 +193,7 @@ function prototype:_createPlayer(obj)
             if event_:isProject() then
                 self:_createPlayer(event_:getProjectData());
             end
- 
+
             if track:getTrackLength() > self.timeLength_ then
                 self.timeLength_ = track:getTrackLength();
             end

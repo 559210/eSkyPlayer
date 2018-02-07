@@ -41,6 +41,10 @@ end
 
 
 function prototype:getTrackLength()
+    if #self.events_ == 0 then
+        return 0;
+    end
+    
     local trackLength = 0;
     if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN or
         self.trackType_ == definations.TRACK_TYPE.MOTION_PLAN or
