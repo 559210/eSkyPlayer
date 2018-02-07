@@ -6,7 +6,6 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     self.trackType_ = definations.TRACK_TYPE.UNKOWN;
     self.trackFileType_ = definations.TRACK_FILE_TYPE.UNKOWN;
-    self.trackTimeLength_ = 0;
     self.events_ = {};
     self.title_ = nil;
     self.pathHeader_ = nil;
@@ -42,7 +41,18 @@ end
 
 
 function prototype:getTrackLength()
-    return self.trackTimeLength_;
+    local trackLength = 0;
+    if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN or
+        self.trackType_ == definations.TRACK_TYPE.MOTION_PLAN or
+        self.trackType_ == definations.TRACK_TYPE.MUSIC_PLAN or
+        self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
+        
+        local project = self.events_[#self.events_].eventObj_:getProjectData();
+        trackLength = project:getTimeLength();
+    else
+        trackLength = self.events_[#self.events_].eventFile_.beginTime_ + self.events_[#self.events_].eventObj_.eventData_.timeLength_;
+    end
+    return trackLength;
 end
 
 

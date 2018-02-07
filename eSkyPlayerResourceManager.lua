@@ -117,7 +117,6 @@ function prototype:releaseAllResource()
     for pathName,v in pairs(self.resourcePool) do
         ddResManager.unloadAsset(pathName);
     end
-    self.resourcePool = nil;
 end
 
 
