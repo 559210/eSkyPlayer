@@ -27,18 +27,18 @@ function prototype:_loadFromBuff(buff)
             return false;
         end
 
-        eventFile.beginTime = buff:ReadFloat();
-        eventFile.name = buff:ReadString();
-        eventFile.storeType = buff:ReadByte();
-        eventFile.isLoopPlay = misc.getBoolByByte(buff:ReadByte());
-        eventFile.labelID = buff:ReadByte();
+        eventFile.beginTime_ = buff:ReadFloat();
+        eventFile.name_ = buff:ReadString();
+        eventFile.storeType_ = buff:ReadByte();
+        eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
+        eventFile.labelID_ = buff:ReadByte();
         if self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
             eventObj = newClass("eSkyPlayer/eSkyPlayerScenePlanEventData");
             eventObj:initialize();
             if self:isSupported(eventObj) == false then
                 return false;
             end
-            if eventObj:loadEvent("mod/plans/scene/" .. eventFile.name) == false then
+            if eventObj:loadEvent("mod/plans/scene/" .. eventFile.name_) == false then
                 return false;
             end
         elseif self.trackType_ == definations.TRACK_TYPE.SCENE_MOTION then
@@ -47,7 +47,7 @@ function prototype:_loadFromBuff(buff)
             if self:isSupported(eventObj) == false then
                 return false;
             end
-            local scene_path = string.format("mod/plans/scene/" ..self.title_ .."/scene/" ..eventFile.name ..".byte");
+            local scene_path = string.format("mod/plans/scene/" ..self.title_ .."/scene/" ..eventFile.name_ ..".byte");
             if eventObj:loadEvent(scene_path) == false then
                 return false;
             end
@@ -59,10 +59,10 @@ function prototype:_loadFromBuff(buff)
 
     if self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
         
-        local project = self.events_[#self.events_].eventObj:getProjectData();
+        local project = self.events_[#self.events_].eventObj_:getProjectData();
         self.trackTimeLength_ = project:getTimeLength();
     else
-        self.trackTimeLength_ = self.events_[#self.events_].eventFile.beginTime + self.events_[#self.events_].eventObj.eventData_.timeLength;
+        self.trackTimeLength_ = self.events_[#self.events_].eventFile_.beginTime_ + self.events_[#self.events_].eventObj_.eventData_.timeLength_;
     end
     return true;
 end

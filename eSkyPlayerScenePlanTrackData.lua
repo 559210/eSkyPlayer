@@ -7,6 +7,7 @@ function prototype:ctor()
     self.trackType_ = definations.TRACK_TYPE.SCENE_PLAN;
     self.trackFileType_ = definations.TRACK_FILE_TYPE.SCENE;
     self.eventsSupportted_ = {definations.EVENT_TYPE.SCENE_PLAN};
+    self.trackData_ = {};
 end
 
 
@@ -17,7 +18,7 @@ function prototype:getResources()
     end
     
     for i = 1,#self.events_ do
-        local tracks = self.events_[i].eventObj.projectData_.projectFile_.tracks;
+        local tracks = self.events_[i].eventObj_.projectData_.projectFile_.tracks_;
         for j = 1, #tracks do
             local path = tracks[j]:getResources();
             local modelpath = tracks[j].mainSceneModelPath_;
@@ -26,11 +27,15 @@ function prototype:getResources()
             end
             if nil ~= modelpath then
                resList_[#resList_ + 1] = modelpath; 
+               self.trackData_[#self.trackData_ + 1] = tracks[j];
             end
         end
     end
     return resList_;
 end
 
+function prototype:getTrackData()
+    return self.trackData_;
+end
 
 return prototype;
