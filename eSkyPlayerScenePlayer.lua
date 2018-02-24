@@ -93,7 +93,7 @@ function prototype:setResouces(resPath)
 end
 
 function prototype:play()
-	if self:isEnd() then return; end --如果时间线的值大于eventtime中最小值则返回,说明播放已经开始
+	--if self:isEnd() then return; end --如果时间线的值大于eventtime中最小值则返回,说明播放已经开始
 	for i = 1, #self.playEvents_ do
 		self.playEvents_[i]:play();
 	end
@@ -103,6 +103,9 @@ end
 
 function prototype:stop()
 	if not self.isPlay_ then return false; end
+	for i = 1, #self.playEvents_ do
+		self.playEvents_[i]:stop();
+	end
 	self.isPlay_ = false;
     return true;
 end
