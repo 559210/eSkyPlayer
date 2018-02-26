@@ -76,10 +76,10 @@ function prototype:_update()
         if self.cameraTrack_:isSupported(eventObj) == false then
             return;
         end
-
+            
         if self.director_.timeLine_ >= beginTime and self.director_.timeLine_ <= endTime then
             if self.playingEvent_ == nil then
-                if eventObj.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.BLOOM then
+                if eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.BLOOM then
                     if self.isEventPlaying_ == false then
                         self.param_ = self:_creatBloomEffect(eventObj);
                         self:_updateBloomEffect(eventObj, self.param_, beginTime);
@@ -88,7 +88,7 @@ function prototype:_update()
                     else
                         self:_updateBloomEffect(eventObj, self.param_, beginTime);
                     end
-                elseif eventObj.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.CHROMATIC_ABERRATION then
+                elseif eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.CHROMATIC_ABERRATION then
                     if self.isEventPlaying_ == false then
                         self.param_ = self:_creatChromaticAberrationEffect(eventObj);
                         self:_updateChromaticAberrationEffect(eventObj, self.param_, beginTime);
@@ -97,7 +97,7 @@ function prototype:_update()
                     else
                         self:_updateChromaticAberrationEffect(eventObj, self.param_, beginTime);
                     end
-                elseif eventObj.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.DEPTH_OF_FIELD then
+                elseif eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.DEPTH_OF_FIELD then
                     if self.isEventPlaying_ == false then
                         self.param_ = self:_creatDepthOfFieldEffect(eventObj);
                         self:_updateDepthOfFieldEffect(eventObj, self.param_, beginTime);
@@ -106,7 +106,7 @@ function prototype:_update()
                     else
                         self:_updateDepthOfFieldEffect(eventObj, self.param_, beginTime);
                     end
-                elseif eventObj.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.VIGNETTE then
+                elseif eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.VIGNETTE then
                     if self.isEventPlaying_ == false then
                         self.param_ = self:_creatVignetteEffect(eventObj);
                         self:_updateVignetteEffect(eventObj, self.param_, beginTime);
@@ -115,7 +115,7 @@ function prototype:_update()
                     else
                         self:_updateVignetteEffect(eventObj, self.param_, beginTime);
                     end
-                elseif eventObj.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.BLACK then
+                elseif eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.BLACK then
                     if self.isEventPlaying_ == false then
                         self.param_ = self:_creatBlackEffect(eventObj);
                         self:_updateBlackEffect(eventObj, self.param_, beginTime);
@@ -124,7 +124,7 @@ function prototype:_update()
                     else
                         self:_updateBlackEffect(eventObj, self.param_, beginTime);
                     end
-                elseif eventObj.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
+                elseif eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
                     if self.isEventPlaying_ == false then
                         if self.additionalCamera_.enabled == true then
                             self.param_ = self:_creatCrossFadeEffect(eventObj);
@@ -135,7 +135,7 @@ function prototype:_update()
                     else
                         self:_updateCrossFadeEffect(eventObj, self.param_, beginTime);
                     end
-                elseif eventObj.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW then
+                elseif eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW then
                     self.playingEvent_ = eventObj;
                     self:_updateFieldOfViewEffect(eventObj, beginTime);
                 end
@@ -144,11 +144,11 @@ function prototype:_update()
         
         if self.director_.timeLine_ < beginTime or self.director_.timeLine_ > endTime then
             if self.playingEvent_ == eventObj then
-                if eventObj.eventData_.motionType == definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW then
+                if eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW then
                     self.mainCamera_.fieldOfView = 60;
                 else
                     self.cameraEffectManager_:destroy(self.effectId_);
-                    self.resourceManager:releaseResource(eventObj.texturePath);
+                    self.resourceManager:releaseResource(eventObj.texturePath_);
                 end
                 self.isEventPlaying_ = false;
                 self.playingEvent_ = nil;
@@ -163,7 +163,7 @@ function prototype:_creatBloomEffect(eventObj)
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.antiFlicker = misc.getBoolByByte(eventObj.eventData_.antiFlicker);
-    param.lenDirtTexture = self.resourceManager:getResource(eventObj.texturePath);
+    param.lenDirtTexture = self.resourceManager:getResource(eventObj.texturePath_);
     return param; 
 end
 
@@ -171,7 +171,7 @@ function prototype:_updateBloomEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength ;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength_ ;
     local names = {"intensity", "threshold", "softKnee", "radius", "antiFlicker", "intensityBloom", "textureBloom"};
     for _, name in ipairs(names) do
         if name == "intensityBloom" then
@@ -189,7 +189,7 @@ function prototype:_creatChromaticAberrationEffect(eventObj)
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
 
-    param.spectralTexture = self.resourceManager:getResource(eventObj.texturePath);
+    param.spectralTexture = self.resourceManager:getResource(eventObj.texturePath_);
     return param; 
 end
 
@@ -197,7 +197,7 @@ function prototype:_updateChromaticAberrationEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength ;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength_ ;
     local names = {"intensity", "spectralTexture"};
     param.intensity = eventObj.eventData_.intensity.values[1] + deltaTime * (eventObj.eventData_.intensity.values[2] - eventObj.eventData_.intensity.values[1]);
 
@@ -216,7 +216,7 @@ function prototype:_updateDepthOfFieldEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength ;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength_ ;
     local names = {"aperture"};
     param.aperture = eventObj.eventData_.aperture.values[1] + deltaTime * (eventObj.eventData_.aperture.values[2] - eventObj.eventData_.aperture.values[1]);
 
@@ -229,7 +229,7 @@ function prototype:_creatVignetteEffect(eventObj)
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.mode = eventObj.eventData_.mode - 1;
     param.rounded = misc.getBoolByByte(eventObj.eventData_.rounded);
-    param.mask = self.resourceManager:getResource(eventObj.texturePath);
+    param.mask = self.resourceManager:getResource(eventObj.texturePath_);
     return param; 
 end
 
@@ -237,7 +237,7 @@ function prototype:_updateVignetteEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength ;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength_ ;
     local names = {"mode", "allColor", "intensity", "smoothness", "roundness", "mask", "opacity", "rounded"};
     for _, name in ipairs(names) do
         if name == "allColor" then
@@ -259,7 +259,7 @@ function prototype:_updateFieldOfViewEffect(eventObj, beginTime)
     if eventObj == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength ;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength_ ;
     local names = {"fov"};
     local fov = 60;
     fov = eventObj.eventData_.fov.values[1] + deltaTime * (eventObj.eventData_.fov.values[2] - eventObj.eventData_.fov.values[1]);
@@ -271,7 +271,7 @@ function prototype:_creatBlackEffect(eventObj)
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.blendMode = eventObj.eventData_.blendMode - 1;
-    param.texture = self.resourceManager:getResource(eventObj.texturePath);
+    param.texture = self.resourceManager:getResource(eventObj.texturePath_);
     return param; 
 end
 
@@ -279,14 +279,14 @@ function prototype:_updateBlackEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength ;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength_ ;
     local names = {"blendMode", "texture", "intensity"};
     param.intensity = eventObj.eventData_.intensity.values[1] + deltaTime * (eventObj.eventData_.intensity.values[2] - eventObj.eventData_.intensity.values[1]);
     self.cameraEffectManager_:setParam(self.effectId_,param);
 end
 
 function prototype:_creatCrossFadeEffect(eventObj)
-    self.effectId_ = self.cameraEffectManager_:createCrossFadeEffect(eventObj.eventData_.timeLength);
+    self.effectId_ = self.cameraEffectManager_:createCrossFadeEffect(eventObj.eventData_.timeLength_);
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
 
@@ -297,7 +297,7 @@ function prototype:_updateCrossFadeEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    param.progress = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength;
+    param.progress = (self.director_.timeLine_ - beginTime) / eventObj.eventData_.timeLength_;
     self.cameraEffectManager_:setParam(self.effectId_,param);
 end
 
