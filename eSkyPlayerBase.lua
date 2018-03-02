@@ -8,7 +8,7 @@ function prototype:ctor(director)
     self.trackObj_  = nil;
     self.eventCount_ = 0;
     self.trackLength_ = 0;
-    self.playState = definations.PLAY_STATE.NORMAL;
+    self.playState_ = definations.PLAY_STATE.NORMAL;
 end
 
 
@@ -49,24 +49,24 @@ end
 
 
 function prototype:_update()
-    self.playState = definations.PLAY_STATE.PLAYING;
+    self.playState_ = definations.PLAY_STATE.PLAYING;
     return;
 end
 
 
 function prototype:stop()
-    self.playState = definations.PLAY_STATE.PLAYEND;
+    self.playState_ = definations.PLAY_STATE.PLAYEND;
     return true;
 end
 
 
 function prototype:play()
-    self.playState = definations.PLAY_STATE.PLAY;
+    self.playState_ = definations.PLAY_STATE.PLAY;
     return true;
 end
 
 function prototype:changePlayState(state)
-    self.playState = state
+    self.playState_ = state
 end
 
 function prototype:seek(time)
