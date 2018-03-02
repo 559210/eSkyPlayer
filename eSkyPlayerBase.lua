@@ -1,11 +1,14 @@
 local prototype = class("eSkyPlayerBase");
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
+
+
 function prototype:ctor(director)
     self.director_ = director;
     self.trackObj_  = nil;
     self.eventCount_ = 0;
     self.trackLength_ = 0;
+    self.playState = definations.PLAY_STATE.NORMAL;
 end
 
 
@@ -46,19 +49,25 @@ end
 
 
 function prototype:_update()
+    self.playState = definations.PLAY_STATE.PLAYING;
     return;
 end
 
 
 function prototype:stop()
+    self.playState = definations.PLAY_STATE.PLAYEND;
     return true;
 end
 
 
 function prototype:play()
+    self.playState = definations.PLAY_STATE.PLAY;
     return true;
 end
 
+function prototype:changePlayState(state)
+    self.playState = state
+end
 
 function prototype:seek(time)
     return true;

@@ -53,6 +53,14 @@ local definations = {
         USER_LUT = 7,
         VIGNETTE = 8,
     };
+
+
+    PLAY_STATE = {
+        NORMAL = 0, --就绪
+        PLAY = 1,--开始播放
+        PLAYING = 2,--播放中
+        PLAYEND = 3 --播放结束
+    };
 }
 
 return definations;
