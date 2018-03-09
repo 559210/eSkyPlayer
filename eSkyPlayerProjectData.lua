@@ -36,7 +36,7 @@ function prototype:_loadSceneConfig(filename)
     local stageName = buff:ReadString();
     local stagePath = buff:ReadString();
 
-    local sceneTrack = require("eSkyPlayer/eSkyMainSceneVirtualTrack");
+    local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneVirtualTrackData");
     local virtualTrack = sceneTrack.createObject({stagePath = stagePath});
     -- TODO: 考虑是否要将track放入容器的功能抽成函数
     if nil ~= virtualTrack then

@@ -166,7 +166,7 @@ function prototype:_createCamera()
     self.additionalCamera_.enabled = false;
 end
 
-function prototype:_createAdditionalCamera()
+function prototype:_createAdditionalCamera()--479635077356 26021 37585535
     if self.additionalCamera_ ~= nil then 
         return false;
     end
@@ -184,7 +184,6 @@ end
 
 
 function prototype:_createPlayer(obj)
-
     for i = 1, obj:getTrackCount() do
         local track = obj:getTrackAt(i);
         if track:getEventCount() > 0 then    
@@ -197,30 +196,35 @@ function prototype:_createPlayer(obj)
             if track:getTrackLength() > self.timeLength_ then
                 self.timeLength_ = track:getTrackLength();
             end
-
-            local trackType = track:getTrackType();
-            if trackType == definations.TRACK_TYPE.CAMERA_MOTION then
-                local player = newClass ("eSkyPlayer/eSkyPlayerCameraMotionPlayer",self);
-                self.players_[#self.players_ + 1] = player;
-                player:initialize(track);
-            elseif trackType == definations.TRACK_TYPE.CAMERA_PLAN then
-                local player = newClass ("eSkyPlayer/eSkyPlayerCameraPlanPlayer",self);
-                self.players_[#self.players_ + 1] = player;
-                player:initialize(track);
-            elseif trackType == definations.TRACK_TYPE.CAMERA_EFFECT then
-                local player = newClass ("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
-                self.players_[#self.players_ + 1] = player;
-                player:initialize(track);
-            elseif trackType == definations.TRACK_TYPE.SCENE_PLAN then
-                local player = newClass ("eSkyPlayer/eSkyPlayerScenePlayer",self);
-                self.players_[#self.players_ + 1] = player;
-                player:initialize(track);
-            else 
-                return false;
-            end
+        end
+        local trackType = track:getTrackType();
+        if trackType == definations.TRACK_TYPE.CAMERA_MOTION then
+            local player = newClass ("eSkyPlayer/eSkyPlayerCameraMotionPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        elseif trackType == definations.TRACK_TYPE.CAMERA_PLAN then
+            local player = newClass ("eSkyPlayer/eSkyPlayerCameraPlanPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        elseif trackType == definations.TRACK_TYPE.CAMERA_EFFECT then
+            local player = newClass ("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        elseif trackType == definations.TRACK_TYPE.SCENE_PLAN then
+            local player = newClass ("eSkyPlayer/eSkyPlayerScenePlanPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        elseif trackType == definations.TRACK_TYPE.SCENE_MOTION then
+            local player = newClass("eSkyPlayer/eSkyPlayerSceneTrackPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        else 
+            return false;
         end
     end
+
     return true;
+
 end
 
 

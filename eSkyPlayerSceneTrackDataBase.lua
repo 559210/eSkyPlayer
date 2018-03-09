@@ -57,13 +57,13 @@ function prototype:_loadFromBuff(buff)
         self:_insertEvent(eventFile,eventObj);
     end
 
-    if self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
+    -- if self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
         
-        local project = self.events_[#self.events_].eventObj_:getProjectData();
-        self.trackTimeLength_ = project:getTimeLength();
-    else
-        self.trackTimeLength_ = self.events_[#self.events_].eventFile_.beginTime_ + self.events_[#self.events_].eventObj_.eventData_.timeLength_;
-    end
+    --     local project = self.events_[#self.events_].eventObj_:getProjectData();
+    --     self.trackTimeLength_ = project:getTimeLength();
+    -- else
+    --     self.trackTimeLength_ = self.events_[#self.events_].eventFile_.beginTime_ + self.events_[#self.events_].eventObj_.eventData_.timeLength_;
+    -- end
     return true;
 end
 

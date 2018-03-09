@@ -69,6 +69,10 @@ function prototype:changePlayState(state)
     self.playState_ = state
 end
 
+function prototype:getPlayState()
+    return self.playState_;
+end
+
 function prototype:seek(time)
     return true;
 end
