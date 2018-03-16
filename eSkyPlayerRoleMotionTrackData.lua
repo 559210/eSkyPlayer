@@ -1,13 +1,14 @@
 local prototype = class("eSkyPlayerRoleMotionTrackData", require("eSkyPlayer/eSkyPlayerTrackDataBase"));
 local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
-
+local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 
 function prototype:ctor()
     prototype.super.ctor(self);       --由于多重继承，只能用prototype.super这种写法
     self.trackFileType_ = definations.TRACK_FILE_TYPE.MOTION;
     self.trackType_ = definations.TRACK_TYPE.ROLE_MOTION;
     self.eventsSupportted_ = {definations.EVENT_TYPE.ROLE_MOTION};
+    self.createParameters = {};
 end
 
 
@@ -74,5 +75,22 @@ function prototype:_loadFromBuff(buff)
         
     return true;
 end
+
+function prototype.createObject(param)
+    local obj = prototype:create();
+
+    if obj:_setParam(param) == false then
+        return nil;
+    end
+    return obj;
+end
+
+function prototype:_setParam(param)
+    if misc.checkParam(self.createParameters, param) == false then
+        return false;
+    end
+    return true;    
+end
+
 
 return prototype;
