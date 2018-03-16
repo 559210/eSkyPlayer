@@ -10,7 +10,6 @@ function prototype:ctor()
     self.title_ = nil;
     self.pathHeader_ = nil;
     self.eventsSupportted_ = nil;
-    self.mainSceneModelPath_ = nil;
 end
 
 
@@ -41,7 +40,6 @@ end
 
 
 function prototype:getTrackLength()
-    logError("tracktype: " .. self.trackType_);
     if #self.events_ == 0 then
         return 0;
     end
@@ -118,10 +116,6 @@ function prototype:_loadHeaderFromBuff(buff)
     if trackType ~= self.trackFileType_ then
         return false;
     end
-    if trackType == definations.TRACK_FILE_TYPE.SCENE then
-        local name = buff:ReadString();
-        self.mainSceneModelPath_ = buff:ReadString();
-    end
     return true;
 end
 
@@ -171,14 +165,16 @@ function prototype:isSupported(eventObj)
 end
 
 
-function prototype.createObject()
-    logError("eSkyPlayerTrackDataBase.createObject -----> ");
+function prototype.createObject(param)
     return nil;
 end
 
 
-function prototype:addEvent(eventDataObject)
-
+--动态添加event
+function prototype:addEvent(beginTime, eventDataObject)
+    local eventFile = {};
+    eventFile.beginTime_ = beginTime;
+    self:_insertEvent(eventFile, eventDataObject);
 end
 
 

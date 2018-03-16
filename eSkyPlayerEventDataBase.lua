@@ -68,10 +68,12 @@ function prototype:_loadHeaderFromBuff(buff)
     self.eventData_.smallVersion_ = buff:ReadShort();
     self.eventData_.eventType_ = buff:ReadByte();
     self.eventData_.timeLength_ = buff:ReadFloat();
-
     return true;
 end
 
+function prototype.createObject(param)
+    return nil;
+end
 
 
 return prototype;
