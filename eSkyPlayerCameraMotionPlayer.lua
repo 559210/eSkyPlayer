@@ -18,6 +18,7 @@ function prototype:initialize(trackObj)
     return self.base:initialize(trackObj);
 end
 
+
 function prototype:play()
     if self.cameraTrack_ == nil  then
         return false; 
@@ -31,9 +32,11 @@ function prototype:play()
     return true;
 end
 
+
 function prototype:isNeedAdditionalCamera()
     return self.isNeedAdditionalCamera_;
 end
+
 
 function prototype:setAdditionalCamera(camera)
     local cam = {};
@@ -42,74 +45,54 @@ function prototype:setAdditionalCamera(camera)
     self.cameras_[#self.cameras_ + 1] = cam;
 end
 
+
+function prototype:onEventEntered(eventObj)
+    local cam = self:_requestCamera();
+    if cam ~= nil then
+        self.playingEvents_[#self.playingEvents_].camera_ = cam;
+    end
+end
+
+
+function prototype:onEventLeft(eventObj)
+    for i = 1, #self.playingEvents_ do
+        local event = self.playingEvents_[i];
+        if event.obj_ == eventObj then
+            if self:_returnCamera(event.camera_) == false then    --true表示返回Camera后面没有其他Camera
+                for j = i + 1, #self.playingEvents_ do
+                    self:_returnCamera(self.playingEvents_[j].camera_);
+                end
+                for j = i + 1, #self.playingEvents_ do
+                    local cam = self:_requestCamera();
+                    if cam ~= nil then
+                        self.playingEvents_[j].camera_ = cam;
+                    end
+                end
+            end
+            break;
+        end
+    end
+end
+
+
 function prototype:_update()
     if self.director_.timeLine_ > self.director_.timeLength_ then
         self.base.isPlaying_ = false;
         return;
     end
 
-    for i = 1, self.eventCount_  do
-        local beginTime = self.cameraTrack_:getEventBeginTimeAt(i);
-        local eventObj = self.cameraTrack_:getEventAt(i);
-        local endTime = beginTime + eventObj.eventData_.timeLength_;
-
-        if self.cameraTrack_:isSupported(eventObj) == false then
-            return;
-        end
-        
-        if self.director_.timeLine_ >= beginTime and self.director_.timeLine_ <= endTime then
-            local isEnterEvent = true;
-            if #self.cameraJobsQueue_ > 0 then 
-                for j = 1, #self.cameraJobsQueue_ do
-                    local queue = self.cameraJobsQueue_[j];
-                    if queue.eventObj_ == eventObj then
-                        isEnterEvent = false;
-                    end
-                end
-            end
-
-            if isEnterEvent == true then
-                local cam = self:_requestCamera();
-                if cam ~= nil then
-                    local queue = {};
-                    queue.camera_ = cam;
-                    queue.eventObj_ = eventObj;
-                    queue.beginTime_ = beginTime;
-                    self.cameraJobsQueue_[#self.cameraJobsQueue_ + 1] = queue;
-                end
-            end
-        end
-
-        if self.director_.timeLine_ >= endTime or self.director_.timeLine_ <= beginTime then
-            for j = 1, #self.cameraJobsQueue_ do
-                local queue = self.cameraJobsQueue_[j];
-                if queue.eventObj_ == eventObj then
-                    table.remove(self.cameraJobsQueue_, j);
-                    if self:_returnCamera(queue.camera_) == false then    --true表示返回Camera后面没有其他Camera
-                        for k = j,#self.cameraJobsQueue_ do
-                            self:_returnCamera(self.cameraJobsQueue_[j].camera_);
-                        end
-                        for k = j,#self.cameraJobsQueue_ do
-                            local cam = self:_requestCamera();
-                            if cam ~= nil then
-                                self.cameraJobsQueue_[k].camera_ = cam;
-                            end
-                        end
-                    end
-                    break;
-                end
-            end
-        end
-
-        for index = 1, #self.cameraJobsQueue_ do
-            self:_transformCamera(self.cameraJobsQueue_[index]);
-        end
+    self:preparePlayingEvents(function(done)
+        -- body
+    end);
+    for index = 1, #self.playingEvents_ do
+        self:_transformCamera(self.playingEvents_[index]);
     end
+
 end
 
 function prototype:_transformCamera(queue)
     local camera = queue.camera_;
-    local eventObj = queue.eventObj_;
+    local eventObj = queue.obj_;
     local deltaTime = self.director_.timeLine_ - queue.beginTime_;
     if eventObj.eventData_.tweenType_ == 0 then
         deltaTime = self:_getTime(deltaTime, eventObj.eventData_.timeLength_, eventObj.eventData_.pos1_, eventObj.eventData_.pos2_);
@@ -147,7 +130,7 @@ function prototype:_returnCamera(cam)
                     return false;
                 end
             end
-            return true;
+            return true;  --true表示返回Camera后面没有其他Camera在被使用
         end
     end
     logError("未找到要归还的Camera！");

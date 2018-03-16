@@ -20,8 +20,15 @@ local definations = {
         SCENE_PLAN = 4,
         CAMERA_MOTION = 5,
         CAMERA_EFFECT = 6,
-        SCENE_MOTION = 7,
-        SCENE_EFFECT = 8,
+        BLOOM = 7,
+        BLACK = 8,
+        DEPTH_OF_FIELD = 9,
+        CROSS_FADE = 10,
+        FIELD_OF_VIEW = 11,
+        CHROMATIC_ABERRATION = 12,
+        VIGNETTE = 13,
+        SCENE_MOTION = 14,
+        SCENE_EFFECT = 15,
     };
 
     TRACK_FILE_TYPE = {
@@ -42,7 +49,7 @@ local definations = {
         SCENE_EFFECT = 14,
     };
 
-    CAMERA_EFFECT_TYPE ={
+    CAMERA_EFFECT_TYPE = {
         UNKNOW = 0,
         BLOOM = 1,
         BLACK = 2,
@@ -53,6 +60,14 @@ local definations = {
         USER_LUT = 7,
         VIGNETTE = 8,
     };
+
+    MANAGER_TACTIC_TYPE = {
+        NO_NEED = 0,
+        LOAD_INITIALLY_RELEASE_LASTLY = 1,
+        LOAD_INITIALLY_SYNC_RELEASE_LASTLY = 2,
+        LOAD_IMMEDIATELY_RELEASE_IMMEDIATELY = 3,
+        LOAD_IMMEDIATELY_SYNC_RELEASE_IMMEDIATELY = 4,
+    }
 }
 
 return definations;

@@ -4,9 +4,8 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
     self.base:ctor();
-    self.texturePath_ = nil;
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.CROSS_FADE;
-    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT;
+    self.eventType_ = definations.EVENT_TYPE.CROSS_FADE;
 end
 
 function prototype:_loadFromBuff(buff)

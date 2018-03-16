@@ -5,7 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     self.base:ctor();
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.VIGNETTE;
-    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT;
+    self.eventType_ = definations.EVENT_TYPE.VIGNETTE;
 end
 
 function prototype:initialize()
@@ -17,9 +17,6 @@ function prototype:initialize()
     };
 end
 
-function prototype:getResources()
-    return self.resList_;
-end
 
 function prototype:_loadFromBuff(buff)
     self.eventData_.motionType_ = buff:ReadByte();
@@ -32,8 +29,8 @@ function prototype:_loadFromBuff(buff)
             self.texturePath_ = self.textures_[textureID];
             local res = {};
             res.path = self.texturePath_;
-            res.count = -1;
-            self.resList_[#self.resList_ + 1] = res;
+            res.count = 1;
+            self.resourcesNeeded_[#self.resourcesNeeded_ + 1] = res;
         elseif name == "rounded" then
             self.eventData_[name] = buff:ReadByte();
         else

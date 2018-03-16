@@ -5,13 +5,14 @@ function prototype:ctor(director)
 end
 
 
-function prototype:initialize(trackObj)
-    return true;
-end
-
-
 function prototype:play()
     return true;
 end
+
+
+function prototype:seek(time)
+    return true;
+end
+
 
 return prototype;

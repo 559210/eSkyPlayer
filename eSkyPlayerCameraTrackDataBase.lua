@@ -8,6 +8,11 @@ function prototype:ctor()
 end
 
 
+function prototype:initialize()
+    prototype.super.initialize(self);
+end
+
+
 function prototype:_loadFromBuff(buff)
     if buff == nil then 
         return false; 
@@ -42,7 +47,7 @@ function prototype:_loadFromBuff(buff)
             if self:isSupported(eventObj) == false then
                 return false;
             end
-            if eventFile.storeType == 1 then
+            if eventFile.storeType_ == 1 then
                 if eventObj:loadEvent( self.pathHeader_ .. "plans/camera/" .. eventFile.name_) == false then 
                     return false;
                 end
@@ -67,7 +72,7 @@ function prototype:_loadFromBuff(buff)
                         return false;
                     end 
                 else 
-                    if eventObj:loadEvent(self.pathHeader_ .. "camera/" .. eventFile.name_) ==false then
+                    if eventObj:loadEvent(self.pathHeader_ .. "camera/" .. eventFile.name_ .. ".byte") ==false then
                         return false;
                     end
                 end

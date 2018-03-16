@@ -5,12 +5,14 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     self.eventData_ = nil;
     self.projectData_ = nil;
+    self.resourceManager_ = nil;
     self.eventType_ = definations.EVENT_TYPE.UNKOWN;
 end
 
 
 function prototype:initialize()
-    self.resList_ = {};
+    self.resourcesNeeded_ = {};
+    self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
 end
 
 
@@ -54,10 +56,26 @@ function prototype:getEventType()
     return self.eventType_;
 end
 
-
-function prototype:getResources()
-    return nil;
+function prototype:getTimeLength()
+    return self.eventData_.timeLength_;
 end
+-- function prototype:getResources()
+--     return nil;
+-- end
+
+
+-- function prototype:loadResource(resInfo, callback)
+--     callback(true);
+-- end
+
+
+-- function prototype:loadResourceSync(resInfo)
+--     return true;
+-- end
+
+-- function prototype:releaseResources( ... )
+--     -- body
+-- end
 
 
 function prototype:_loadHeaderFromBuff(buff)

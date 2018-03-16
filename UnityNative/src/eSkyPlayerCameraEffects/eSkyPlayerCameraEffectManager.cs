@@ -248,7 +248,6 @@ public class eSkyPlayerCameraEffectManager {
 		}
 
 		eSkyPlayerCameraEffectScreenOverlay effect = new eSkyPlayerCameraEffectScreenOverlay (this);
-
 		int index = getNewEffectIndex ();
 		m_effects.Add (index, effect);
 		return index;
@@ -270,8 +269,8 @@ public class eSkyPlayerCameraEffectManager {
 		if (effect == null) {
 			return false;
 		}
-		return effect.destroy ();
 		m_effects.Remove (effectId);
+		return effect.destroy ();
 	}
 
 	public bool pause (int effectId) {

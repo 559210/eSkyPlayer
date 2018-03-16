@@ -15,7 +15,8 @@ end
 
 
 function prototype:initialize()
-
+    self.resTable_ = {};
+    self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
 end
 
 
@@ -32,6 +33,7 @@ function prototype:loadTrack(filename)
         self.title_ = string.sub(filename, b + 1, d - 1);
         self.pathHeader_ = string.match(filename,"mod/projects/.+/");
     end
+
     local buff = misc.readAllBytes(path);
     if self:_loadHeaderFromBuff(buff) == false then
         return false;
@@ -69,14 +71,14 @@ function prototype:getTrackType()
     return self.trackType_;
 end
 
--- function prototype:getTrackData()
---     return self.trackFile_;
--- end
+function prototype:getTrackData()
+    return self.trackFile_;
+end
 
 
 function prototype:getEventAt(index)
     if index < 1 or index > #self.events_ then
-        return false;
+        return nil;
     end
     return self.events_[index].eventObj_;
 end
@@ -84,15 +86,15 @@ end
 
 function prototype:getEventBeginTimeAt(index)
     if index < 1 or index > #self.events_ then
-        return false;
+        return -1;
     end
     return self.events_[index].eventFile_.beginTime_;
 end
 
 
-function prototype:getResources()
-    return nil;
-end
+-- function prototype:getResources()
+--     return nil;
+-- end
 
 
 function prototype:isNeedAdditionalCamera()
