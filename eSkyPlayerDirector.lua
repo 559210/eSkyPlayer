@@ -172,6 +172,7 @@ function prototype:_createPlayerByTrack(track)
     elseif trackType == definations.TRACK_TYPE.SCENE_MOTION then
         player = newClass("eSkyPlayer/eSkyPlayerSceneTrackPlayer",self);
     elseif trackType == definations.TRACK_TYPE.ROLE_PLAN then
+        player = newClass("eSkyPlayer/eSkyPlayerRolePlanPlayer", self);
     elseif trackType == definations.TRACK_TYPE.ROLE_MOTION then
         player = newClass("eSkyPlayer/eSkyPlayerRoleMotionPlayer", self);
     else
