@@ -218,6 +218,10 @@ function prototype:_createPlayer(obj)
             local player = newClass("eSkyPlayer/eSkyPlayerSceneTrackPlayer",self);
             self.players_[#self.players_ + 1] = player;
             player:initialize(track);
+        elseif trackType == definations.TRACK_TYPE.ROLE_PLAN then
+        elseif trackType == definations.TRACK_TYPE.ROLE_MOTION then
+            local player = newClass("eSkyPlayer/eSkyPlayerRoleMotionPlayer", self);
+            player:initialize(track);
         else 
             return false;
         end
@@ -242,6 +246,12 @@ function prototype:_update()
     end
 end
 
+-- roleObj 是Characters类或者它的子类,通常由G.characterFactory创建。注意G.characterFactory依赖G.M.userModel
+-- 一般可以通过roleObj:getDefaultCharacter()拿到character对象，从character对象里的body可以拿到Animator，从而控制role的动作。
+-- local animator = roleObj:getDefaultCharacter().body:GetComponent(typeof(Animator));
+function prototype:addRole(roleObj)
+
+end
 
 --------------------------------------------------------------------------
 -- 下面是动态创建track，event的代码，其他代码往上写

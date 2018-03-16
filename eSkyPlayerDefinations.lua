@@ -3,25 +3,27 @@ local definations = {
     TRACK_TYPE = {
         UNKOWN = 0,
         CAMERA_PLAN = 1,
-        MOTION_PLAN = 2,
+        ROLE_PLAN = 2,
         MUSIC_PLAN = 3,
         SCENE_PLAN = 4,
         CAMERA_MOTION = 5,
         CAMERA_EFFECT = 6,
         SCENE_MOTION = 7,
         SCENE_EFFECT = 8,
+        ROLE_MOTION = 9,
     };
 
     EVENT_TYPE = {
         UNKOWN = 0,
         CAMERA_PLAN = 1,
-        MOTION_PLAN = 2,
+        ROLE_PLAN = 2,
         MUSIC_PLAN = 3,
         SCENE_PLAN = 4,
         CAMERA_MOTION = 5,
         CAMERA_EFFECT = 6,
         SCENE_MOTION = 7,
         SCENE_EFFECT = 8,
+        ROLE_MOTION = 9,        
     };
 
     TRACK_FILE_TYPE = {

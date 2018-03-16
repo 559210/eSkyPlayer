@@ -41,13 +41,14 @@ end
 
 
 function prototype:getTrackLength()
+    logError("tracktype: " .. self.trackType_);
     if #self.events_ == 0 then
         return 0;
     end
-    
+
     local trackLength = 0;
     if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN or
-        self.trackType_ == definations.TRACK_TYPE.MOTION_PLAN or
+        self.trackType_ == definations.TRACK_TYPE.ROLE_PLAN or
         self.trackType_ == definations.TRACK_TYPE.MUSIC_PLAN or
         self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
         
