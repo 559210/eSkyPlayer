@@ -13,9 +13,6 @@ end
 
 function prototype.createObject(param)
     local obj = prototype:create();
-    if misc.checkParam(obj.createParameters,param) == false then
-        return nil;
-    end
     if obj:_setParam(param) == false then
         return nil;
     end
@@ -23,6 +20,9 @@ function prototype.createObject(param)
 end
 
 function prototype:_setParam(param)
+    if misc.checkParam(self.createParameters,param) == false then
+        return false;
+    end
     return true;    
 end
 

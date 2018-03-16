@@ -20,7 +20,6 @@ function prototype:_loadFromBuff(buff)
     eventFile.endCut = buff:ReadFloat();
     buff:ReadString(); --animation 的名字
     eventFile.timeLength = self.eventData_.timeLength_;
-    local isLoad = self:_setParam(eventFile);
     if self:_setParam(eventFile) == false then
         return false;
     end
