@@ -6,6 +6,14 @@ function prototype:ctor(director)
     self.trackObj_  = nil;
     self.eventCount_ = 0;
     self.trackLength_ = 0;
+    self.index_ = 1;
+    self.playState_ = definations.PLAY_STATE.NORMAL;
+    self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
+    self.resList_ = {};  --数组：存放开始时需要特定加载的资源，不通过策略类加载，path/count; 
+    self.resTable_ = {};  --键值对，用于存放player管理的资源中需要遇到特定类型event时加载的资源；key为event类型eventType_，value为资源路径path_(数组)；
+    self.playingEvents_ = {};  --数组，存放正在播放的event，eventObj对象和开始时间；
+    self.resourceManager_ = {};  --键值对，键为tactictype，值为对应的策略类对象；
+    self.eventLoaded_ = {};    --数组，存放已经通过异步加载判断条件过的event，作为标志防止多次异步加载，release过之后对应event删除；
 end
 
 
@@ -14,16 +22,11 @@ function prototype:initialize(trackObj)
     self.trackLength_ = self.trackObj_:getTrackLength();
     self.eventCount_ = self.trackObj_:getEventCount();
     self.index_ = 1;
-    self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED; 
-    self.resTable_ = {};  --键值对，用于存放player管理的资源中需要遇到特定类型event时加载的资源；key为event类型eventType_，value为资源路径path_(数组)；
-    self.playingEvents_ = {};
-    self.resourceManager_ = {};  --键值对，键为tactictype，值为对应的策略类对象；
-    self.eventLoaded_ = {};    --数组，存放已经通过异步加载判断条件过的event，作为标志防止多次异步加载，release过之后对应event删除；
 end
 
 
 function prototype:uninitialize()
-    return;
+    return true;
 end
 
 
@@ -36,18 +39,39 @@ function prototype:isNeedAdditionalCamera()
 end
 
 
+function prototype:getResources()
+    local resList = self.trackObj_:getResources();
+    for i = 1, #resList do
+        self.resList_[#self.resList_ + 1] = resList[i];
+    end
+    return self.resList_;
+end
+
+
 function prototype:setAdditionalCamera(camera)
     logError("你需要在子类中实现set函数");
 end
 
 
 function prototype:stop()
+    self.playState_ = definations.PLAY_STATE.PLAYEND;
     return true;
 end
 
 
 function prototype:play()
+    self.playState_ = definations.PLAY_STATE.PLAY;
     return true;
+end
+
+
+function prototype:changePlayState(state)
+    self.playState_ = state
+end
+
+
+function prototype:getPlayState()
+    return self.playState_;
 end
 
 
@@ -243,7 +267,7 @@ function prototype:loadResourceInitially(callback)
                 end, function(err)
                         done(err)
                     end);
-            end,
+        end,
         }, function(err)
             if err ~= nil then
                 callback(false);
@@ -302,90 +326,6 @@ end
 
 function prototype:onEventLeft(eventObj)
 
-end
-
-
-function prototype:_addPlayingEvent(eventObj, beginTime)
-    local event = {};
-    event.obj_ = eventObj;
-    event.beginTime_ = beginTime;
-    self.playingEvents_[#self.playingEvents_ + 1] = event;
-    self.index_ = self.index_ + 1;
-
-    if self.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
-        local resManager  = self:_getResourceManager(self.resourceManagerTacticType_);
-        local resList = self:_getNeededResList(self.resTable_, eventType);
-        if resManager == nil then
-            return;
-        end
-        resManager:loadResourceImmediatelySync(resList);
-    end
-
-    if self.trackObj_.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
-        local resManager  = self:_getResourceManager(self.trackObj_.resourceManagerTacticType_);
-        local resList = self:_getNeededResList(self.trackObj_.resTable_, eventType);
-        if resManager == nil then
-            return;
-        end
-        resManager:loadResourceImmediatelySync(resList);
-    end
-
-    if eventObj.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
-        local resManager  = self:_getResourceManager(eventObj.resourceManagerTacticType_);
-        if resManager == nil then
-            return;
-        end
-        resManager:loadResourceImmediatelySync(eventObj.resourcesNeeded_);
-    end
-end
-
-
-function prototype:_deletePlayingEvent(index)
-    local eventObj = self.playingEvents_[index].obj_;
-    local eventType = eventObj:getEventType();
-    for k, v in pairs(self.resourceManager_) do
-        if k == self.resourceManagerTacticType_ then
-            for key, value in pairs(self.resTable_) do
-                if key == eventType then
-                    for i = 1, #value do
-                        v:releaseResourceImmediately(value[i]);
-                    end
-                end
-            end
-            
-            break;
-        end
-    end
-
-    for k, v in pairs(self.resourceManager_) do
-        if k == self.trackObj_.resourceManagerTacticType_ then
-            for key, value in pairs(self.trackObj_.resTable_) do
-                if key == eventType then
-                    for i = 1, #value do
-                        v:releaseResourceImmediately(value[i]);
-                    end
-                end
-            end
-            
-            break;
-        end
-    end
-
-
-    for k, v in pairs(self.resourceManager_) do
-        if k == eventObj.resourceManagerTacticType_ then
-            for i = 1,#eventObj.resourcesNeeded_ do 
-                local path = eventObj.resourcesNeeded_[i].path;
-                v:releaseResourceImmediately(path);
-            end
-        end
-    end
-    for i = 1, #self.eventLoaded_ do
-        if self.eventLoaded_[i] == eventObj then
-            table.remove(self.eventLoaded_,i)
-        end
-    end 
-    table.remove(self.playingEvents_,index);
 end
 
 
@@ -501,6 +441,89 @@ function prototype:preparePlayingEvents(callback)
 end
 
 
+function prototype:_addPlayingEvent(eventObj, beginTime)
+    local event = {};
+    event.obj_ = eventObj;
+    event.beginTime_ = beginTime;
+    self.playingEvents_[#self.playingEvents_ + 1] = event;
+    self.index_ = self.index_ + 1;
+
+    if self.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
+        local resManager  = self:_getResourceManager(self.resourceManagerTacticType_);
+        local resList = self:_getNeededResList(self.resTable_, eventType);
+        if resManager == nil then
+            return;
+        end
+        resManager:loadResourceImmediatelySync(resList);
+    end
+
+    if self.trackObj_.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
+        local resManager  = self:_getResourceManager(self.trackObj_.resourceManagerTacticType_);
+        local resList = self:_getNeededResList(self.trackObj_.resTable_, eventType);
+        if resManager == nil then
+            return;
+        end
+        resManager:loadResourceImmediatelySync(resList);
+    end
+
+    if eventObj.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
+        local resManager  = self:_getResourceManager(eventObj.resourceManagerTacticType_);
+        if resManager == nil then
+            return;
+        end
+        resManager:loadResourceImmediatelySync(eventObj.resourcesNeeded_);
+    end
+end
+
+
+function prototype:_deletePlayingEvent(index)
+    local eventObj = self.playingEvents_[index].obj_;
+    local eventType = eventObj:getEventType();
+    for k, v in pairs(self.resourceManager_) do
+        if k == self.resourceManagerTacticType_ then
+            for key, value in pairs(self.resTable_) do
+                if key == eventType then
+                    for i = 1, #value do
+                        v:releaseResourceImmediately(value[i]);
+                    end
+                end
+            end
+            
+            break;
+        end
+    end
+
+    for k, v in pairs(self.resourceManager_) do
+        if k == self.trackObj_.resourceManagerTacticType_ then
+            for key, value in pairs(self.trackObj_.resTable_) do
+                if key == eventType then
+                    for i = 1, #value do
+                        v:releaseResourceImmediately(value[i]);
+                    end
+                end
+            end
+            
+            break;
+        end
+    end
+
+
+    for k, v in pairs(self.resourceManager_) do
+        if k == eventObj.resourceManagerTacticType_ then
+            for i = 1,#eventObj.resourcesNeeded_ do 
+                local path = eventObj.resourcesNeeded_[i].path;
+                v:releaseResourceImmediately(path);
+            end
+        end
+    end
+    for i = 1, #self.eventLoaded_ do
+        if self.eventLoaded_[i] == eventObj then
+            table.remove(self.eventLoaded_,i)
+        end
+    end 
+    table.remove(self.playingEvents_,index);
+end
+
 function prototype:_creatTactic(tacticType)
     if tacticType == definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY then
         self.resourceManager_[tacticType] = newClass("eSkyPlayer/eSkyPlayerResourceLoadInitiallyReleaseLastly");
@@ -526,6 +549,9 @@ end
 
 
 function prototype:_getResList(tab)
+    if tab == nil then
+        return nil;
+    end
     local resList = {};
     for k, v in pairs(tab) do
         for i = 1, #v do
@@ -540,6 +566,9 @@ end
 
 
 function prototype:_getNeededResList(tab, eventType)
+    if tab == nil then
+        return nil;
+    end
     local resList = {};
     for k, v in pairs(tab) do
         if k == eventType then
@@ -555,16 +584,9 @@ function prototype:_getNeededResList(tab, eventType)
 end
 
 function prototype:_update()
+    self.playState_ = definations.PLAY_STATE.PLAYING;
     return;
 end
 
 
 return prototype;
-
-
-
-
-
-
-
-

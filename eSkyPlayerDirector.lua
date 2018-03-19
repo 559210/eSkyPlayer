@@ -8,17 +8,19 @@ function prototype:ctor()
     self.timeLine_ = 0;
     self.isPlaying_ = false;
     self.isSeek_ = false;
-    self.players_ = nil;
+    self.players_ = {}; 
     self.camera_ = nil;
     self.additionalCamera_ = nil;
     self.cameraEffectManager_ = nil;
+    self.project_ = nil;
+    self.time_ = nil;
+    self.tacticByTrack_ = {};
 end
 
 
 function prototype:initialize(camera)
     self.time_ = newClass("eSkyPlayer/eSkyPlayerTimeLine");
     self.timerId_ = TimersEx.Add(0, 0, delegate(self, self._update));
-    self.players_ = {}; 
     self.camera_ = camera;
     self.tacticByTrack_ = {
         {
@@ -40,6 +42,7 @@ function prototype:uninitialize()
     self.time_ = nil;
     self.players_ = nil; 
     self.camera_ = nil;
+    self.project_ = nil;
     if self.timerId_ ~= nil then
         TimersEx.Remove(self.timerId_);
         self.timerId_ = nil;
@@ -58,7 +61,6 @@ function prototype:load(filename,callback)
     if self:loadProject(filename) == false then
         return false;
     end
--- self:changeResourceManagerTactic(self.players_[2],1)
     self:loadResource(function(isPrepared)
         callback(isPrepared);
     end);
@@ -67,19 +69,18 @@ end
 
 
 function prototype:loadProject(filename)
-    self.project = newClass("eSkyPlayer/eSkyPlayerProjectData");
-    self.project:initialize();
-    if self.project:loadProject(filename) == false then 
+    self.project_ = newClass("eSkyPlayer/eSkyPlayerProjectData");
+    self.project_:initialize();
+    if self.project_:loadProject(filename) == false then 
         return false;
     end
-    if self:_createPlayer(self.project) == false then
+    if self:_createPlayer(self.project_) == false then
         return false;
     end
     self:_createAdditionalCamera();
-    for i = 1, #self.players_ do
-        self.players_[i]:onResourceLoaded();    
-    end
+    return true;
 end
+
 
 function prototype:changeResourceManagerTactic(obj,tacticType)
     if obj == nil or obj.resourceManagerTacticType_ == nil or tacticType == nil then
@@ -101,13 +102,40 @@ function prototype:loadResource(callback)
     if self:_loadResourceSync() == false then
         return false;
     end
-    
-    self:_loadResource(function(isLoaded)
-        callback(isLoaded);
-    end);
+
+    async.series({
+        function(done)
+            self:_loadResource(function(isPrepared)
+                if isPrepared == false then
+                    done("resource load failed");
+                else
+                    done();
+                end
+            end);
+        end,
+        function(done)
+            local resList_ = self:_getResources();
+            local resourceManager = require("eSkyPlayer/eSkyPlayerResourceManager");
+            resourceManager:prepare(resList_,function (isPrepared)
+                for i = 1, #self.players_ do
+                    self.players_[i]:onResourceLoaded();    
+                end
+                if isPrepared == false then
+                    done("resList_ load failed");
+                else
+                    done();
+                end
+            end);
+        end,
+        },function(err)
+            if err ~= nil then
+                callback(false);
+            else
+                callback(true);
+            end
+        end);
     return true;
 end
-
 
 
 function prototype:play()
@@ -125,6 +153,7 @@ function prototype:play()
     return true;
 end
 
+
 function prototype:stop()
     if self.isPlaying_ == false then
         return false;
@@ -140,6 +169,7 @@ function prototype:stop()
     end
     return true;
 end
+
 
 function prototype:seek(time)
     if time < 0 or time > self.timeLength_ then
@@ -169,11 +199,29 @@ function prototype:setNewCamera(camera)
 end
 
 
+function prototype:_getResources()
+    local resList_ = {};
+    if #self.players_ == 0 then
+        return nil;
+    end
+    for i = 1,#self.players_ do
+        local res = self.players_[i]:getResources();
+        if res ~= nil then
+            for j = 1,#res do
+                resList_[#resList_ + 1] = res[j];
+            end
+        end
+    end
+    return resList_;
+end
+
+
 function prototype:_createCamera()
     local obj_ = newGameObject("camera");
     self.additionalCamera_ = obj_:AddComponent(typeof(Camera));
     self.additionalCamera_.enabled = false;
 end
+
 
 function prototype:_createAdditionalCamera()
     if self.additionalCamera_ ~= nil then 
@@ -208,32 +256,35 @@ function prototype:_createPlayer(obj)
             if track:getTrackLength() > self.timeLength_ then
                 self.timeLength_ = track:getTrackLength();
             end
-
-            local trackType = track:getTrackType();
-            if trackType == definations.TRACK_TYPE.CAMERA_MOTION then
-                local player = newClass ("eSkyPlayer/eSkyPlayerCameraMotionPlayer",self);
-                self.players_[#self.players_ + 1] = player;
-                player:initialize(track);
-            elseif trackType == definations.TRACK_TYPE.CAMERA_PLAN then
-                local player = newClass ("eSkyPlayer/eSkyPlayerCameraPlanPlayer",self);
-                self.players_[#self.players_ + 1] = player;
-                player:initialize(track);
-            elseif trackType == definations.TRACK_TYPE.CAMERA_EFFECT then
-                local player = newClass ("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
-                self.players_[#self.players_ + 1] = player;
-                player:initialize(track);
-            elseif trackType == definations.TRACK_TYPE.SCENE_PLAN then
-                local player = newClass ("eSkyPlayer/eSkyPlayerScenePlayer",self);
-                self.players_[#self.players_ + 1] = player;
-                player:initialize(track);
-            else 
-                return false;
-            end
+        end
+        local trackType = track:getTrackType();
+        if trackType == definations.TRACK_TYPE.CAMERA_MOTION then
+            local player = newClass ("eSkyPlayer/eSkyPlayerCameraMotionPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        elseif trackType == definations.TRACK_TYPE.CAMERA_PLAN then
+            local player = newClass ("eSkyPlayer/eSkyPlayerCameraPlanPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        elseif trackType == definations.TRACK_TYPE.CAMERA_EFFECT then
+            local player = newClass ("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        elseif trackType == definations.TRACK_TYPE.SCENE_PLAN then
+            local player = newClass ("eSkyPlayer/eSkyPlayerScenePlanPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        elseif trackType == definations.TRACK_TYPE.SCENE_MOTION then
+            local player = newClass("eSkyPlayer/eSkyPlayerSceneTrackPlayer",self);
+            self.players_[#self.players_ + 1] = player;
+            player:initialize(track);
+        else 
+            return false;
         end
     end
+
     return true;
 end
-
 
 
 function prototype:_update()
@@ -264,6 +315,7 @@ function prototype:_assignDefaultTactic(obj)
 
     for i = 1, #self.players_ do
         local track = self.players_[i].trackObj_;
+        if track ~= nil then
         local trackType = track:getTrackType();
 
         for j = 1, #self.tacticByTrack_ do
@@ -277,6 +329,7 @@ function prototype:_assignDefaultTactic(obj)
                 end
 
                 count = 0;
+                -- if track.resTable_ ~= nil then
                 for k, v in pairs(track.resTable_) do
                     count = count + 1;
                 end
@@ -292,13 +345,15 @@ function prototype:_assignDefaultTactic(obj)
                     end
                 end
             end
+            -- end
         end
+    end
     end
 end
 
 
 function prototype:_loadResourceSync()
-    self:_assignDefaultTactic(self.project);
+    self:_assignDefaultTactic(self.project_);
     for i = 1, #self.players_ do
         if self.players_[i]:loadResourceInitiallySync() == false then
             return false;
@@ -309,7 +364,7 @@ end
 
 
 function prototype:_loadResource(callback)
-    self:_assignDefaultTactic(self.project);
+    self:_assignDefaultTactic(self.project_);
     async.mapSeries(self.players_,
         function(player,done)
             player:loadResourceInitially(function(isPrepared)
@@ -321,8 +376,8 @@ function prototype:_loadResource(callback)
             end)
         end,function (err)
                 if err ~= nil then
+                    logError("22222222222222")
                     callback(false);
-                    return;
                 else
                     callback(true);
                 end
@@ -342,5 +397,6 @@ end
 
 function prototype:createEventToTrackPlayer(trackPlayer, eventObj) -- eventObj由event类的静态函数createObject生成
 end
+
 
 return prototype;

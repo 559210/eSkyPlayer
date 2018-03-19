@@ -3,7 +3,7 @@ local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
-    self.base:ctor();
+    prototype.super.ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.DEPTH_OF_FIELD;
     self.eventType_ = definations.EVENT_TYPE.DEPTH_OF_FIELD;
 end

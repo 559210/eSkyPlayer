@@ -2,25 +2,26 @@ local prototype = class("eSkyPlayerCameraMotionPlayer",require "eSkyPlayer/eSkyP
 
 
 function prototype:ctor(director)
-    self.base:ctor(director);
-    self.cameraTrack_ = nil;
+    prototype.super.ctor(self, director);
+    self.trackObj_ = nil;
     self.isNeedAdditionalCamera_ = false;
+    self.cameras_ = {};
 end
 
 
 function prototype:initialize(trackObj)
-    self.cameraTrack_ = trackObj;
+    prototype.super.initialize(self, trackObj);
+    self.trackObj_ = trackObj;
     --self.cameras_目前有两个Camera，第一个默认为主Camera，第二个为需要时另外创建的Camera。
     self.cameras_ = {{camera_ = self.director_.camera_;
     isUsed_ = false},};
-    self.cameraJobsQueue_ = {};
     self:_isNeedAdditionalCamera();
-    return self.base:initialize(trackObj);
+    self.base:initialize(trackObj);
 end
 
 
 function prototype:play()
-    if self.cameraTrack_ == nil  then
+    if self.trackObj_ == nil  then
         return false; 
     end
     if self.director_.camera_ == nil then
@@ -103,6 +104,8 @@ function prototype:_transformCamera(queue)
     local ratio = deltaTime / eventObj.eventData_.timeLength_ ;
     camera.transform.position = Vector3.Lerp (eventObj.eventData_.beginFrame_, eventObj.eventData_.endFrame_, ratio );
     camera.transform.rotation = Quaternion.Lerp (eventObj.eventData_.beginDr_, eventObj.eventData_.endDr_, ratio );
+-----------------------
+--TODO:fov要用起来；cameraMotionPlayer的播放要在cameraEffectPlayer的前面
 end
 
 function prototype:_requestCamera()
@@ -138,7 +141,7 @@ function prototype:_returnCamera(cam)
 end
 
 function prototype:_isNeedAdditionalCamera()
-    if self.cameraTrack_:isNeedAdditionalCamera() == true then
+    if self.trackObj_:isNeedAdditionalCamera() == true then
         self.isNeedAdditionalCamera_ = true;
     else 
         self.isNeedAdditionalCamera_ = false;

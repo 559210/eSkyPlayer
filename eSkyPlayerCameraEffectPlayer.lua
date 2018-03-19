@@ -4,14 +4,16 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 
 function prototype:ctor(director)
-    self.base:ctor(director);
+    prototype.super.ctor(self, director);
     self.mainCamera_ = director.camera_;
     self.trackObj_ = nil;
-    self.isNeedAdditionalCamera_ = false;
     self.playingEvent_ = nil;
     self.cameraEffectManager_ = director.cameraEffectManager_;
     self.param_ = nil;
     self.additionalCamera_ = nil;
+    self.isEventPlaying_ = false;
+    self.isNeedAdditionalCamera_ = false;
+    self.effectId_ = -1;
 
     -- self.xxx = {
     --     definations.CAMERA_EFFECT_TYPE.BLOOM : {
@@ -25,13 +27,10 @@ end
 
 
 function prototype:initialize(trackObj)
-    self.base:initialize(trackObj);
+    prototype.super.initialize(self, trackObj);
     self.trackObj_ = trackObj;
-    self.isEventPlaying_ = false;
     self.effectId_ = -1;
     self:_isNeedAdditionalCamera();
-    self.resTable_ = {};
-    self.resTable_[definations.EVENT_TYPE.BLOOM] = {"camera/textures/LensDirt02"};
 end
 
 
@@ -42,7 +41,7 @@ function prototype:play()
     if self.mainCamera_ == nil then
         return false;
     end
-    self.base:play();
+    prototype.super.play(self);
     return true;
 end
 

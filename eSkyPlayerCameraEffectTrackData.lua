@@ -17,26 +17,11 @@ function prototype:ctor()
     };
 end
 
+
 function prototype:initialize()
     prototype.super.initialize(self);
 end
 
--- function prototype:getResources()
---     local resList = {};
---     if #self.events_ == 0 then
---         return nil;
---     end
-    
---     for i = 1,#self.events_ do
---         local res = self.events_[i].eventObj_:getResources();
---         if res ~= nil then
---             for j = 1,#res do
---                 resList[#resList + 1] = res[j];
---             end
---         end
---     end
---     return resList;
--- end
 
 function prototype:isNeedAdditionalCamera()
     for i = 1, #self.events_ do

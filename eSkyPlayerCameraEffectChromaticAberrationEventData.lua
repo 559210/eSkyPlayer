@@ -3,13 +3,13 @@ local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
-    self.base:ctor();
+    prototype.super.ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.CHROMATIC_ABERRATION;
     self.eventType_ = definations.EVENT_TYPE.CHROMATIC_ABERRATION;
 end
 
 function prototype:initialize()
-    self.base:initialize();
+    prototype.super.initialize(self);
     self.texturePath_ = nil;
     self.textures_ = {
     "camera/textures/SpectralLut_BlueRed",

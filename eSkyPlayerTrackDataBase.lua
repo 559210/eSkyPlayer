@@ -4,19 +4,21 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 
 function prototype:ctor()
-    self.trackType_ = definations.TRACK_TYPE.UNKOWN;
-    self.trackFileType_ = definations.TRACK_FILE_TYPE.UNKOWN;
-    self.events_ = {};
     self.title_ = nil;
     self.pathHeader_ = nil;
     self.eventsSupportted_ = nil;
     self.mainSceneModelPath_ = nil;
+    self.events_ = {};
+    self.resList_ = {};  --数组：存放开始时需要特定加载的资源，不通过策略类加载，path/count;
+    self.resTable_ = {};  --键值对：存放通过策略类实现加载的资源，eventType/path;
+    self.trackType_ = definations.TRACK_TYPE.UNKOWN;
+    self.trackFileType_ = definations.TRACK_FILE_TYPE.UNKOWN;
+    self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
 end
 
 
 function prototype:initialize()
-    self.resTable_ = {};
-    self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
+    
 end
 
 
@@ -92,9 +94,9 @@ function prototype:getEventBeginTimeAt(index)
 end
 
 
--- function prototype:getResources()
---     return nil;
--- end
+function prototype:getResources()
+    return self.resList_;
+end
 
 
 function prototype:isNeedAdditionalCamera()

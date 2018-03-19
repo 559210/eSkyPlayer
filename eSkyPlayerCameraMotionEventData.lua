@@ -3,7 +3,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 
 function prototype:ctor()
-    self.base:ctor();
+    prototype.super.ctor(self);
     self.eventType_ = definations.EVENT_TYPE.CAMERA_MOTION;
 end
 

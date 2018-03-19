@@ -67,7 +67,15 @@ local definations = {
         LOAD_INITIALLY_SYNC_RELEASE_LASTLY = 2,
         LOAD_IMMEDIATELY_RELEASE_IMMEDIATELY = 3,
         LOAD_IMMEDIATELY_SYNC_RELEASE_IMMEDIATELY = 4,
-    }
+    };
+
+    PLAY_STATE = {
+        NORMAL = 0, --就绪
+        PLAY = 1,--开始播放
+        PLAYING = 2,--播放中
+        PLAYEND = 3 --播放结束
+    };
 }
+
 
 return definations;
