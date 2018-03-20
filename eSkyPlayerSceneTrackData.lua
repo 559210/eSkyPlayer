@@ -1,4 +1,4 @@
-local prototype = class("eSkyPlayerSceneTrackData", require("eSkyPlayer/eSkyPlayerSceneTrackDataBase"));
+local prototype = class("eSkyPlayerSceneTrackData", require("eSkyPlayer/eSkyPlayerTrackDataBase"));
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 
@@ -13,6 +13,40 @@ function prototype:ctor()
     };
 end
 
+
+function prototype:_loadFromBuff(buff)
+    if buff == nil then return false; end
+    buff:ReadString(); --name 
+    self:_setParam({stagePath = buff:ReadString()});
+    local eventCount = buff:ReadShort();
+    if eventCount == 0 then
+        return true;
+    end
+    for i = 1, eventCount do
+        local eventFile = {};
+        local eventObj = nil;
+        if self.eventsSupportted_ == nil then
+            return false;
+        end
+        eventFile.beginTime_ = buff:ReadFloat();
+        eventFile.name_ = buff:ReadString();
+        eventFile.storeType_ = buff:ReadByte();
+        eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
+        eventFile.labelID_ = buff:ReadByte();
+        eventObj = newClass("eSkyPlayer/eSkyPlayerSceneMotionEventData");
+        eventObj:initialize();
+        if self:isSupported(eventObj) == false then
+            return false;
+        end
+        local scene_path = string.format("mod/plans/scene/" ..self.title_ .."/scene/" ..eventFile.name_ ..".byte");
+        if eventObj:loadEvent(scene_path) == false then
+            return false;
+        end
+        self:_insertEvent(eventFile,eventObj);
+    end
+
+    return true;
+end
 
 function prototype.createObject(param)
     local obj = prototype:create();

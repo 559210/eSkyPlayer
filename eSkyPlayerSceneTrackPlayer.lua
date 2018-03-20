@@ -7,7 +7,7 @@ function prototype:ctor(director)
 	self.isEventPlay_ = false;--event播放标记
 	self.resPath_ = nil;
 	self.animators_ = nil; --动画
-	self.particleSys_ = nil;--粒子
+	self.particleSys_ = nil;--粒子  self.trackObj_
 	self.eventCount_ = 0;
 	self.speed_ = 0;
 end
@@ -33,6 +33,14 @@ function prototype:onResourceLoaded()
 		self.obj = obj;
 		self.animators_ = obj:GetComponentsInChildren(typeof(Animator));
 		self.particleSys_ = obj:GetComponentsInChildren(typeof(ParticleSystem));
+		self:_setAnimSpeed();
+	end
+end
+
+function prototype:_setAnimSpeed()
+	if self.animators_ ~= nil and self.animators_.Length > 0
+		and self.particleSys_ ~= nil and self.particleSys_.Length > 0 then
+		self.speed_ = 1;
 	end
 end
 
@@ -45,12 +53,13 @@ function prototype:play()
 end
 
 function prototype:onEventLeft(eventObj)
-	self:stopEvent();
+	self:_stopEvent();
 end
 
 function prototype:_update()
 	if self.director_.timeLine_ > self.director_.timeLength_ then
         self:changePlayState(definations.PLAY_STATE.PLAYEND);
+        self:_stopEvent();
         return;
     end
 
@@ -58,7 +67,6 @@ function prototype:_update()
         -- body
     end);
 
-    --修改event播放规则
 	if self:getPlayState() == definations.PLAY_STATE.PLAY then
 		for j = 1, #self.playingEvents_ do
 			local queue = self.playingEvents_[j];
@@ -66,11 +74,13 @@ function prototype:_update()
 				if self.animators_ ~= nil then
 					local eventTime = queue.endTime_ - queue.beginTime_;
 					local progress = (self.director_.timeLine_ - queue.beginTime_) / eventTime; --当前播放在event中的比例
-					self:playEventAnim(progress);	
+					self:_playEventAnim(progress);	
 				end
-				if not self.isEventPlay_ then
-					self:playEventParticle();
-					self.isEventPlay_ = true;
+				if self.particleSys_ ~= nil then
+					if not self.isEventPlay_ then
+						self:_playEventParticle();
+						self.isEventPlay_ = true;
+					end	
 				end
 			-- end
 		end
@@ -79,7 +89,7 @@ end
 
 function prototype:stop()
 	self.base:stop();
-	self:stopEvent();
+	self:_stopEvent();
 end
 
 function prototype:seek(time)
@@ -87,7 +97,7 @@ function prototype:seek(time)
     return true;
 end
 
-function prototype:playEventParticle()
+function prototype:_playEventParticle()
 	if self.particleSys_ ~= nil then
 		for i = 0, self.particleSys_.Length - 1 do
 			local emission = self.particleSys_[i].emission;
@@ -98,7 +108,7 @@ function prototype:playEventParticle()
 	
 end
 
-function prototype:playEventAnim(progress)
+function prototype:_playEventAnim(progress)
 	if self.animators_ ~= nil then
 		for i = 0, self.animators_.Length - 1 do
 			local anim = self.animators_[i];
@@ -112,7 +122,7 @@ function prototype:playEventAnim(progress)
 	end
 end
 
-function prototype:stopEvent()
+function prototype:_stopEvent()
 	if self.isEventPlay_ then self.isEventPlay_ = false; end
 	if self.particleSys_ ~= nil then
 		for i = 0, self.particleSys_.Length - 1 do

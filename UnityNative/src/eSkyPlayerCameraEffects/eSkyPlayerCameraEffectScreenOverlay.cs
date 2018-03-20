@@ -29,7 +29,6 @@ public class eSkyPlayerCameraEffectScreenOverlay : IeSkyPlayerCameraEffectBase {
 			return false;
 		}
 		m_screenOverlay = m_manager.getComponentScreenOverlayBehaviour ();
-		m_screenOverlay.enabled = true;
 		return true;
 	}
 		
