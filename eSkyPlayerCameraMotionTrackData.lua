@@ -1,4 +1,4 @@
-local prototype = class("eSkyPlayerCameraMotionTrackData", require("eSkyPlayer/eSkyPlayerCameraTrackDataBase"));
+local prototype = class("eSkyPlayerCameraMotionTrackData", require("eSkyPlayer/eSkyPlayerTrackDataBase"));
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 
@@ -26,5 +26,53 @@ function prototype:_setParam(param)
     return true;    
 end
 
+function prototype:_loadFromBuff(buff)
+    if buff == nil then 
+        return false; 
+    end
 
+    local trackTitle = buff:ReadString();
+    local eventCount = buff:ReadShort();
+    if eventCount == 0 then
+        return true;
+    end
+
+
+    for e = 1, eventCount do
+        local eventFile = {};
+        local eventObj = nil;
+
+        if self.eventsSupportted_ == nil then
+            return false;
+        end
+        eventFile.beginTime_ = buff:ReadFloat();
+        eventFile.name_ = buff:ReadString();
+        eventFile.storeType_ = buff:ReadByte();
+        eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
+        buff:ReadByte();--labelID
+        eventObj = newClass("eSkyPlayer/eSkyPlayerCameraMotionEventData");
+        eventObj:initialize();
+        if self:isSupported(eventObj) == false then
+            return false;
+        end
+        if eventFile.storeType_ == 0 then
+            if eventObj:loadEvent( "mod/events/camera/" .. eventFile.name_ .. ".byte") == false then
+                return false;
+            end
+        else
+            if self.pathHeader_ == nil then 
+                if eventObj:loadEvent( "mod/plans/camera/" .. self.title_ .. "/camera/" .. eventFile.name_ .. ".byte") == false then
+                    return false;
+                end 
+            else 
+                if eventObj:loadEvent(self.pathHeader_ .. "camera/" .. eventFile.name_) ==false then
+                    return false;
+                end
+            end
+        end
+        self:_insertEvent(eventFile,eventObj);
+    end
+
+    return true;
+end
 return prototype;
