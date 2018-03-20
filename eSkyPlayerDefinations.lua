@@ -47,8 +47,6 @@ local definations = {
         EFFECT = 10,
         AVATAR_PART = 11,
         TWO_D_OBJECT = 12,
-        SCENE_MOTION = 13,
-        SCENE_EFFECT = 14,
     };
 
     CAMERA_EFFECT_TYPE = {
@@ -78,6 +76,5 @@ local definations = {
         PLAYEND = 3 --播放结束
     };
 }
-
 
 return definations;
