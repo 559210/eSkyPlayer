@@ -10,34 +10,16 @@ function prototype:ctor()
     self.createParameters = {};
 end
 
-
-function prototype.createObject(param)
-    local obj = prototype:create();
-    if obj:_setParam(param) == false then
-        return nil;
-    end
-    return obj;
-end
-
-function prototype:_setParam(param)
-    if misc.checkParam(self.createParameters,param) == false then
-        return false;
-    end
-    return true;    
-end
-
 function prototype:_loadFromBuff(buff)
     if buff == nil then 
         return false; 
     end
-
     local trackTitle = buff:ReadString();
     local eventCount = buff:ReadShort();
+    self:_setParam({});
     if eventCount == 0 then
         return true;
     end
-
-
     for e = 1, eventCount do
         local eventFile = {};
         local eventObj = nil;
@@ -75,4 +57,20 @@ function prototype:_loadFromBuff(buff)
 
     return true;
 end
+
+function prototype.createObject(param)
+    local obj = prototype:create();
+    if obj:_setParam(param) == false then
+        return nil;
+    end
+    return obj;
+end
+
+function prototype:_setParam(param)
+    if misc.checkParam(self.createParameters,param) == false then
+        return false;
+    end
+    return true;    
+end
+
 return prototype;

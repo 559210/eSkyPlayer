@@ -6,6 +6,7 @@ function prototype:ctor()
     self.eventData_ = nil;
     self.projectData_ = nil;
     self.resourceManager_ = nil;
+    self.resourcesNeeded_ = {};
     self.eventType_ = definations.EVENT_TYPE.UNKOWN;
 end
 

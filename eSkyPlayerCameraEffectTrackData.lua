@@ -7,13 +7,13 @@ function prototype:ctor()
     self.trackType_ = definations.TRACK_TYPE.CAMERA_EFFECT;
     self.trackFileType_ = definations.TRACK_FILE_TYPE.CAMERA_MOTION;
     self.eventsSupportted_ = {
-    definations.EVENT_TYPE.BLOOM,
-    definations.EVENT_TYPE.BLACK,
-    definations.EVENT_TYPE.DEPTH_OF_FIELD,
-    definations.EVENT_TYPE.CROSS_FADE,
-    definations.EVENT_TYPE.FIELD_OF_VIEW,
-    definations.EVENT_TYPE.CHROMATIC_ABERRATION,
-    definations.EVENT_TYPE.VIGNETTE,
+        definations.EVENT_TYPE.BLOOM,
+        definations.EVENT_TYPE.BLACK,
+        definations.EVENT_TYPE.DEPTH_OF_FIELD,
+        definations.EVENT_TYPE.CROSS_FADE,
+        definations.EVENT_TYPE.FIELD_OF_VIEW,
+        definations.EVENT_TYPE.CHROMATIC_ABERRATION,
+        definations.EVENT_TYPE.VIGNETTE,
     };
     self.createParameters = {};
 end
@@ -26,6 +26,7 @@ function prototype:_loadFromBuff(buff)
 
     local trackTitle = buff:ReadString();
     local eventCount = buff:ReadShort();
+    self:_setParam({});
     if eventCount == 0 then
         return true;
     end
