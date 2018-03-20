@@ -93,6 +93,7 @@ function prototype:stop()
 end
 
 function prototype:seek(time)
+	self.base:seek(time);
 	self:changePlayState(definations.PLAY_STATE.PLAY);
     return true;
 end
