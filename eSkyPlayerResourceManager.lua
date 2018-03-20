@@ -12,11 +12,6 @@ function prototype:_pushResource(resPathName, res, count)
         self.resourcePool[resPathName] = {resourceObj = res, count = 0};
         resInfo = self.resourcePool[resPathName];
     end
-    
-    if count == -1 then
-        self.resourcePool[resPathName].count = -1;
-        return;
-    end
 
     resInfo.count = resInfo.count + count;
 end
@@ -97,10 +92,6 @@ end
 function prototype:releaseResource(pathName)
     local res = self:_getResourceInfoByPathName(pathName);
     if res == nil then
-        return;
-    end
-
-    if res.count == -1 then
         return;
     end
 

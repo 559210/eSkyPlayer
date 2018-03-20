@@ -4,17 +4,21 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 
 function prototype:ctor()
-    self.trackType_ = definations.TRACK_TYPE.UNKOWN;
-    self.trackFileType_ = definations.TRACK_FILE_TYPE.UNKOWN;
-    self.events_ = {};
     self.title_ = nil;
     self.pathHeader_ = nil;
     self.eventsSupportted_ = nil;
+    self.mainSceneModelPath_ = nil;
+    self.events_ = {};
+    self.resList_ = {};  --数组：存放开始时需要特定加载的资源，不通过策略类加载，path/count;
+    self.resTable_ = {};  --键值对：存放通过策略类实现加载的资源，eventType/path;
+    self.trackType_ = definations.TRACK_TYPE.UNKOWN;
+    self.trackFileType_ = definations.TRACK_FILE_TYPE.UNKOWN;
+    self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
 end
 
 
 function prototype:initialize()
-
+    
 end
 
 
@@ -31,6 +35,7 @@ function prototype:loadTrack(filename)
         self.title_ = string.sub(filename, b + 1, d - 1);
         self.pathHeader_ = string.match(filename,"mod/projects/.+/");
     end
+
     local buff = misc.readAllBytes(path);
     if self:_loadHeaderFromBuff(buff) == false then
         return false;
@@ -68,14 +73,14 @@ function prototype:getTrackType()
     return self.trackType_;
 end
 
--- function prototype:getTrackData()
---     return self.trackFile_;
--- end
+function prototype:getTrackData()
+    return self.trackFile_;
+end
 
 
 function prototype:getEventAt(index)
     if index < 1 or index > #self.events_ then
-        return false;
+        return nil;
     end
     return self.events_[index].eventObj_;
 end
@@ -83,14 +88,14 @@ end
 
 function prototype:getEventBeginTimeAt(index)
     if index < 1 or index > #self.events_ then
-        return false;
+        return -1;
     end
     return self.events_[index].eventFile_.beginTime_;
 end
 
 
 function prototype:getResources()
-    return nil;
+    return self.resList_;
 end
 
 

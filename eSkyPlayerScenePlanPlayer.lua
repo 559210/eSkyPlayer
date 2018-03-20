@@ -2,11 +2,11 @@ local prototype = class("eSkyPlayerScenePlanPlayer",require "eSkyPlayer/eSkyPlay
 
 
 function prototype:ctor(director)
-
+    prototype.super.ctor(self, director);
 end
 
 
-function prototype:initialize(trackObj)
+function prototype:seek(time)
     return true;
 end
 

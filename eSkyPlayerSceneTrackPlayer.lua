@@ -4,7 +4,6 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor(director)
     self.base:ctor(director);
-    -- self.sceneTrack_ = nil;
     self.sceneEventQueue_ = {};--event播放队列
 	self.isEventPlay_ = false;--event播放标记
 	self.resPath_ = nil;
@@ -16,7 +15,6 @@ end
 
 function prototype:initialize(trackObj)
 	self.eventCount_ = trackObj:getEventCount();
-    -- self.sceneTrack_ = trackObj;
     self.sceneEventQueue_ = {};
     
     return self.base:initialize(trackObj);
@@ -57,6 +55,10 @@ function prototype:play()
     return true;
 end
 
+function prototype:onEventLeft(eventObj)
+	self:_stopEvent();
+end
+
 function prototype:_update()
 	if self.director_.timeLine_ > self.director_.timeLength_ then
         self:changePlayState(definations.PLAY_STATE.PLAYEND);
@@ -64,29 +66,11 @@ function prototype:_update()
         return;
     end
 
-    --修改event播放规则
+    self:preparePlayingEvents(function(done)
+        -- body
+    end);
+
 	if self:getPlayState() == definations.PLAY_STATE.PLAY then
-		local eventData = self.trackObj_;
-		for j = 1, self.eventCount_ do
-			local event = eventData.events_[j];
-			local beginTime = event.eventFile_.beginTime_;
-			local eventObj = event.eventObj_;
-	        local endTime = beginTime + eventObj.eventData_.timeLength_;
-	        if self.director_.timeLine_ >= beginTime and self.director_.timeLine_ <= endTime then
-	        	self:_refreshQueue(beginTime,endTime,eventObj);
-	        end
-	        if self.director_.timeLine_ >= endTime or self.director_.timeLine_ <= beginTime then
-	            for k = 1, #self.sceneEventQueue_ do
-	                local queue = self.sceneEventQueue_[k];
-	                if queue.eventObj == eventObj then
-	                	self.isEventPlay_ = false;
-	                	self:_stopEvent();
-	                    table.remove(self.sceneEventQueue_, k);
-	                    break;
-	                end
-	            end
-	        end
-		end
 		for j = 1, #self.sceneEventQueue_ do
 			local queue = self.sceneEventQueue_[j];
 			-- if self.director_.timeLine_ >= queue.beginTime and self.director_.timeLine_ <= queue.endTime then

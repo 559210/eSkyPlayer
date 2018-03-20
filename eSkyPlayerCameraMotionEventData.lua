@@ -3,7 +3,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 
 function prototype:ctor()
-    self.base:ctor();
+    prototype.super.ctor(self);
     self.eventType_ = definations.EVENT_TYPE.CAMERA_MOTION;
     self.createParameters = {
         beginFrame = "table", --起点坐标
