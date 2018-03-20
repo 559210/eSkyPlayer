@@ -194,6 +194,54 @@ function prototype:seek(time)
 end
 
 
+--动态添加track
+function prototype:addTrack(track,callback)
+    local player = self:_createPlayerByTrack(track);
+    if player ~= nil then
+        local res = player:getResources();
+        local resourceManager = require("eSkyPlayer/eSkyPlayerResourceManager");
+        resourceManager:prepare(res,function (isPrepared)
+            self:_createAdditionalCamera();
+            player:onResourceLoaded();
+            callback(isPrepared);
+        end);
+    end
+end
+
+
+function prototype:_createPlayerByTrack(track)
+    local trackType = track:getTrackType();
+    if track:getTrackLength() > self.timeLength_ then
+        self.timeLength_ = track:getTrackLength();
+    end
+    local player = nil;
+    if trackType == definations.TRACK_TYPE.CAMERA_MOTION then
+        player = newClass("eSkyPlayer/eSkyPlayerCameraMotionPlayer",self);
+    elseif trackType == definations.TRACK_TYPE.CAMERA_PLAN then
+        player = newClass("eSkyPlayer/eSkyPlayerCameraPlanPlayer",self);
+    elseif trackType == definations.TRACK_TYPE.CAMERA_EFFECT then
+        player = newClass("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
+    elseif trackType == definations.TRACK_TYPE.SCENE_PLAN then
+        player = newClass("eSkyPlayer/eSkyPlayerScenePlanPlayer",self);
+    elseif trackType == definations.TRACK_TYPE.SCENE_MOTION then
+        player = newClass("eSkyPlayer/eSkyPlayerSceneTrackPlayer",self);
+    elseif trackType == definations.TRACK_TYPE.ROLE_PLAN then
+        player = newClass("eSkyPlayer/eSkyPlayerRolePlanPlayer", self);
+    elseif trackType == definations.TRACK_TYPE.ROLE_MOTION then
+        player = newClass("eSkyPlayer/eSkyPlayerRoleMotionPlayer", self);
+    else
+        player = nil;
+    end
+    if player ~= nil then
+        self.players_[#self.players_ + 1] = player;
+        player:initialize(track);
+        return player;
+    else
+        return nil;
+    end
+end
+
+
 function prototype:setNewCamera(camera)
     self.camera_ = camera;--改变camera的函数
 end
@@ -240,10 +288,6 @@ end
 
 
 function prototype:_createPlayer(obj)
-    if obj:getTrackCount() == 0 then
-        return true;
-    end
-
     for i = 1, obj:getTrackCount() do
         local track = obj:getTrackAt(i);
         if track:getEventCount() > 0 then    
@@ -252,33 +296,9 @@ function prototype:_createPlayer(obj)
             if event_:isProject() then
                 self:_createPlayer(event_:getProjectData());
             end
-
-            if track:getTrackLength() > self.timeLength_ then
-                self.timeLength_ = track:getTrackLength();
-            end
         end
-        local trackType = track:getTrackType();
-        if trackType == definations.TRACK_TYPE.CAMERA_MOTION then
-            local player = newClass ("eSkyPlayer/eSkyPlayerCameraMotionPlayer",self);
-            self.players_[#self.players_ + 1] = player;
-            player:initialize(track);
-        elseif trackType == definations.TRACK_TYPE.CAMERA_PLAN then
-            local player = newClass ("eSkyPlayer/eSkyPlayerCameraPlanPlayer",self);
-            self.players_[#self.players_ + 1] = player;
-            player:initialize(track);
-        elseif trackType == definations.TRACK_TYPE.CAMERA_EFFECT then
-            local player = newClass ("eSkyPlayer/eSkyPlayerCameraEffectPlayer",self);
-            self.players_[#self.players_ + 1] = player;
-            player:initialize(track);
-        elseif trackType == definations.TRACK_TYPE.SCENE_PLAN then
-            local player = newClass ("eSkyPlayer/eSkyPlayerScenePlanPlayer",self);
-            self.players_[#self.players_ + 1] = player;
-            player:initialize(track);
-        elseif trackType == definations.TRACK_TYPE.SCENE_MOTION then
-            local player = newClass("eSkyPlayer/eSkyPlayerSceneTrackPlayer",self);
-            self.players_[#self.players_ + 1] = player;
-            player:initialize(track);
-        else 
+
+        if self:_createPlayerByTrack(track) == nil then
             return false;
         end
     end
@@ -376,7 +396,6 @@ function prototype:_loadResource(callback)
             end)
         end,function (err)
                 if err ~= nil then
-                    logError("22222222222222")
                     callback(false);
                 else
                     callback(true);
@@ -384,6 +403,11 @@ function prototype:_loadResource(callback)
             end);
 end
 
+
+-- roleObj必须是eSkyPlayerRoleAgent对象
+function prototype:addRole(roleObj)
+
+end
 
 --------------------------------------------------------------------------
 -- 下面是动态创建track，event的代码，其他代码往上写
@@ -397,6 +421,7 @@ end
 
 function prototype:createEventToTrackPlayer(trackPlayer, eventObj) -- eventObj由event类的静态函数createObject生成
 end
+
 
 
 return prototype;

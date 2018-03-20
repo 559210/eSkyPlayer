@@ -8,4 +8,9 @@ function prototype:ctor()
     self.eventsSupportted_ = {definations.EVENT_TYPE.SCENE_PLAN};
 end
 
+
+function prototype:_setParam(param)
+    return true;
+end
+
 return prototype;

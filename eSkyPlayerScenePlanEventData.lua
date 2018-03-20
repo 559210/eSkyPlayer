@@ -12,5 +12,9 @@ function prototype:_loadFromBuff(buff)
     return true;
 end
 
+function prototype.createObject(param)
+    local obj = prototype:create();
+    return obj;
+end
 
 return prototype;

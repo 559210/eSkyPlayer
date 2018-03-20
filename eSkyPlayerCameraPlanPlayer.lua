@@ -1,7 +1,7 @@
 local prototype = class("eSkyPlayerCameraPlanPlayer",require "eSkyPlayer/eSkyPlayerBase");
 
 function prototype:ctor(director)
-    prototype.super.ctor(self,director);
+    prototype.super.ctor(self, director);
 end
 
 

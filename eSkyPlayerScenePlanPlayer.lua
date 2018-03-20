@@ -2,7 +2,7 @@ local prototype = class("eSkyPlayerScenePlanPlayer",require "eSkyPlayer/eSkyPlay
 
 
 function prototype:ctor(director)
-    prototype.super.ctor(self);
+    prototype.super.ctor(self, director);
 end
 
 

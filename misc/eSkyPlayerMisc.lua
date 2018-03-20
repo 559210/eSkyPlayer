@@ -55,4 +55,14 @@ function prototype.setValuesByWeight(valueInfo)
 end
 
 
+function prototype.checkParam(proto, param)
+    if param == nil then return false; end
+    for k,v in pairs(proto) do
+        if param[k] == nil or type(param[k]) ~= v then
+            return false;
+        end
+    end
+    return true;
+end
+
 return prototype;

@@ -36,7 +36,7 @@ function prototype:_loadSceneConfig(filename)
     local stageName = buff:ReadString();
     local stagePath = buff:ReadString();
 
-    local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneVirtualTrackData");
+    local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneTrackData");
     local virtualTrack = sceneTrack.createObject({stagePath = stagePath});
     -- TODO: 考虑是否要将track放入容器的功能抽成函数
     if nil ~= virtualTrack then
@@ -60,11 +60,10 @@ function  prototype:_loadConfig(filename)
 end
 
 
-
 function prototype:_loadTracks(trackPath)
     local trackData = nil;
     if string.match(trackPath,"mod/plans/camera/.+/cameraTrack") or
-        string.match(trackPath,"mod/projects/.-/plans/camera/.+/cameraTrack") then
+        string.match(trackPath,"mod/projects/.+/plans/camera/.+/cameraTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerCameraMotionTrackData");
         trackData:initialize();
         if trackData:loadTrack(trackPath) == false then
@@ -89,8 +88,20 @@ function prototype:_loadTracks(trackPath)
         if trackData:loadTrack(trackPath) == false then
             return false;
         end
-     elseif string.match(trackPath,"mod/projects/.+/sceneTrack")then
+    elseif string.match(trackPath,"mod/projects/.+/sceneTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerScenePlanTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath) == false then
+            return false;
+        end
+    elseif string.match(trackPath,"mod/projects/.+/motionTrack") then
+        trackData = newClass("eSkyPlayer/eSkyPlayerRolePlanTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath) == false then
+            return false;
+        end
+    elseif string.match(trackPath, "mod/plans/motion/.+/motionTrack") then
+        trackData = newClass("eSkyPlayer/eSkyPlayerRoleMotionTrackData");
         trackData:initialize();
         if trackData:loadTrack(trackPath) == false then
             return false;
@@ -101,9 +112,10 @@ function prototype:_loadTracks(trackPath)
 
     self.projectFile_.tracks_[#self.projectFile_.tracks_ + 1] = trackData;
     if trackData:getTrackType() ~= definations.TRACK_TYPE.CAMERA_PLAN and
-        trackData:getTrackType() ~= definations.TRACK_TYPE.MOTION_PLAN and
+        trackData:getTrackType() ~= definations.TRACK_TYPE.ROLE_PLAN and
         trackData:getTrackType() ~= definations.TRACK_TYPE.MUSIC_PLAN and
-        trackData:getTrackType() ~= definations.TRACK_TYPE.SCENE_PLAN then
+        trackData:getTrackType() ~= definations.TRACK_TYPE.SCENE_PLAN
+        then
 
         if trackData:getTrackLength() > self.trackMaxLength_ then
             self.trackMaxLength_ = trackData:getTrackLength();

@@ -86,7 +86,6 @@ function prototype:onEventEntered(eventObj)
     elseif motionType == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
         self.param_ = self:_creatCrossFadeEffect(eventObj);
     end
-
 end
 
 
@@ -109,6 +108,8 @@ function prototype:_update()
     self:preparePlayingEvents(function(done)
         -- body
     end);
+
+    -- assert(#self.playingEvents_ < 2, "error: cameraEffect play failed!"); -- 如果正在播放的event不止一个，则报错(cameraEffect的event不允许重叠);
 
     for i = 1, #self.playingEvents_ do
         local beginTime = self.playingEvents_[i].beginTime_;

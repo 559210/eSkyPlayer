@@ -12,8 +12,8 @@ function prototype:_loadFromBuff(buff)
     if buff == nil then 
         return false; 
     end
-
-
+    buff:ReadString(); --name 用不到所以不存
+    self:_setParam({stagePath = buff:ReadString()});
     local eventCount = buff:ReadShort();
     if eventCount == 0 then
         return true;
@@ -29,6 +29,7 @@ function prototype:_loadFromBuff(buff)
 
         eventFile.beginTime_ = buff:ReadFloat();
         eventFile.name_ = buff:ReadString();
+
         eventFile.storeType_ = buff:ReadByte();
         eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
         eventFile.labelID_ = buff:ReadByte();
@@ -56,14 +57,7 @@ function prototype:_loadFromBuff(buff)
         end
         self:_insertEvent(eventFile,eventObj);
     end
-
-    -- if self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
-        
-    --     local project = self.events_[#self.events_].eventObj_:getProjectData();
-    --     self.trackTimeLength_ = project:getTimeLength();
-    -- else
-    --     self.trackTimeLength_ = self.events_[#self.events_].eventFile_.beginTime_ + self.events_[#self.events_].eventObj_.eventData_.timeLength_;
-    -- end
+    
     return true;
 end
 

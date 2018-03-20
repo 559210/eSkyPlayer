@@ -48,10 +48,10 @@ function prototype:getTrackLength()
     if #self.events_ == 0 then
         return 0;
     end
-    
+
     local trackLength = 0;
     if self.trackType_ == definations.TRACK_TYPE.CAMERA_PLAN or
-        self.trackType_ == definations.TRACK_TYPE.MOTION_PLAN or
+        self.trackType_ == definations.TRACK_TYPE.ROLE_PLAN or
         self.trackType_ == definations.TRACK_TYPE.MUSIC_PLAN or
         self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
         
@@ -121,10 +121,6 @@ function prototype:_loadHeaderFromBuff(buff)
     if trackType ~= self.trackFileType_ then
         return false;
     end
-    if trackType == definations.TRACK_FILE_TYPE.SCENE then
-        local name = buff:ReadString();
-        self.mainSceneModelPath_ = buff:ReadString();
-    end
     return true;
 end
 
@@ -174,14 +170,16 @@ function prototype:isSupported(eventObj)
 end
 
 
-function prototype.createObject()
-    logError("eSkyPlayerTrackDataBase.createObject -----> ");
+function prototype.createObject(param)
     return nil;
 end
 
 
-function prototype:addEvent(eventDataObject)
-
+--动态添加event
+function prototype:addEvent(beginTime, eventDataObject)
+    local eventFile = {};
+    eventFile.beginTime_ = beginTime;
+    self:_insertEvent(eventFile, eventDataObject);
 end
 
 

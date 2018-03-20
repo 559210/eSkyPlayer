@@ -59,23 +59,6 @@ end
 function prototype:getTimeLength()
     return self.eventData_.timeLength_;
 end
--- function prototype:getResources()
---     return nil;
--- end
-
-
--- function prototype:loadResource(resInfo, callback)
---     callback(true);
--- end
-
-
--- function prototype:loadResourceSync(resInfo)
---     return true;
--- end
-
--- function prototype:releaseResources( ... )
---     -- body
--- end
 
 
 function prototype:_loadHeaderFromBuff(buff)
@@ -90,6 +73,10 @@ function prototype:_loadHeaderFromBuff(buff)
     return true;
 end
 
+function prototype.createObject(param)
+    return nil;
+end
 
 
 return prototype;
+

@@ -339,6 +339,17 @@ function prototype:preparePlayingEvents(callback)
         endTime = beginTime + event:getTimeLength();
     end
 
+    for i = 1, #self.playingEvents_ do
+        local playingEvent = self.playingEvents_[i].obj_;
+        local playingBeginTime = self.playingEvents_[i].beginTime_;
+        local playingEndTime = playingBeginTime + playingEvent:getTimeLength();
+        if self.director_.timeLine_ >= playingEndTime or self.director_.timeLine_ <= playingBeginTime then
+            self:onEventLeft(playingEvent);
+            self:_deletePlayingEvent(i);
+            break;
+        end
+    end
+
     if self.director_.timeLine_ > beginTime and self.director_.timeLine_ < endTime then
         local isEventEntered = true;
         for i = 1, #self.playingEvents_ do
@@ -349,17 +360,6 @@ function prototype:preparePlayingEvents(callback)
         if isEventEntered == true then
             self:_addPlayingEvent(event,beginTime);  --必须先调_addPlayingEvent函数，再调onEventEntered函数；seek函数中也是。
             self:onEventEntered(event);
-        end
-    end
-
-    for i = 1, #self.playingEvents_ do
-        local playingEvent = self.playingEvents_[i].obj_;
-        local playingBeginTime = self.playingEvents_[i].beginTime_;
-        local playingEndTime = playingBeginTime + playingEvent:getTimeLength();
-        if self.director_.timeLine_ >= playingEndTime or self.director_.timeLine_ <= playingBeginTime then
-            self:onEventLeft(playingEvent);
-            self:_deletePlayingEvent(i);
-            break;
         end
     end
 
@@ -441,10 +441,11 @@ function prototype:preparePlayingEvents(callback)
 end
 
 
-function prototype:_addPlayingEvent(eventObj, beginTime)
+function prototype:_addPlayingEvent(eventObj, beginTime, endTime)
     local event = {};
     event.obj_ = eventObj;
     event.beginTime_ = beginTime;
+    event.endTime_ = endTime;
     self.playingEvents_[#self.playingEvents_ + 1] = event;
     self.index_ = self.index_ + 1;
 
