@@ -4,8 +4,6 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor(director)
     self.base:ctor(director);
-    self.trackObj_ = nil;
-    self.sceneEventQueue_ = {};--event播放队列
 	self.isEventPlay_ = false;--event播放标记
 	self.resPath_ = nil;
 	self.animators_ = nil; --动画
@@ -16,9 +14,6 @@ end
 
 function prototype:initialize(trackObj)
 	self.eventCount_ = trackObj:getEventCount();
-    self.trackObj_ = trackObj;
-    self.sceneEventQueue_ = {};
-    
     return self.base:initialize(trackObj);
 end
 
@@ -65,12 +60,12 @@ function prototype:_update()
 
     --修改event播放规则
 	if self:getPlayState() == definations.PLAY_STATE.PLAY then
-		for j = 1, #self.sceneEventQueue_ do
-			local queue = self.sceneEventQueue_[j];
+		for j = 1, #self.playingEvents_ do
+			local queue = self.playingEvents_[j];
 			-- if self.director_.timeLine_ >= queue.beginTime and self.director_.timeLine_ <= queue.endTime then
 				if self.animators_ ~= nil then
-					local eventTime = queue.endTime - queue.beginTime;
-					local progress = (self.director_.timeLine_ - queue.beginTime) / eventTime; --当前播放在event中的比例
+					local eventTime = queue.endTime_ - queue.beginTime_;
+					local progress = (self.director_.timeLine_ - queue.beginTime_) / eventTime; --当前播放在event中的比例
 					self:playEventAnim(progress);	
 				end
 				if not self.isEventPlay_ then
@@ -90,25 +85,6 @@ end
 function prototype:seek(time)
 	self:changePlayState(definations.PLAY_STATE.PLAY);
     return true;
-end
-
-function prototype:refreshQueue(beginTime,endTime,eventObj)
-	local startEvent = true;
-	if #self.sceneEventQueue_ > 0 then
-		for i = 1, #self.sceneEventQueue_ do
-			local queue = self.sceneEventQueue_[i];
-			if queue.eventObj == eventObj then
-                startEvent = false;
-            end
-		end
-	end
-	if startEvent then
-		local queue = {};
-		queue.beginTime = beginTime;
-		queue.endTime = endTime;
-		queue.eventObj = eventObj;
-		self.sceneEventQueue_[#self.sceneEventQueue_ + 1] = queue;
-	end
 end
 
 function prototype:playEventParticle()

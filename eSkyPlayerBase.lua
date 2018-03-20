@@ -76,7 +76,7 @@ end
 
 
 function prototype:seek(time)
-    local eventNeedAdd = {}; --键为需要增加的eventObj,值为开始时间；
+    local eventNeedAdd = {}; --数组，存放需要增加的eventObj,开始时间，结束时间；
     local eventNeedDelete = {}; --键为self.playingEvents_里的index，值为eventObj；
     for i = 1, self.eventCount_  do
         local beginTime = self.trackObj_:getEventBeginTimeAt(i);
@@ -92,7 +92,11 @@ function prototype:seek(time)
             end
             if isEventEntered == true then
                 self.index_ = i;
-                eventNeedAdd[eventObj] = beginTime;
+                local event = {};
+                event.obj = eventObj;
+                event.beginTime = beginTime;
+                event.endTime = endTime;
+                eventNeedAdd[#eventNeedAdd + 1] = event;
             end
         end
 
@@ -132,9 +136,9 @@ function prototype:seek(time)
         
     end
 
-    for k, v in pairs(eventNeedAdd) do
-        self:_addPlayingEvent(k,v);
-        self:onEventEntered(k);
+    for i = 1, #eventNeedAdd do
+        self:_addPlayingEvent(eventNeedAdd[i].obj, eventNeedAdd[i].beginTime, eventNeedAdd[i].endTime);
+        self:onEventEntered(eventNeedAdd[i].obj);
     end
     return true;
 end
@@ -358,7 +362,7 @@ function prototype:preparePlayingEvents(callback)
             end
         end
         if isEventEntered == true then
-            self:_addPlayingEvent(event,beginTime);  --必须先调_addPlayingEvent函数，再调onEventEntered函数；seek函数中也是。
+            self:_addPlayingEvent(event,beginTime,endTime);  --必须先调_addPlayingEvent函数，再调onEventEntered函数；seek函数中也是。
             self:onEventEntered(event);
         end
     end
