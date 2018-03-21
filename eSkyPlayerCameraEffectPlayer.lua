@@ -72,19 +72,19 @@ end
 
 
 function prototype:onEventEntered(eventObj)
-    local motionType = eventObj.eventData_.motionType_;
+    local eventType = eventObj.eventType_;
 
-    if motionType == definations.CAMERA_EFFECT_TYPE.BLOOM then
+    if eventType == definations.EVENT_TYPE.CAMERA_EFFECT_BLOOM then
         self.param_ = self:_creatBloomEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.CHROMATIC_ABERRATION then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_CHROMATIC_ABERRATION then
         self.param_ = self:_creatChromaticAberrationEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.DEPTH_OF_FIELD then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_DEPTH_OF_FIELD then
         self.param_ = self:_creatDepthOfFieldEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.VIGNETTE then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_VIGNETTE then
         self.param_ = self:_creatVignetteEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.BLACK then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_BLACK then
         self.param_ = self:_creatBlackEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_CROSS_FADE then
         self.param_ = self:_creatCrossFadeEffect(eventObj);
     end
 end
@@ -267,11 +267,6 @@ function prototype:_creatBlackEffect(eventObj)
     param.blendMode = eventObj.eventData_.blendMode - 1;
     local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
     if tactic ~= nil then
-        if eventObj.texturePath_ == nil then 
-            logError("xxxxxxxxxxxx");
-        else
-            logError("vvvvvvvv..." .. tostring(eventObj.texturePath_))
-        end
         param.texture = tactic:getResource(eventObj.texturePath_);
     end
     return param; 

@@ -76,7 +76,6 @@ function prototype:_loadFromBuff(buff)
         end
         eventObj:initialize();
         if self:isSupported(eventObj) == false then
-                logError("11111111111")
             return false;
         end
         eventObj.eventData_ = {};

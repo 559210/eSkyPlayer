@@ -69,7 +69,8 @@ function prototype:load(filename,callback)
 end
 
 
-function prototype:loadProject(filename)
+function prototype:
+    (filename)
     self.project_ = newClass("eSkyPlayer/eSkyPlayerProjectData");
     self.project_:initialize();
     if self.project_:loadProject(filename) == false then 
@@ -326,7 +327,7 @@ function prototype:_releaseResource()
 end
 
 
-function prototype:_assignDefaultTactic(obj)
+function prototype:_assignDefaultTactic()
     if #self.players_ == 0 then
         return;
     end
@@ -372,7 +373,7 @@ end
 
 
 function prototype:_loadResourceSync()
-    self:_assignDefaultTactic(self.project_);
+    self:_assignDefaultTactic();
     for i = 1, #self.players_ do
         if self.players_[i]:loadResourceInitiallySync() == false then
             return false;
@@ -383,7 +384,7 @@ end
 
 
 function prototype:_loadResource(callback)
-    self:_assignDefaultTactic(self.project_);
+    self:_assignDefaultTactic();
     async.mapSeries(self.players_,
         function(player,done)
             player:loadResourceInitially(function(isPrepared)
