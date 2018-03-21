@@ -28,12 +28,13 @@ end
 function prototype:_loadFromBuff(buff)
     local eventFile = {};
     eventFile.motionType = buff:ReadByte();
+    
     eventFile.blendMode = buff:ReadByte();
     eventFile.textureID = buff:ReadByte();
-    eventFile.intensityWeight0 = buff:ReadByte();
-    eventFile.intensityRanges0 = buff:ReadByte();
-    eventFile.intensityWeight1 = buff:ReadByte();
-    eventFile.intensityRanges1 = buff:ReadByte();
+    eventFile.intensityWeight0 = buff:ReadFloat();
+    eventFile.intensityRanges0 = buff:ReadFloat();
+    eventFile.intensityWeight1 = buff:ReadFloat();
+    eventFile.intensityRanges1 = buff:ReadFloat();
     eventFile.timeLength = self.eventData_.timeLength_;
     if self:_setParam(eventFile) == false then
         return false;
@@ -78,6 +79,7 @@ function prototype:_setParam(param)
     eventData_.intensity = info;
 
     self.eventData_ = eventData_;
+    return true;
 end
 
 return prototype;
