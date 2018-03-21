@@ -267,6 +267,11 @@ function prototype:_creatBlackEffect(eventObj)
     param.blendMode = eventObj.eventData_.blendMode - 1;
     local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
     if tactic ~= nil then
+        if eventObj.texturePath_ == nil then 
+            logError("xxxxxxxxxxxx");
+        else
+            logError("vvvvvvvv..." .. tostring(eventObj.texturePath_))
+        end
         param.texture = tactic:getResource(eventObj.texturePath_);
     end
     return param; 

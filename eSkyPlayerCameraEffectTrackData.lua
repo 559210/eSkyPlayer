@@ -26,6 +26,7 @@ function prototype:_loadFromBuff(buff)
 
     local trackTitle = buff:ReadString();
     local eventCount = buff:ReadShort();
+    self:_setParam({});
     if eventCount == 0 then
         return true;
     end
