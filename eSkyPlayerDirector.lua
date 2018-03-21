@@ -69,8 +69,7 @@ function prototype:load(filename,callback)
 end
 
 
-function prototype:
-    (filename)
+function prototype:loadProject(filename)
     self.project_ = newClass("eSkyPlayer/eSkyPlayerProjectData");
     self.project_:initialize();
     if self.project_:loadProject(filename) == false then 
