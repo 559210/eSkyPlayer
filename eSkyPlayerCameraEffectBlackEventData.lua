@@ -5,7 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     prototype.super.ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.BLACK;
-    self.eventType_ = definations.EVENT_TYPE.BLACK;
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_BLACK;
     self.texturePath_ = "";
     self.createParameters = {
         motionType = "number", --特效类型1.BLOOM 2.BLACK 3.DEPTH_OF_FIELD 4.CROSS_FADE 5.FIELD_OF_VIEW 6.CHROMATIC_ABERRATION 7.USER_LUT 8.VIGNETTE
@@ -75,8 +75,9 @@ function prototype:_setParam(param)
     info.ranges[1] = param.intensityRanges0;
     info.weights[2] = param.intensityWeight1;
     info.ranges[2] = param.intensityRanges1;
-    misc.setValuesByWeight(info);
+    info.values = misc.getValuesByInfo(info);
     eventData_.intensity = info;
+
     self.eventData_ = eventData_;
     return true;
 end

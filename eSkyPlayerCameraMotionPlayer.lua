@@ -16,7 +16,7 @@ function prototype:initialize(trackObj)
     self.cameras_ = {{camera_ = self.director_.camera_;
     isUsed_ = false},};
     self:_isNeedAdditionalCamera();
-    self.base:initialize(trackObj);
+    return self.base:initialize(trackObj);
 end
 
 
@@ -78,7 +78,6 @@ end
 
 function prototype:_update()
     if self.director_.timeLine_ > self.director_.timeLength_ then
-        self.base.isPlaying_ = false;
         return;
     end
 

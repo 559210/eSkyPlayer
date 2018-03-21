@@ -5,7 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     prototype.super.ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.BLOOM;
-    self.eventType_ = definations.EVENT_TYPE.BLOOM;
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_BLOOM;
     self.texturePath_ = "";
     self.createParameters = {
         dataType = "number", --效果类型 1.intensity(发光强度) 2.threshold(临界值) 3.softKnee(曲线弯曲点) 4.radius(发光半径) 5.antiFlicker(抗闪烁) 6.intensityBloom 7.textureBloom(贴图)
@@ -130,7 +130,7 @@ function prototype:_getInfoData(param1,param2,param3,param4)
     info.ranges[1] = param2;
     info.weights[2] = param3;
     info.ranges[2] = param4;
-    misc.setValuesByWeight(info);
+    info.values = misc.getValuesByInfo(info);
     return info;
 end
 
