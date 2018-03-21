@@ -5,7 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     prototype.super.ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.CROSS_FADE;
-    self.eventType_ = definations.EVENT_TYPE.CROSS_FADE;
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_CROSS_FADE;
 end
 
 function prototype:_loadFromBuff(buff)
@@ -20,7 +20,7 @@ function prototype:_loadFromBuff(buff)
         end
     end
 
-    misc.setValuesByWeight(info);
+    info.values = misc.getValuesByInfo(info);
     return true;
 end
 

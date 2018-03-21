@@ -7,13 +7,13 @@ function prototype:ctor()
     self.trackType_ = definations.TRACK_TYPE.CAMERA_EFFECT;
     self.trackFileType_ = definations.TRACK_FILE_TYPE.CAMERA_MOTION;
     self.eventsSupportted_ = {
-    definations.EVENT_TYPE.BLOOM,
-    definations.EVENT_TYPE.BLACK,
-    definations.EVENT_TYPE.DEPTH_OF_FIELD,
-    definations.EVENT_TYPE.CROSS_FADE,
-    definations.EVENT_TYPE.FIELD_OF_VIEW,
-    definations.EVENT_TYPE.CHROMATIC_ABERRATION,
-    definations.EVENT_TYPE.VIGNETTE,
+    definations.EVENT_TYPE.CAMERA_EFFECT_BLOOM,
+    definations.EVENT_TYPE.CAMERA_EFFECT_BLACK,
+    definations.EVENT_TYPE.CAMERA_EFFECT_DEPTH_OF_FIELD,
+    definations.EVENT_TYPE.CAMERA_EFFECT_CROSS_FADE,
+    definations.EVENT_TYPE.CAMERA_EFFECT_FIELD_OF_VIEW,
+    definations.EVENT_TYPE.CAMERA_EFFECT_CHROMATIC_ABERRATION,
+    definations.EVENT_TYPE.CAMERA_EFFECT_VIGNETTE,
     };
     self.createParameters = {};
 end
@@ -70,9 +70,12 @@ function prototype:_loadFromBuff(buff)
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectBlackEventData");
         elseif temp == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectCrossFadeEventData");
+        else
+            return false;
         end
         eventObj:initialize();
         if self:isSupported(eventObj) == false then
+                logError("11111111111")
             return false;
         end
         eventObj.eventData_ = {};

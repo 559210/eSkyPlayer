@@ -5,7 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     prototype.super.ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.CHROMATIC_ABERRATION;
-    self.eventType_ = definations.EVENT_TYPE.CHROMATIC_ABERRATION;
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_CHROMATIC_ABERRATION;
 end
 
 function prototype:initialize()
@@ -29,7 +29,7 @@ function prototype:_loadFromBuff(buff)
         info.weights[#info.weights + 1] =  buff:ReadFloat();
         info.ranges[#info.ranges + 1] =  buff:ReadFloat();
     end
-    misc.setValuesByWeight(info);
+    info.values = misc.getValuesByInfo(info);
 
     local textureID = buff:ReadByte();
     self.texturePath_ = self.textures_[textureID];

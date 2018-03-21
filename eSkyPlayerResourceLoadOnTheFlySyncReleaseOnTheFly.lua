@@ -1,4 +1,4 @@
-local prototype = class("eSkyPlayerResourceLoadImmediatelySyncReleaseImmediately", require("eSkyPlayer/eSkyPlayerResourceLoadMethodBase"));
+local prototype = class("eSkyPlayerResourceLoadOnTheFlySyncReleaseOnTheFly", require("eSkyPlayer/eSkyPlayerResourceLoadMethodBase"));
 local resourceManager = require("eSkyPlayer/eSkyPlayerResourceManager");
 
 
@@ -22,12 +22,12 @@ function prototype:releaseResourceLastly(pathName) --结束时释放
 end
 
 
-function prototype:loadResourceImmediately(resInfo, callback)
+function prototype:loadResourceOnTheFly(resInfo, callback)
     callback(true);
 end
 
 
-function prototype:loadResourceImmediatelySync(resInfo) --即时加载
+function prototype:loadResourceOnTheFlySync(resInfo) --即时加载
     if resInfo == nil or #resInfo == 0 then
         return true;
     end
@@ -42,7 +42,7 @@ function prototype:loadResourceImmediatelySync(resInfo) --即时加载
 end
 
 
-function prototype:releaseResourceImmediately(pathName) --即时释放
+function prototype:releaseResourceOnTheFly(pathName) --即时释放
     resourceManager:releaseResource(pathName);
     for i = 1, #self.resList_ do
         if self.resList_[i].path == pathName then

@@ -5,7 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     prototype.super.ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.BLOOM;
-    self.eventType_ = definations.EVENT_TYPE.BLOOM;
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_BLOOM;
 end
 
 function prototype:initialize()
@@ -40,7 +40,7 @@ function prototype:_loadFromBuff(buff)
                 info.weights[index] =  buff:ReadFloat();
                 info.ranges[index] =  buff:ReadFloat();
             end
-            misc.setValuesByWeight(info);
+            info.values = misc.getValuesByInfo(info);
         end
     end
     return true;

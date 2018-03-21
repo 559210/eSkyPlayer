@@ -18,7 +18,7 @@ end
 
 
 function prototype:initialize()
-    
+    return true;
 end
 
 

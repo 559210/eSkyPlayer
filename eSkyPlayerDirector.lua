@@ -34,6 +34,7 @@ function prototype:initialize(camera)
 
     };
     self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
+    return true;
 end
 
 
@@ -302,7 +303,6 @@ function prototype:_createPlayer(obj)
             return false;
         end
     end
-
     return true;
 end
 
@@ -311,10 +311,8 @@ function prototype:_update()
     if self.isPlaying_ == false then
         return;
     end
-
     self.timeLine_ = self.time_:getTime();
     self.time_:setTime(self.timeLine_ + Time.deltaTime);
-
     for i = 1, #self.players_ do
         self.players_[i]:_update();
     end
@@ -344,19 +342,20 @@ function prototype:_assignDefaultTactic(obj)
                 for k, v in pairs(self.players_[i].resTable_) do
                     count = count + 1;
                 end
+
                 if count ~= 0 and self.players_[i].resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
                     self:changeResourceManagerTactic(self.players_[i],self.tacticByTrack_[j].tacticType_);
                 end
 
                 count = 0;
-                -- if track.resTable_ ~= nil then
                 for k, v in pairs(track.resTable_) do
                     count = count + 1;
                 end
+
                 if count ~= 0 and track.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
                     self:changeResourceManagerTactic(track,self.tacticByTrack_[j].tacticType_);
                 end
-
+                
                 count = track:getEventCount();
                 for k = 1, count do
                     local event = track:getEventAt(k);

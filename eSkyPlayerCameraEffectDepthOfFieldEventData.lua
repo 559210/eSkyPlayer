@@ -5,7 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     prototype.super.ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.DEPTH_OF_FIELD;
-    self.eventType_ = definations.EVENT_TYPE.DEPTH_OF_FIELD;
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_DEPTH_OF_FIELD;
 end
 
 function prototype:_loadFromBuff(buff)
@@ -17,7 +17,7 @@ function prototype:_loadFromBuff(buff)
         info.weights[#info.weights + 1] =  buff:ReadFloat();
         info.ranges[#info.ranges + 1] =  buff:ReadFloat();
     end
-    misc.setValuesByWeight(info);
+    info.values = misc.getValuesByInfo(info);
     return true;
 end
 
