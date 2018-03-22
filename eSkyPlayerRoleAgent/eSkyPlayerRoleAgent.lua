@@ -8,6 +8,7 @@ local prototype = class("eSkyPlayerRoleAgent");
 
 prototype.SERIALIZE_FIELD = {
     "roleObj_",
+    "roleGameObject_",
 }
 
 function prototype:ctor()
@@ -16,7 +17,13 @@ end
 
 function prototype:initialize(role)
     self.roleObj_ = role;
+    self.roleGameObject_ = self.roleObj_.body;
     return true;
+end
+
+
+function prototype:play()
+    
 end
 
 
