@@ -22,6 +22,7 @@ end
 
 function prototype:initialize()
     prototype.super.initialize(self);
+    return true;
 end
 
 

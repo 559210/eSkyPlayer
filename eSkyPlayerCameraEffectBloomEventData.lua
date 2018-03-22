@@ -8,7 +8,7 @@ function prototype:ctor()
     self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_BLOOM;
     self.texturePath_ = "";
     self.createParameters = {
-        dataType = "number", --效果类型 1.intensity(发光强度) 2.threshold(临界值) 3.softKnee(曲线弯曲点) 4.radius(发光半径) 5.antiFlicker(抗闪烁) 6.intensityBloom 7.textureBloom(贴图)
+        resistBlinking = "number", --抵抗闪烁
         textureID = "number", --贴图索引
         --intensity
         intensityWeight0 = "number",--起始点权值
@@ -42,6 +42,7 @@ end
 
 function prototype:initialize()
     prototype.super.initialize(self);
+    return true;
 end
 
 
@@ -49,34 +50,34 @@ function prototype:_loadFromBuff(buff)
     --读取顺序不可改变
     local eventFile = {};
     buff:ReadByte();--motionType
-    ----------intensity----------------
+    ----------intensity(发光强度)----------------
     eventFile.intensityWeight0 = buff:ReadFloat();
     eventFile.intensityRanges0 = buff:ReadFloat();
     eventFile.intensityWeight1 = buff:ReadFloat();
     eventFile.intensityRanges1 = buff:ReadFloat();
-    ----------threshold--------------------
+    ----------threshold(临界值)--------------------
     eventFile.thresholdWeight0 = buff:ReadFloat();
     eventFile.thresholdRanges0 = buff:ReadFloat();
     eventFile.thresholdWeight1 = buff:ReadFloat();
     eventFile.thresholdRanges1 = buff:ReadFloat();
-    ---------softKnee----------------------
+    ---------softKnee(曲线弯曲点)----------------------
     eventFile.softKneeWeight0 = buff:ReadFloat();
     eventFile.softKneeRanges0 = buff:ReadFloat();
     eventFile.softKneeWeight1 = buff:ReadFloat();
     eventFile.softKneeRanges1 = buff:ReadFloat();
-    ---------radius------------------------
+    ---------radius(发光半径)------------------------
     eventFile.radiusWeight0 = buff:ReadFloat();
     eventFile.radiusRanges0 = buff:ReadFloat();
     eventFile.radiusWeight1 = buff:ReadFloat();
     eventFile.radiusRanges1 = buff:ReadFloat();
-    ---------antiFlicker------------------------
-    eventFile.dataType = buff:ReadByte();
+    ---------antiFlicker(抗闪烁)------------------------
+    eventFile.resistBlinking = buff:ReadByte();
     ---------intensityBloom------------------------
     eventFile.intensityBloomWeight0 = buff:ReadFloat();
     eventFile.intensityBloomRanges0 = buff:ReadFloat();
     eventFile.intensityBloomRanges1 = buff:ReadFloat();
     eventFile.intensityBloomWeight1 = buff:ReadFloat();
-    ---------textureBloom------------------------
+    ---------textureBloom(贴图)------------------------
     eventFile.textureID = buff:ReadByte();
     eventFile.timeLength = self.eventData_.timeLength_;
     return self:_setParam(eventFile);
@@ -107,14 +108,14 @@ function prototype:_setParam(param)
         "camera/textures/LensDirt03",
     };
     self.eventData_ = {
-        motionType_ = self.motionType_;
-        timeLength_ = param.timeLength;
-        intensity = self:_getInfoData(param.intensityWeight0, param.intensityRanges0, param.intensityWeight1, param.intensityRanges1);
-        threshold = self:_getInfoData(param.thresholdWeight0, param.thresholdRanges0, param.thresholdWeight1, param.thresholdRanges1);
-        softKnee = self:_getInfoData(param.softKneeWeight0, param.softKneeRanges0, param.softKneeWeight1, param.softKneeRanges1);
-        radius = self:_getInfoData(param.radiusWeight0, param.radiusRanges0, param.radiusWeight1, param.radiusRanges1);
-        antiFlicker = param.dataType;
-        intensityBloom = self:_getInfoData(param.intensityBloomWeight0, param.intensityBloomRanges0, param.intensityBloomRanges1, param.intensityBloomWeight1);
+        motionType_ = self.motionType_,
+        timeLength_ = param.timeLength,
+        intensity = self:_getInfoData(param.intensityWeight0, param.intensityRanges0, param.intensityWeight1, param.intensityRanges1),
+        threshold = self:_getInfoData(param.thresholdWeight0, param.thresholdRanges0, param.thresholdWeight1, param.thresholdRanges1),
+        softKnee = self:_getInfoData(param.softKneeWeight0, param.softKneeRanges0, param.softKneeWeight1, param.softKneeRanges1),
+        radius = self:_getInfoData(param.radiusWeight0, param.radiusRanges0, param.radiusWeight1, param.radiusRanges1),
+        antiFlicker = param.resistBlinking,
+        intensityBloom = self:_getInfoData(param.intensityBloomWeight0, param.intensityBloomRanges0, param.intensityBloomRanges1, param.intensityBloomWeight1)
     };
     self.texturePath_ = textures_[param.textureID];
     local res = {};
@@ -124,7 +125,7 @@ function prototype:_setParam(param)
     return true;
 end
 
-function prototype:_getInfoData(param1,param2,param3,param4)
+function prototype:_getInfoData(param1, param2, param3, param4)
     local info = {weights = {}, ranges = {}};
     info.weights[1] = param1;
     info.ranges[1] = param2;
