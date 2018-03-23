@@ -8,7 +8,6 @@ function prototype:ctor()
     self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_BLACK;
     self.texturePath_ = "";
     self.createParameters = {
-        motionType = "number", --特效类型1.BLOOM 2.BLACK 3.DEPTH_OF_FIELD 4.CROSS_FADE 5.FIELD_OF_VIEW 6.CHROMATIC_ABERRATION 7.USER_LUT 8.VIGNETTE
         blendMode = "number", --混合模式 1.Additive 2.ScreenBlend 3.Multiply 4.Overlay
         textureID = "number", --贴图索引
         intensityWeight0 = "number",--起始点权值
@@ -28,8 +27,7 @@ end
 
 function prototype:_loadFromBuff(buff)
     local eventFile = {};
-    eventFile.motionType = buff:ReadByte();
-    
+    buff:ReadByte();--motionType_
     eventFile.blendMode = buff:ReadByte();
     eventFile.textureID = buff:ReadByte();
     eventFile.intensityWeight0 = buff:ReadFloat();
@@ -68,7 +66,7 @@ function prototype:_setParam(param)
     res.count = 1;
     self.resourcesNeeded_[#self.resourcesNeeded_ + 1] = res;
     local eventData_ = {};
-    eventData_.motionType_ = param.motionType;
+    eventData_.motionType_ = self.motionType_;
     eventData_.blendMode = param.blendMode;
     eventData_.timeLength_ = param.timeLength;
     local info = {weights = {}, ranges = {}};
