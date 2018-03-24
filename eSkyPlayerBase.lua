@@ -78,6 +78,7 @@ end
 
 
 function prototype:seek(time)
+
     local eventNeedAdd = {}; --数组，存放需要增加的eventObj,开始时间，结束时间；
     local eventNeedDelete = {}; --键为self.playingEvents_里的index，值为eventObj；
     for i = 1, self.eventCount_  do
@@ -137,7 +138,7 @@ function prototype:seek(time)
 
     for i = 1, #eventNeedAdd do
         self:_addPlayingEvent(eventNeedAdd[i].obj, eventNeedAdd[i].beginTime, eventNeedAdd[i].endTime);
-        self:onEventEntered(eventNeedAdd[i].obj);
+        self:onEventEntered(eventNeedAdd[i].obj, eventNeedAdd[i].beginTime);
     end
     return true;
 end
@@ -315,7 +316,7 @@ function prototype:releaseResource()
 end
 
 
-function prototype:onEventEntered(eventObj)
+function prototype:onEventEntered(eventObj, beginTime)
     
 end
 
@@ -331,8 +332,12 @@ function prototype:preparePlayingEvents(callback)
     local endTime = -1;
     if event == nil then
         endTime = -1;
-    else 
-        endTime = beginTime + event:getTimeLength();
+    else
+        if event.eventType_ ~= definations.EVENT_TYPE.SCENE_PLAN and --scenePlan,cameraPlan,ROLE_PLAN不调用event:getTimeLength()
+            event.eventType_ ~= definations.EVENT_TYPE.CAMERA_PLAN and
+            event.eventType_ ~= definations.EVENT_TYPE.ROLE_PLAN then
+            endTime = beginTime + event:getTimeLength();
+        end
     end
 
     for i = 1, #self.playingEvents_ do
@@ -355,7 +360,7 @@ function prototype:preparePlayingEvents(callback)
         end
         if isEventEntered == true then
             self:_addPlayingEvent(event,beginTime,endTime);  --必须先调_addPlayingEvent函数，再调onEventEntered函数；seek函数中也是。
-            self:onEventEntered(event);
+            self:onEventEntered(event, beginTime);
         end
     end
 
@@ -570,6 +575,9 @@ end
 
 function prototype:_update()
     self.playState_ = definations.PLAY_STATE.PLAYING;
+    self:preparePlayingEvents(function(done)
+        
+    end);
     return;
 end
 

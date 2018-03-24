@@ -71,7 +71,7 @@ function prototype:_isNeedAdditionalCamera()
 end
 
 
-function prototype:onEventEntered(eventObj)
+function prototype:onEventEntered(eventObj, beginTime)
     local eventType = eventObj.eventType_;
 
     if eventType == definations.EVENT_TYPE.CAMERA_EFFECT_BLOOM then
@@ -101,13 +101,10 @@ end
 
 
 function prototype:_update()
+    self.base:_update();
     if self.director_.timeLine_ >= self.director_.timeLength_ then
         return;
     end
-
-    self:preparePlayingEvents(function(done)
-        -- body
-    end);
 
     -- assert(#self.playingEvents_ < 2, "error: cameraEffect play failed!"); -- 如果正在播放的event不止一个，则报错(cameraEffect的event不允许重叠);
 
