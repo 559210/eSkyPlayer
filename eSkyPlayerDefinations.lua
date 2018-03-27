@@ -11,6 +11,7 @@ local definations = {
         SCENE_MOTION = 7,
         SCENE_EFFECT = 8,
         ROLE_MOTION = 9,
+        ROLE_MORPH = 10,
     };
 
     EVENT_TYPE = {
@@ -31,6 +32,7 @@ local definations = {
         SCENE_MOTION = 14,
         SCENE_EFFECT = 15,
         ROLE_MOTION = 16,
+        ROLE_MORPH = 17,
     };
 
     TRACK_FILE_TYPE = {

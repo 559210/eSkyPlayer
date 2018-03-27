@@ -59,12 +59,13 @@ end
 
 function prototype:load(filename,callback)
     if self:loadProject(filename) == false then
-        return false;
+        callback(false);
+        return;
     end
     self:loadResource(function(isPrepared)
         callback(isPrepared);
     end);
-    return true;
+
 end
 
 
@@ -229,6 +230,8 @@ function prototype:_createPlayerByTrack(track)
         player = newClass("eSkyPlayer/eSkyPlayerRolePlanPlayer", self);
     elseif trackType == definations.TRACK_TYPE.ROLE_MOTION then
         player = newClass("eSkyPlayer/eSkyPlayerRoleMotionPlayer", self);
+    elseif trackType == definations.TRACK_TYPE.ROLE_MORPH then
+        player = newClass("eskyPlayer/eSkyPlayerRoleMorphPlayer", self);
     else
         player = nil;
     end

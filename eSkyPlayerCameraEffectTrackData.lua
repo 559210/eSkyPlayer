@@ -71,6 +71,7 @@ function prototype:_loadFromBuff(buff)
         elseif temp == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
             eventObj = newClass("eSkyPlayer/eSkyPlayerCameraEffectCrossFadeEventData");
         end
+
         eventObj:initialize();
         if self:isSupported(eventObj) == false then
             return false;
@@ -83,6 +84,7 @@ function prototype:_loadFromBuff(buff)
         if eventObj:_loadFromBuff(buff) == false then
             return false;
         end
+
         self:_insertEvent(eventFile,eventObj);
     end
     return true;
