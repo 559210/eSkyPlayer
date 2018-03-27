@@ -5,40 +5,79 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     prototype.super.ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.CHROMATIC_ABERRATION;
-    self.eventType_ = definations.EVENT_TYPE.CHROMATIC_ABERRATION;
+    self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_CHROMATIC_ABERRATION;
+    self.texturePath_ = "";
+    self.createParameters = {
+        textureID = "number",
+        timeLength = "number",
+        -------intensity-----------
+        intensityWeight0 = "number",--起始点权值
+        intensityRanges0 = "number",--范围最小值
+        intensityWeight1 = "number",--结束点权值
+        intensityRanges1 = "number",--范围最大值
+    };
 end
 
 function prototype:initialize()
     prototype.super.initialize(self);
-    self.texturePath_ = nil;
-    self.textures_ = {
-    "camera/textures/SpectralLut_BlueRed",
-    "camera/textures/SpectralLut_GreenPurple",
-    "camera/textures/SpectralLut_PurpleGreen",
-    "camera/textures/SpectralLut_RedBlue",
-    };
+    return true;
 end
 
 function prototype:_loadFromBuff(buff)
-    self.eventData_.motionType_ = buff:ReadByte();
-    local names = {"intensity", "spectralTexture"};
+    buff:ReadByte();--motionType_
+    local eventFile = {
+        intensityWeight0 = buff:ReadFloat(),
+        intensityRanges0 = buff:ReadFloat(),
+        intensityWeight1 = buff:ReadFloat(),
+        intensityRanges1 = buff:ReadFloat(),
+        textureID = buff:ReadByte(),
+        timeLength = self.eventData_.timeLength_,
+    };
+    return self:_setParam(eventFile);
+end
 
-    local info = {weights = {}, ranges = {}};
-    self.eventData_.intensity = info;
-    for index = 1, 2 do
-        info.weights[#info.weights + 1] =  buff:ReadFloat();
-        info.ranges[#info.ranges + 1] =  buff:ReadFloat();
+--param is talbe
+function prototype.createObject(param)
+    if param == nil then return nil; end
+    local obj = prototype:create();
+    if obj:_setParam(param) == false then
+        return nil;
     end
-    misc.setValuesByWeight(info);
+    return obj;
+end
 
-    local textureID = buff:ReadByte();
-    self.texturePath_ = self.textures_[textureID];
+function prototype:_setParam(param)
+    if misc.checkParam(self.createParameters, param) == false then
+        logError("CameraEffectChromaticAberrationEventData 参数错误");
+        return false;
+    end
+    local textures_ = {
+        "camera/textures/SpectralLut_BlueRed",
+        "camera/textures/SpectralLut_GreenPurple",
+        "camera/textures/SpectralLut_PurpleGreen",
+        "camera/textures/SpectralLut_RedBlue",
+    };
+    self.eventData_ = {
+        motionType_ = self.motionType_,
+        timeLength_ = param.timeLength,
+        intensity = self:_getInfoData(param.intensityWeight0, param.intensityRanges0, param.intensityWeight1, param.intensityRanges1),
+    };
+    self.texturePath_ = textures_[param.textureID];
     local res = {};
     res.path = self.texturePath_;
     res.count = 1;
     self.resourcesNeeded_[#self.resourcesNeeded_ + 1] = res;
-    
     return true;
+end
+
+function prototype:_getInfoData(param1, param2, param3, param4)
+    local info = {weights = {}, ranges = {}};
+    info.weights[1] = param1;
+    info.ranges[1] = param2;
+    info.weights[2] = param3;
+    info.ranges[2] = param4;
+    info.values = misc.getValuesByInfo(info);
+    return info;
 end
 
 return prototype;

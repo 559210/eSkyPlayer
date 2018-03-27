@@ -21,18 +21,17 @@ local definations = {
         MUSIC_PLAN = 3,
         SCENE_PLAN = 4,
         CAMERA_MOTION = 5,
-        CAMERA_EFFECT = 6,
-        BLOOM = 7,
-        BLACK = 8,
-        DEPTH_OF_FIELD = 9,
-        CROSS_FADE = 10,
-        FIELD_OF_VIEW = 11,
-        CHROMATIC_ABERRATION = 12,
-        VIGNETTE = 13,
-        SCENE_MOTION = 14,
-        SCENE_EFFECT = 15,
-        ROLE_MOTION = 16,
-        ROLE_MORPH = 17,
+        CAMERA_EFFECT_BLOOM = 6,
+        CAMERA_EFFECT_BLACK = 7,
+        CAMERA_EFFECT_DEPTH_OF_FIELD = 8,
+        CAMERA_EFFECT_CROSS_FADE = 9,
+        CAMERA_EFFECT_FIELD_OF_VIEW = 10,
+        CAMERA_EFFECT_CHROMATIC_ABERRATION = 11,
+        CAMERA_EFFECT_VIGNETTE = 12,
+        SCENE_MOTION = 13,
+        SCENE_EFFECT = 14,
+        ROLE_MOTION = 15,
+        ROLE_MORPH = 16,
     };
 
     TRACK_FILE_TYPE = {
@@ -67,8 +66,8 @@ local definations = {
         NO_NEED = 0,
         LOAD_INITIALLY_RELEASE_LASTLY = 1,
         LOAD_INITIALLY_SYNC_RELEASE_LASTLY = 2,
-        LOAD_IMMEDIATELY_RELEASE_IMMEDIATELY = 3,
-        LOAD_IMMEDIATELY_SYNC_RELEASE_IMMEDIATELY = 4,
+        LOAD_ON_THE_FLY_RELEASE_IMMEDIATELY = 3,
+        LOAD_ON_THE_FLY_SYNC_RELEASE_IMMEDIATELY = 4,
     };
 
     PLAY_STATE = {

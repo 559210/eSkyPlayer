@@ -5,14 +5,14 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     self.eventData_ = nil;
     self.projectData_ = nil;
-    self.resourceManager_ = nil;
     self.eventType_ = definations.EVENT_TYPE.UNKOWN;
+    self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
+    self.resourcesNeeded_ = {};
 end
 
 
 function prototype:initialize()
-    self.resourcesNeeded_ = {};
-    self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
+    return true;
 end
 
 

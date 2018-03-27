@@ -18,7 +18,7 @@ end
 
 
 function prototype:initialize()
-    
+    return true;
 end
 
 
@@ -58,6 +58,8 @@ function prototype:getTrackLength()
         local project = self.events_[#self.events_].eventObj_:getProjectData();
         trackLength = project:getTimeLength();
     else
+        logError("track type: " .. self.trackType_);
+        logError("event file: " .. tostring(self.events_[#self.events_].eventObj_));
         trackLength = self.events_[#self.events_].eventFile_.beginTime_ + self.events_[#self.events_].eventObj_.eventData_.timeLength_;
     end
     return trackLength;
@@ -130,7 +132,7 @@ function prototype:_loadFromBuff()
 end
 
 
-function prototype:_insertEvent(eventFile,eventObj)
+function prototype:_insertEvent(eventFile, eventObj)
     local event = {};
     event.eventFile_ = eventFile;
     event.eventObj_ = eventObj;
@@ -177,6 +179,8 @@ end
 
 --动态添加event
 function prototype:addEvent(beginTime, eventDataObject)
+    logError(debug.traceback());
+    logError("addevent: " .. tostring(eventDataObject));
     local eventFile = {};
     eventFile.beginTime_ = beginTime;
     self:_insertEvent(eventFile, eventDataObject);

@@ -16,7 +16,7 @@ function prototype:initialize(trackObj)
     self.cameras_ = {{camera_ = self.director_.camera_;
     isUsed_ = false},};
     self:_isNeedAdditionalCamera();
-    self.base:initialize(trackObj);
+    return self.base:initialize(trackObj);
 end
 
 
@@ -47,7 +47,7 @@ function prototype:setAdditionalCamera(camera)
 end
 
 
-function prototype:onEventEntered(eventObj)
+function prototype:onEventEntered(eventObj, beginTime)
     local cam = self:_requestCamera();
     if cam ~= nil then
         self.playingEvents_[#self.playingEvents_].camera_ = cam;
@@ -77,14 +77,10 @@ end
 
 
 function prototype:_update()
+    self.base:_update();
     if self.director_.timeLine_ > self.director_.timeLength_ then
-        self.base.isPlaying_ = false;
         return;
     end
-
-    self:preparePlayingEvents(function(done)
-        -- body
-    end);
     for index = 1, #self.playingEvents_ do
         self:_transformCamera(self.playingEvents_[index]);
     end

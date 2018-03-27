@@ -6,13 +6,11 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor(director)
     prototype.super.ctor(self, director);
     self.mainCamera_ = director.camera_;
-    self.trackObj_ = nil;
     self.playingEvent_ = nil;
     self.cameraEffectManager_ = director.cameraEffectManager_;
     self.param_ = nil;
     self.additionalCamera_ = nil;
     self.isEventPlaying_ = false;
-    self.isNeedAdditionalCamera_ = false;
     self.effectId_ = -1;
 
     -- self.xxx = {
@@ -27,10 +25,13 @@ end
 
 
 function prototype:initialize(trackObj)
-    prototype.super.initialize(self, trackObj);
-    self.trackObj_ = trackObj;
     self.effectId_ = -1;
-    self:_isNeedAdditionalCamera();
+    if prototype.super.initialize(self, trackObj) == true then
+        self:_isNeedAdditionalCamera();
+        return true;
+    else
+        return false;
+    end
 end
 
 
@@ -70,20 +71,20 @@ function prototype:_isNeedAdditionalCamera()
 end
 
 
-function prototype:onEventEntered(eventObj)
-    local motionType = eventObj.eventData_.motionType_;
+function prototype:onEventEntered(eventObj, beginTime)
+    local eventType = eventObj.eventType_;
 
-    if motionType == definations.CAMERA_EFFECT_TYPE.BLOOM then
+    if eventType == definations.EVENT_TYPE.CAMERA_EFFECT_BLOOM then
         self.param_ = self:_createBloomEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.CHROMATIC_ABERRATION then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_CHROMATIC_ABERRATION then
         self.param_ = self:_createChromaticAberrationEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.DEPTH_OF_FIELD then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_DEPTH_OF_FIELD then
         self.param_ = self:_createDepthOfFieldEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.VIGNETTE then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_VIGNETTE then
         self.param_ = self:_createVignetteEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.BLACK then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_BLACK then
         self.param_ = self:_createBlackEffect(eventObj);
-    elseif motionType == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
+    elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_CROSS_FADE then
         self.param_ = self:_createCrossFadeEffect(eventObj);
     end
 end
@@ -100,14 +101,10 @@ end
 
 
 function prototype:_update()
+    self.base:_update();
     if self.director_.timeLine_ >= self.director_.timeLength_ then
-        self.base.isPlaying_ = false;
         return;
     end
-
-    self:preparePlayingEvents(function(done)
-        -- body
-    end);
 
     -- assert(#self.playingEvents_ < 2, "error: cameraEffect play failed!"); -- 如果正在播放的event不止一个，则报错(cameraEffect的event不允许重叠);
 
@@ -140,10 +137,9 @@ function prototype:_createBloomEffect(eventObj)
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.antiFlicker = misc.getBoolByByte(eventObj.eventData_.antiFlicker);
-    for k, v in pairs(self.resourceManager_) do
-        if k == eventObj.resourceManagerTacticType_ then
-            param.lenDirtTexture = v:getResource(eventObj.texturePath_);
-        end
+    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
+    if tactic ~= nil then
+        param.lenDirtTexture = tactic:getResource(eventObj.texturePath_);
     end
     return param; 
 end
@@ -171,10 +167,9 @@ function prototype:_createChromaticAberrationEffect(eventObj)
     self.effectId_ = self.cameraEffectManager_:createChromaticAberrationEffect();
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
-    for k, v in pairs(self.resourceManager_) do
-        if k == eventObj.resourceManagerTacticType_ then
-            param.spectralTexture = v:getResource(eventObj.texturePath_);
-        end
+    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
+    if tactic ~= nil then
+        param.spectralTexture = tactic:getResource(eventObj.texturePath_);
     end
     return param; 
 end
@@ -219,10 +214,9 @@ function prototype:_createVignetteEffect(eventObj)
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.mode = eventObj.eventData_.mode - 1;
     param.rounded = misc.getBoolByByte(eventObj.eventData_.rounded);
-    for k, v in pairs(self.resourceManager_) do
-        if k == eventObj.resourceManagerTacticType_ then
-            param.mask = v:getResource(eventObj.texturePath_);
-        end
+    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
+    if tactic ~= nil then
+        param.mask = tactic:getResource(eventObj.texturePath_);
     end
     return param; 
 end
@@ -268,12 +262,10 @@ function prototype:_createBlackEffect(eventObj)
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.blendMode = eventObj.eventData_.blendMode - 1;
-    for k, v in pairs(self.resourceManager_) do
-        if k == eventObj.resourceManagerTacticType_ then
-            param.texture = v:getResource(eventObj.texturePath_);
-        end
+    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
+    if tactic ~= nil then
+        param.texture = tactic:getResource(eventObj.texturePath_);
     end
-    
     return param; 
 end
 
@@ -291,7 +283,6 @@ end
 
 function prototype:_createCrossFadeEffect(eventObj)
     self.effectId_ = self.cameraEffectManager_:createCrossFadeEffect(eventObj.eventData_.timeLength_);
-
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
 

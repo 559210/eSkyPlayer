@@ -4,19 +4,16 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor(director)
     self.base:ctor(director);
-    self.sceneEventQueue_ = {};--event播放队列
-	self.isEventPlay_ = false;--event播放标记
 	self.resPath_ = nil;
 	self.animators_ = nil; --动画
 	self.particleSys_ = nil;--粒子  self.trackObj_
 	self.eventCount_ = 0;
-	self.speed_ = 0;
+	self.isSeeking_ = false;
+	self.currentEvent_ = {};
 end
 
 function prototype:initialize(trackObj)
 	self.eventCount_ = trackObj:getEventCount();
-    self.sceneEventQueue_ = {};
-    
     return self.base:initialize(trackObj);
 end
 
@@ -36,22 +33,20 @@ function prototype:onResourceLoaded()
 		self.obj = obj;
 		self.animators_ = obj:GetComponentsInChildren(typeof(Animator));
 		self.particleSys_ = obj:GetComponentsInChildren(typeof(ParticleSystem));
-		self:_setAnimSpeed();
 	end
 end
 
-function prototype:_setAnimSpeed()
-	if self.animators_ ~= nil and self.animators_.Length > 0
-		and self.particleSys_ ~= nil and self.particleSys_.Length > 0 then
-		self.speed_ = 1;
-	end
-end
 
 function prototype:play()
     if self.trackObj_ == nil then
         return false; 
     end
     self.base:play();
+    self.isSeeking_ = false;
+    if self.currentEvent_.beginTime_ ~= nil then
+    	self:_playEventAnim(self.currentEvent_.beginTime_, self.currentEvent_.endTime_);
+    end
+    
     return true;
 end
 
@@ -59,36 +54,20 @@ function prototype:onEventLeft(eventObj)
 	self:_stopEvent();
 end
 
-function prototype:_update()
-	if self.director_.timeLine_ > self.director_.timeLength_ then
-        self:changePlayState(definations.PLAY_STATE.PLAYEND);
-        self:_stopEvent();
-        return;
-    end
 
-    self:preparePlayingEvents(function(done)
-        -- body
-    end);
-
-	if self:getPlayState() == definations.PLAY_STATE.PLAY then
-		for j = 1, #self.sceneEventQueue_ do
-			local queue = self.sceneEventQueue_[j];
-			-- if self.director_.timeLine_ >= queue.beginTime and self.director_.timeLine_ <= queue.endTime then
-				if self.animators_ ~= nil then
-					local eventTime = queue.endTime - queue.beginTime;
-					local progress = (self.director_.timeLine_ - queue.beginTime) / eventTime; --当前播放在event中的比例
-					self:_playEventAnim(progress);	
-				end
-				if self.particleSys_ ~= nil then
-					if not self.isEventPlay_ then
-						self:_playEventParticle();
-						self.isEventPlay_ = true;
-					end	
-				end
-			-- end
-		end
+function prototype:onEventEntered(eventObj, beginTime)
+	local endTime = beginTime + eventObj.eventData_.timeLength_;
+	self.currentEvent_.beginTime_ = beginTime;
+	self.currentEvent_.endTime_ = endTime;
+	if self.particleSys_ ~= nil then
+		self:_playEventParticle();
 	end
+	if self.animators_ ~= nil then
+		self:_playEventAnim(beginTime, endTime);
+	end	
+	
 end
+
 
 function prototype:stop()
 	self.base:stop();
@@ -96,27 +75,14 @@ function prototype:stop()
 end
 
 function prototype:seek(time)
+	self.base:seek(time);
+	self.isSeeking_ = true;
 	self:changePlayState(definations.PLAY_STATE.PLAY);
-    return true;
-end
+	if self.currentEvent_.beginTime_ ~= nil then
+		self:_playEventAnim(self.currentEvent_.beginTime_, self.currentEvent_.endTime_);		
+	end
 
-function prototype:_refreshQueue(beginTime,endTime,eventObj)
-	local startEvent = true;
-	if #self.sceneEventQueue_ > 0 then
-		for i = 1, #self.sceneEventQueue_ do
-			local queue = self.sceneEventQueue_[i];
-			if queue.eventObj == eventObj then
-                startEvent = false;
-            end
-		end
-	end
-	if startEvent then
-		local queue = {};
-		queue.beginTime = beginTime;
-		queue.endTime = endTime;
-		queue.eventObj = eventObj;
-		self.sceneEventQueue_[#self.sceneEventQueue_ + 1] = queue;
-	end
+    return true;
 end
 
 function prototype:_playEventParticle()
@@ -130,22 +96,30 @@ function prototype:_playEventParticle()
 	
 end
 
-function prototype:_playEventAnim(progress)
+function prototype:_playEventAnim(beginTime, endTime)
 	if self.animators_ ~= nil then
 		for i = 0, self.animators_.Length - 1 do
 			local anim = self.animators_[i];
 			anim.enabled = true;
-			anim.speed = self.speed_;
+			local eventTime = endTime - beginTime;
 			local num = anim:GetCurrentAnimatorClipInfoCount(0);
-			if num > 0 then
-				anim:Play(anim.runtimeAnimatorController.name,0,progress);
+			local animLength = anim:GetCurrentAnimatorClipInfo(0)[0].clip.length;
+			local progress = (self.director_.timeLine_ - beginTime) / eventTime;--当前播放在event中的比例
+			if self.isSeeking_ and num > 0 then
+				anim.speed = 0;
+				anim:Play(anim.runtimeAnimatorController.name, 0, progress);
+			else
+				anim.speed = animLength / eventTime;
+				if num > 0 then
+					anim:Play(anim.runtimeAnimatorController.name, 0, progress);
+				end
 			end
 		end
 	end
 end
 
+
 function prototype:_stopEvent()
-	if self.isEventPlay_ then self.isEventPlay_ = false; end
 	if self.particleSys_ ~= nil then
 		for i = 0, self.particleSys_.Length - 1 do
 			self.particleSys_[i]:Stop();
@@ -159,6 +133,7 @@ function prototype:_stopEvent()
 			anim.speed = 0;
 		end
 	end
+	self.isSeeking_ = false;
 end
 
 return prototype;

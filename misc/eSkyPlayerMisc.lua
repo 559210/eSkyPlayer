@@ -41,7 +41,7 @@ function prototype.isEditorModel()
 end
 
 
-function prototype.setValuesByWeight(valueInfo)
+function prototype.getValuesByInfo(valueInfo)
     local values = {};
     if #valueInfo.ranges  == 1 then
         values[1] = valueInfo.ranges[1] * valueInfo.weights[1];
@@ -51,7 +51,7 @@ function prototype.setValuesByWeight(valueInfo)
         end
     end
     
-    valueInfo.values = values;
+    return values;
 end
 
 

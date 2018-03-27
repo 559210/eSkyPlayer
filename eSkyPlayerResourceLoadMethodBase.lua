@@ -26,17 +26,17 @@ function prototype:releaseResourceLastly(pathName)
 end
 
 
-function prototype:loadResourceImmediately(resInfo, callback)
+function prototype:loadResourceOnTheFly(resInfo, callback)
 
 end
 
 
-function prototype:loadResourceImmediatelySync(resInfo) 
+function prototype:loadResourceOnTheFlySync(resInfo) 
 
 end
 
 
-function prototype:releaseResourceImmediately(pathName) 
+function prototype:releaseResourceOnTheFly(pathName) 
 
 end
 

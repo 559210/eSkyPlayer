@@ -27,17 +27,17 @@ function prototype:releaseResourceLastly(pathName) --结束时释放
 end
 
 
-function prototype:loadResourceImmediately(resInfo, callback)
+function prototype:loadResourceOnTheFly(resInfo, callback)
     callback(true);
 end
 
 
-function prototype:loadResourceImmediatelySync(resInfo) --即时加载
+function prototype:loadResourceOnTheFlySync(resInfo) --即时加载
     return true;
 end
 
 
-function prototype:releaseResourceImmediately(pathName) --即时释放
+function prototype:releaseResourceOnTheFly(pathName) --即时释放
 
 end
 
