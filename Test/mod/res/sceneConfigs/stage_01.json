@@ -1,0 +1,8 @@
+﻿{
+   "stage_01":
+   {
+      "scene":"stage_01",
+      "prefab":["qizi_c"],
+     "particle":["fx_stage_01_wutaideng","fx_stage_01_uvdeng","fx_stage_01_diban","fx_stage_01_light_left"]
+   }
+}
