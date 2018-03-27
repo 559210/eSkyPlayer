@@ -22,17 +22,19 @@ function prototype:initialize(camera)
     self.time_ = newClass("eSkyPlayer/eSkyPlayerTimeLine");
     self.timerId_ = TimersEx.Add(0, 0, delegate(self, self._update));
     self.camera_ = camera;
-    self.tacticByTrack_ = {
-        {
-            trackType_ = definations.TRACK_TYPE.CAMERA_EFFECT,
-            tacticType_ = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY
-        },
-        {
-            trackType_ = definations.TRACK_TYPE.SCENE_MOTION,
-            tacticType_ = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY
-        },
+    -- self.tacticByTrack_ = {
+    --     {
+    --         trackType_ = definations.TRACK_TYPE.CAMERA_EFFECT,
+    --         tacticType_ = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY
+    --     },
+    --     {
+    --         trackType_ = definations.TRACK_TYPE.SCENE_MOTION,
+    --         tacticType_ = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY
+    --     },
 
-    };
+    -- };
+    self.tacticByTrack_[definations.TRACK_TYPE.CAMERA_EFFECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
+    self.tacticByTrack_[definations.TRACK_TYPE.SCENE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
     self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
     return true;
 end
@@ -199,12 +201,26 @@ end
 function prototype:addTrack(track,callback)
     local player = self:_createPlayerByTrack(track);
     if player ~= nil then
+        local trackType = player.trackObj_:getTrackType();
+        local tacticType = self:_getTacticTypeByTrackType(trackType);
+        if tacticType ~= nil then
+            self:changeResourceManagerTactic(player, tacticType);
+            self:changeResourceManagerTactic(track, tacticType);
+            for i = 1, track:getEventCount() do
+                local event = track:getEventAt(i);
+                if #event.resourcesNeeded_ > 0 then
+                    self:changeResourceManagerTactic(event, tacticType);
+                end
+            end
+        end
+        
         local res = player:getResources();
+        local isSyncPrepared = player:loadResourceInitiallySync();
         local resourceManager = require("eSkyPlayer/eSkyPlayerResourceManager");
-        resourceManager:prepare(res,function (isPrepared)
+        resourceManager:prepare(res, function (isPrepared)
             self:_createAdditionalCamera();
             player:onResourceLoaded();
-            callback(isPrepared);
+            callback(isSyncPrepared == isPrepared);
         end);
     end
 end
@@ -325,48 +341,48 @@ function prototype:_releaseResource()
     end
 end
 
+function prototype:_getTacticTypeByTrackType(trackType)
+    if trackType == nil then
+        return nil;
+    end
+    local tacticType = nil;
+    tacticType = self.tacticByTrack_[trackType];
+    return tacticType;
+end
 
 function prototype:_assignDefaultTactic()
     if #self.players_ == 0 then
         return;
     end
-
     for i = 1, #self.players_ do
-        local track = self.players_[i].trackObj_;
-        if track ~= nil then
-        local trackType = track:getTrackType();
-
-        for j = 1, #self.tacticByTrack_ do
-            if trackType == self.tacticByTrack_[j].trackType_ then
+        local player = self.players_[i];
+        if player.trackObj_ ~= nil then
+            local trackType = player.trackObj_:getTrackType();
+            local tacticType = self:_getTacticTypeByTrackType(trackType);
+            if tacticType ~= nil then
                 local count = 0;
-                for k, v in pairs(self.players_[i].resTable_) do
+                for k, v in pairs(player.resTable_) do
                     count = count + 1;
                 end
-
-                if count ~= 0 and self.players_[i].resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
-                    self:changeResourceManagerTactic(self.players_[i],self.tacticByTrack_[j].tacticType_);
+                if count > 0 and player.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                    self:changeResourceManagerTactic(player, tacticType);
                 end
-
                 count = 0;
-                for k, v in pairs(track.resTable_) do
+                for k, v in pairs(player.trackObj_.resTable_) do
                     count = count + 1;
                 end
-
-                if count ~= 0 and track.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
-                    self:changeResourceManagerTactic(track,self.tacticByTrack_[j].tacticType_);
+                if count > 0 and player.trackObj_.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                    self:changeResourceManagerTactic(player.trackObj_, tacticType);
                 end
-                
-                count = track:getEventCount();
-                for k = 1, count do
-                    local event = track:getEventAt(k);
+                count = player.trackObj_:getEventCount();
+                for j = 1, count do
+                    local event = player.trackObj_:getEventAt(j);
                     if #event.resourcesNeeded_ ~= 0 and event.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
-                        self:changeResourceManagerTactic(event,self.tacticByTrack_[j].tacticType_);
+                        self:changeResourceManagerTactic(event, tacticType);
                     end
                 end
             end
-            -- end
         end
-    end
     end
 end
 
