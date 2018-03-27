@@ -47,9 +47,8 @@ function prototype:play(asset, speed, transitionDuration, fixedTime) -- asset为
         self.animatorOverrideContoller:set_Item(animatorState, asset);
     end
     self.animator_:CrossFadeInFixedTime(animatorState, transitionDuration, -1, fixedTime);
-    if self.isPlay == false then
-        self.animator_.speed = 0;
-        self.animator_:Update(1/30);
+    if speed == 0 then
+        self.animator_:Update(0.033);
     end
     return true;
 end
@@ -57,11 +56,6 @@ end
 
 function prototype:setSpeed(speed)
     self.animator_.speed = speed;
-    if speed == 0 then
-        self.isPlay = false;
-    else
-        self.isPlay = true;
-    end
 end
 
 
