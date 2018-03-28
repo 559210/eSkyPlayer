@@ -208,7 +208,7 @@ function prototype:addTrack(track,callback)
             self:changeResourceManagerTactic(track, tacticType);
             for i = 1, track:getEventCount() do
                 local event = track:getEventAt(i);
-                if #event.resourcesNeeded_ > 0 then
+                if #event.eventData_.resourcesNeeded_ > 0 then
                     self:changeResourceManagerTactic(event, tacticType);
                 end
             end
@@ -380,7 +380,7 @@ function prototype:_assignDefaultTactic()
                 count = player.trackObj_:getEventCount();
                 for j = 1, count do
                     local event = player.trackObj_:getEventAt(j);
-                    if #event.resourcesNeeded_ ~= 0 and event.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                    if #event.eventData_.resourcesNeeded_ ~= 0 and event.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
                         self:changeResourceManagerTactic(event, tacticType);
                     end
                 end

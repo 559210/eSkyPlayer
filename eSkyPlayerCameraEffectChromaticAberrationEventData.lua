@@ -57,16 +57,17 @@ function prototype:_setParam(param)
         "camera/textures/SpectralLut_PurpleGreen",
         "camera/textures/SpectralLut_RedBlue",
     };
-    self.eventData_ = {
-        motionType_ = self.motionType_,
-        timeLength_ = param.timeLength,
-        intensity = self:_getInfoData(param.intensityWeight0, param.intensityRanges0, param.intensityWeight1, param.intensityRanges1),
-    };
     self.texturePath_ = textures_[param.textureID];
     local res = {};
     res.path = self.texturePath_;
     res.count = 1;
-    self.resourcesNeeded_[#self.resourcesNeeded_ + 1] = res;
+    self.eventData_ = {
+        motionType_ = self.motionType_,
+        timeLength_ = param.timeLength,
+        resourcesNeeded_ = {res},
+        intensity = self:_getInfoData(param.intensityWeight0, param.intensityRanges0, param.intensityWeight1, param.intensityRanges1),
+    };
+
     return true;
 end
 

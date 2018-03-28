@@ -94,6 +94,7 @@ function prototype:_setParam(param)
         pos1_ = {x = param.pos1X, y = param.pos1Y},
         pos2_ = {x = param.pos2X, y = param.pos2Y},
         timeLength_ = param.timeLength,
+        resourcesNeeded_ = {},
     };
     return true;
 end

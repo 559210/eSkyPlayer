@@ -182,12 +182,12 @@ function prototype:loadResourceInitiallySync()
         local eventObj = self.trackObj_:getEventAt(i);
         local eventTacticType = eventObj.resourceManagerTacticType_;
         if eventTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
-            if #eventObj.resourcesNeeded_ ~= 0 then
+            if #eventObj.eventData_.resourcesNeeded_ ~= 0 then
                 local resTactic  = self:_getResourceTactic(eventTacticType);
                 if resTactic == nil then
                     return false;
                 end
-                if resTactic:loadResourceInitiallySync(eventObj.resourcesNeeded_) == false then
+                if resTactic:loadResourceInitiallySync(eventObj.eventData_.resourcesNeeded_) == false then
                     return false;
                 end
             end
@@ -246,9 +246,9 @@ function prototype:loadResourceInitially(callback)
                 local eventObj = self.trackObj_:getEventAt(i);
                 local eventTacticType = eventObj.resourceManagerTacticType_;
                 if eventTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
-                    if #eventObj.resourcesNeeded_ ~= 0 then
+                    if #eventObj.eventData_.resourcesNeeded_ ~= 0 then
                         local event = {};
-                        event.resList = eventObj.resourcesNeeded_;
+                        event.resList = eventObj.eventData_.resourcesNeeded_;
                         event.resTactic = self:_getResourceTactic(eventTacticType);
                         eventTable[#eventTable + 1] = event;
                     end
@@ -307,8 +307,8 @@ function prototype:releaseResource()
         local eventObj = self.trackObj_:getEventAt(i);
         tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
         if tactic ~= nil then
-            for j = 1, #eventObj.resourcesNeeded_ do 
-                local path = eventObj.resourcesNeeded_[j].path;
+            for j = 1, #eventObj.eventData_.resourcesNeeded_ do 
+                local path = eventObj.eventData_.resourcesNeeded_[j].path;
                 tactic:releaseResourceLastly(path);
             end
         end
@@ -417,7 +417,7 @@ function prototype:preparePlayingEvents(callback)
                     if event.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
                         local resTactic  = self:_getResourceTactic(event.resourceManagerTacticType_);
                         if resTactic ~= nil then
-                            resTactic:loadResourceOnTheFly(event.resourcesNeeded_,function (isPrepared)
+                            resTactic:loadResourceOnTheFly(event.eventData_.resourcesNeeded_,function (isPrepared)
                                 if isPrepared == false then
                                     done("trackTacticType error");
                                 else
@@ -473,7 +473,7 @@ function prototype:_addPlayingEvent(eventObj, beginTime, endTime)
         if resTactic == nil then
             return;
         end
-        resTactic:loadResourceOnTheFlySync(eventObj.resourcesNeeded_);
+        resTactic:loadResourceOnTheFlySync(eventObj.eventData_.resourcesNeeded_);
     end
 end
 
@@ -503,8 +503,8 @@ function prototype:_deletePlayingEvent(index)
 
     tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_]
     if tactic ~= nil then 
-        for i = 1,#eventObj.resourcesNeeded_ do 
-            local path = eventObj.resourcesNeeded_[i].path;
+        for i = 1,#eventObj.eventData_.resourcesNeeded_ do 
+            local path = eventObj.eventData_.resourcesNeeded_[i].path;
             tactic:releaseResourceOnTheFly(path);
         end
     end

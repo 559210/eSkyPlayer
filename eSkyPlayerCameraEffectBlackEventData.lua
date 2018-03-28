@@ -35,10 +35,8 @@ function prototype:_loadFromBuff(buff)
     eventFile.intensityWeight1 = buff:ReadFloat();
     eventFile.intensityRanges1 = buff:ReadFloat();
     eventFile.timeLength = self.eventData_.timeLength_;
-    if self:_setParam(eventFile) == false then
-        return false;
-    end
-    return true;
+
+    return self:_setParam(eventFile);
 end
 
  -- param是一个table
@@ -64,21 +62,25 @@ function prototype:_setParam(param)
     local res = {};
     res.path = self.texturePath_;
     res.count = 1;
-    self.resourcesNeeded_[#self.resourcesNeeded_ + 1] = res;
-    local eventData_ = {};
-    eventData_.motionType_ = self.motionType_;
-    eventData_.blendMode = param.blendMode;
-    eventData_.timeLength_ = param.timeLength;
-    local info = {weights = {}, ranges = {}};
-    info.weights[1] = param.intensityWeight0;
-    info.ranges[1] = param.intensityRanges0;
-    info.weights[2] = param.intensityWeight1;
-    info.ranges[2] = param.intensityRanges1;
-    info.values = misc.getValuesByInfo(info);
-    eventData_.intensity = info;
+    self.eventData_ = {
+        motionType_ = self.motionType_,
+        blendMode = param.blendMode,
+        timeLength_ = param.timeLength,
+        resourcesNeeded_ = {res},
+        intensity = self:_getInfoData(param.intensityWeight0, param.intensityRanges0, param.intensityWeight1, param.intensityRanges1),
+    };
 
-    self.eventData_ = eventData_;
     return true;
+end
+
+function prototype:_getInfoData(param1, param2, param3, param4)
+    local info = {weights = {}, ranges = {}};
+    info.weights[1] = param1;
+    info.ranges[1] = param2;
+    info.weights[2] = param3;
+    info.ranges[2] = param4;
+    info.values = misc.getValuesByInfo(info);
+    return info;
 end
 
 return prototype;

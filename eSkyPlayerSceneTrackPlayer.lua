@@ -45,6 +45,7 @@ function prototype:play()
     self.isSeeking_ = false;
     if self.currentEvent_.beginTime_ ~= nil then
     	self:_playEventAnim(self.currentEvent_.beginTime_, self.currentEvent_.endTime_);
+    	self:_playEventParticle(self.currentEvent_.endTime_);
     end
     
     return true;
@@ -60,7 +61,7 @@ function prototype:onEventEntered(eventObj, beginTime)
 	self.currentEvent_.beginTime_ = beginTime;
 	self.currentEvent_.endTime_ = endTime;
 	if self.particleSys_ ~= nil then
-		self:_playEventParticle();
+		self:_playEventParticle(endTime);
 	end
 	if self.animators_ ~= nil then
 		self:_playEventAnim(beginTime, endTime);
@@ -85,8 +86,8 @@ function prototype:seek(time)
     return true;
 end
 
-function prototype:_playEventParticle()
-	if self.particleSys_ ~= nil then
+function prototype:_playEventParticle(endTime)
+	if self.particleSys_ ~= nil and self.director_.timeLine_ < endTime then
 		for i = 0, self.particleSys_.Length - 1 do
 			local emission = self.particleSys_[i].emission;
 			emission.enabled = true;
