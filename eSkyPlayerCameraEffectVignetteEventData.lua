@@ -111,6 +111,10 @@ function prototype:_setParam(param)
         "camera/textures/LensDirt00",
         "camera/textures/LensDirt01",
     };
+    self.texturePath_ = textures_[param.textureID];
+    local res = {};
+    res.path = self.texturePath_;
+    res.count = 1;
     self.eventData_ = {
         timeLength_ = param.timeLength,
         motionType_ = self.motionType_,
@@ -121,12 +125,9 @@ function prototype:_setParam(param)
         roundness = self:_getInfoData(param.roundnessWeight0, param.roundnessRanges0, param.roundnessWeight1, param.roundnessRanges1),
         opacity = self:_getInfoData(param.opacityWeight0, param.opacityRanges0, param.opacityWeight1, param.opacityRanges1),
         rounded = param.rounded,
+        resourcesNeeded_ = {res},
     };
-    self.texturePath_ = textures_[param.textureID];
-    local res = {};
-    res.path = self.texturePath_;
-    res.count = 1;
-    self.resourcesNeeded_[#self.resourcesNeeded_ + 1] = res;
+
     return true;
 end
 

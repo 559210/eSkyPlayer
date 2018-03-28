@@ -22,7 +22,7 @@ function prototype:initialize(camera)
     self.time_ = newClass("eSkyPlayer/eSkyPlayerTimeLine");
     self.timerId_ = TimersEx.Add(0, 0, delegate(self, self._update));
     self.camera_ = camera;
-    
+
     self.tacticByTrack_[definations.TRACK_TYPE.CAMERA_EFFECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.SCENE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
     self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
@@ -204,6 +204,9 @@ function prototype:addTrack(track, callback)
         
         local res = player:getResources();
         local isSyncPrepared = player:loadResourceInitiallySync();
+        player:loadResourceInitially(function(isPrepared)
+            isSyncPrepared = isPrepared;
+        end);
         local resourceManager = require("eSkyPlayer/eSkyPlayerResourceManager");
         resourceManager:prepare(res, function (isPrepared)
             self:_createAdditionalCamera();
@@ -364,7 +367,7 @@ function prototype:_assignDefaultTactic()
                 count = player.trackObj_:getEventCount();
                 for j = 1, count do
                     local event = player.trackObj_:getEventAt(j);
-                    if #event.resourcesNeeded_ ~= 0 and event.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                    if #event.eventData_.resourcesNeeded_ ~= 0 and event.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
                         self:changeResourceManagerTactic(event, tacticType);
                     end
                 end

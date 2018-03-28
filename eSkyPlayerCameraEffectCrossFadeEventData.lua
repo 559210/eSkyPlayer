@@ -53,7 +53,8 @@ function prototype:_setParam(param)
         motionType_ = self.motionType_;
         timeLength_ = param.timeLength;
         alphaFrom = self:_getInfoData(param.alphaFromWeight0, param.alphaFromRanges0, param.alphaFromWeight1, param.alphaFromRanges1);
-        alphaTo = self:_getInfoData(param.alphaToWeight0, param.alphaToRanges0, param.alphaToWeight1, param.alphaToRanges1);
+        alphaTo = self:_getInfoData(param.alphaToWeight0, param.alphaToRanges0, param.alphaToWeight1, param.alphaToRanges1),
+        resourcesNeeded_ = {},
     };
     return true;
 end

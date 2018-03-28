@@ -107,6 +107,10 @@ function prototype:_setParam(param)
         "camera/textures/LensDirt02",
         "camera/textures/LensDirt03",
     };
+    self.texturePath_ = textures_[param.textureID];
+    local res = {};
+    res.path = self.texturePath_;
+    res.count = 1;
     self.eventData_ = {
         motionType_ = self.motionType_,
         timeLength_ = param.timeLength,
@@ -115,13 +119,10 @@ function prototype:_setParam(param)
         softKnee = self:_getInfoData(param.softKneeWeight0, param.softKneeRanges0, param.softKneeWeight1, param.softKneeRanges1),
         radius = self:_getInfoData(param.radiusWeight0, param.radiusRanges0, param.radiusWeight1, param.radiusRanges1),
         antiFlicker = param.resistBlinking,
-        intensityBloom = self:_getInfoData(param.intensityBloomWeight0, param.intensityBloomRanges0, param.intensityBloomRanges1, param.intensityBloomWeight1)
+        intensityBloom = self:_getInfoData(param.intensityBloomWeight0, param.intensityBloomRanges0, param.intensityBloomRanges1, param.intensityBloomWeight1),
+        resourcesNeeded_ = {res},
     };
-    self.texturePath_ = textures_[param.textureID];
-    local res = {};
-    res.path = self.texturePath_;
-    res.count = 1;
-    self.resourcesNeeded_[#self.resourcesNeeded_ + 1] = res;
+
     return true;
 end
 

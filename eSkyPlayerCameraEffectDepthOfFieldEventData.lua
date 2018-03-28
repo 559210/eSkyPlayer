@@ -47,6 +47,7 @@ function prototype:_setParam(param)
         motionType_ = self.motionType_,
         timeLength_ = param.timeLength,
         aperture = self:_getInfoData(param.apertureWeight0, param.apertureRanges0, param.apertureWeight1, param.apertureRanges1),
+        resourcesNeeded_ = {},
     };
     return true;
 end

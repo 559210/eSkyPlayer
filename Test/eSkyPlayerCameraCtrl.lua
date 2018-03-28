@@ -190,8 +190,8 @@ end
 function prototype:_createProject()
     self:_createVirtualCamreaMotionTrack(0, 22);
     self:_createScene();
-    self:_createSceneMotionTrack1(0, 3);
-    self:_createSceneMotionTrack2(0, 3);
+    self:_createSceneMotionAnimTrack(0, 3);
+    self:_createSceneMotionEffectTrack(0, 3);
     self:_createVirtualCamreaaEffectTrackByBlackEvent(0.5, 3);
     self:_createVirtualCamreaaEffectTrackByBloomEvent(3.1, 6);
     self:_createVirtualCameraEffectTrackByCrossFade(0.1, 1);
@@ -415,10 +415,10 @@ function prototype:_createScene()
     end);
 end
 
-function prototype:_createSceneMotionTrack1(beginTime,timeLength)
+function prototype:_createSceneMotionAnimTrack(beginTime,timeLength)
     local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneTrackData");
     local sceneEvent = require("eSkyPlayer/eSkyPlayerSceneMotionEventData");
-    local mySceneTrack = sceneTrack.createObject({stagePath = "stages/stage_01/prefabs/qizi_c"});
+    local mySceneTrack = sceneTrack.createObject({stagePath = "stages/common/prefabs/qizi_c"});
     local mySceneEvent1 = sceneEvent.createObject({timeLength = 2.664, beginCut = 0, endCut = 1});
     local mySceneEvent2 = sceneEvent.createObject({timeLength = 5.366, beginCut = 0, endCut = 1});
     local mySceneEvent3 = sceneEvent.createObject({timeLength = 1.332, beginCut = 0, endCut = 1});
@@ -433,7 +433,7 @@ function prototype:_createSceneMotionTrack1(beginTime,timeLength)
         end
     end);
 end
-function prototype:_createSceneMotionTrack2(beginTime,timeLength)
+function prototype:_createSceneMotionEffectTrack(beginTime,timeLength)
     local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneTrackData");
     local sceneEvent = require("eSkyPlayer/eSkyPlayerSceneMotionEventData");
     local mySceneTrack = sceneTrack.createObject({stagePath = "effects/prefabs/fx_stage_03_lizi"});

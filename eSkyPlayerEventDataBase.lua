@@ -7,7 +7,7 @@ function prototype:ctor()
     self.projectData_ = nil;
     self.eventType_ = definations.EVENT_TYPE.UNKOWN;
     self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
-    self.resourcesNeeded_ = {};
+    -- self.resourcesNeeded_ = {};
 end
 
 

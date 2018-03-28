@@ -48,6 +48,7 @@ function prototype:_setParam(param)
         motionType_ = self.motionType_,
         timeLength_ = param.timeLength,
         fov = self:_getInfoData(param.fovWeight0, param.fovRanges0, param.fovWeight1, param.fovRanges1),
+        resourcesNeeded_ = {},
     };
     return true;
 end

@@ -61,8 +61,11 @@ function prototype:_setParam(param)
         logError(1);
         return false; 
     end;
+    local res = {};
+    res.path = param.motionFilename;
+    res.count = 1;
     self.eventData_ = {
-        resourcesNeeded_ = {param.motionFilename},
+        resourcesNeeded_ = {res},
         beginTime = param.beginTime,
         endTime = param.endTime,
         timeLength_ = param.eventLength,

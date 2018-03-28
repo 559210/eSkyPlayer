@@ -41,6 +41,7 @@ function prototype:_setParam(param)
     eventData_.beginCut = param.beginCut;
     eventData_.endCut = param.endCut;
     eventData_.timeLength_ = param.timeLength;
+    eventData_.resourcesNeeded_ = {};
     if param.mainSceneModelPath_ ~= nil then
         eventData_.mainSceneModelPath_ = param.mainSceneModelPath_;
     end
