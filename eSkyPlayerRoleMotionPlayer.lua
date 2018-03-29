@@ -22,12 +22,8 @@ end
 
 
 function prototype:onEventEntered(eventObj, beginTime)
-    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
-    if tactic == nil then
-        logError("tactic error");
-    end
     local path = eventObj.eventData_.resourcesNeeded_[1].path;
-    local asset = tactic:getResource(path);
+    local asset = self:getResource(eventObj, path);
     if eventObj.eventData_.timeLength_ < self.currentAnimatorSpeed_ then
         self.currentAnimatorSpeed_ = eventObj.eventData_.timeLength_;
     end

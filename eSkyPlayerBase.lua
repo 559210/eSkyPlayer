@@ -41,12 +41,22 @@ function prototype:isNeedAdditionalCamera()
 end
 
 
-function prototype:getResources()
+function prototype:getResources()   --获取需要在开始时由director加载的资源列表;(一般由director调用)
     local resList = self.trackObj_:getResources();
     for i = 1, #resList do
         self.resList_[#self.resList_ + 1] = resList[i];
     end
     return self.resList_;
+end
+
+
+function prototype:getResource(eventObj, path)  --根据参数获取对应路径的资源;(一般由自身或子类调用)
+    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
+    if tactic == nil then
+        logError("tactic error");
+    end
+    local asset = tactic:getResource(path);
+    return asset;
 end
 
 

@@ -229,6 +229,11 @@ function prototype:addTrack(track, callback)
 end
 
 
+function prototype:setNewCamera(camera)
+    self.camera_ = camera;--改变camera的函数
+end
+
+
 function prototype:_createPlayerByTrack(track)
     local trackType = track:getTrackType();
     if track:getTrackLength() > self.timeLength_ then
@@ -261,11 +266,6 @@ function prototype:_createPlayerByTrack(track)
     else
         return nil;
     end
-end
-
-
-function prototype:setNewCamera(camera)
-    self.camera_ = camera;--改变camera的函数
 end
 
 

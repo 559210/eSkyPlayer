@@ -137,11 +137,8 @@ function prototype:_createBloomEffect(eventObj)
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.antiFlicker = misc.getBoolByByte(eventObj.eventData_.antiFlicker);
-    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
-    if tactic ~= nil then
-        param.lenDirtTexture = tactic:getResource(eventObj.texturePath_);
-    end
-    return param; 
+    param.lenDirtTexture = self:getResource(eventObj, eventObj.texturePath_);
+    return param;
 end
 
 
@@ -167,11 +164,8 @@ function prototype:_createChromaticAberrationEffect(eventObj)
     self.effectId_ = self.cameraEffectManager_:createChromaticAberrationEffect();
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
-    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
-    if tactic ~= nil then
-        param.spectralTexture = tactic:getResource(eventObj.texturePath_);
-    end
-    return param; 
+    param.spectralTexture = self:getResource(eventObj, eventObj.texturePath_);
+    return param;
 end
 
 
@@ -214,10 +208,7 @@ function prototype:_createVignetteEffect(eventObj)
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.mode = eventObj.eventData_.mode - 1;
     param.rounded = misc.getBoolByByte(eventObj.eventData_.rounded);
-    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
-    if tactic ~= nil then
-        param.mask = tactic:getResource(eventObj.texturePath_);
-    end
+    param.mask = self:getResource(eventObj, eventObj.texturePath_);
     return param; 
 end
 
@@ -262,10 +253,7 @@ function prototype:_createBlackEffect(eventObj)
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.blendMode = eventObj.eventData_.blendMode - 1;
-    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
-    if tactic ~= nil then
-        param.texture = tactic:getResource(eventObj.texturePath_);
-    end
+    param.texture = self:getResource(eventObj, eventObj.texturePath_);
     return param; 
 end
 
