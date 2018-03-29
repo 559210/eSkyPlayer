@@ -14,6 +14,7 @@ function prototype:ctor()
     self.cameraEffectManager_ = nil;
     self.project_ = nil;
     self.time_ = nil;
+    self.roleObj_ = nil;
     self.tacticByTrack_ = {};
 end
 
@@ -35,6 +36,7 @@ function prototype:initialize(camera)
     -- };
     self.tacticByTrack_[definations.TRACK_TYPE.CAMERA_EFFECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.SCENE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
+    self.tacticByTrack_[definations.TRACK_TYPE.ROLE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_ON_THE_FLY_RELEASE_IMMEDIATELY;
     self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
     return true;
 end
@@ -146,7 +148,6 @@ function prototype:play()
     if #self.players_ == 0 then
         return false;
     end
-    self.isSeek_ = false;
     self.isPlaying_ = true;
     for i = 1, #self.players_ do
         if self.players_[i]:play() == false then
@@ -182,17 +183,28 @@ function prototype:seek(time)
     self.time_:setTime(time);
     self.timeLine_ = time;
 
-    for i = 1, #self.players_ do
-        if self.players_[i]:seek(time) == false then
-            return false;
+    if self.isPlaying_ == true then
+        self.isPlaying_ = false;
+        for i = 1, #self.players_ do
+            if self.players_[i]:seek(time) == false then
+                return false;
+            end
+            if self.players_[i]:play() == false then
+                return false;
+            end
         end
-    end
-    if self.isPlaying_ == false then
+        self.isPlaying_ = true;
+    else
+        for i = 1, #self.players_ do
+            if self.players_[i]:seek(time) == false then
+                return false;
+            end
+        end
         self.isPlaying_ = true;
         self:_update();
         self.isPlaying_ = false;
     end
-
+    self.isSeek_ = false;
     return true;
 end
 
@@ -424,9 +436,16 @@ end
 
 -- roleObj必须是eSkyPlayerRoleAgent对象
 function prototype:addRole(roleObj)
-
+    self.roleObj_ = roleObj;
 end
 
+function prototype:getRole()
+    return self.roleObj_;
+end
+
+function prototype:setAnimatorCrossFadeTransitionDuration(obj, duration) --obj必须为"eSkyPlayerRoleMotionPlayer"对象；
+    obj.transitionDuration_ = duration;
+end
 --------------------------------------------------------------------------
 -- 下面是动态创建track，event的代码，其他代码往上写
 function prototype:getPlayerByTrackType(trackType)

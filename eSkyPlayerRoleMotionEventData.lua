@@ -74,7 +74,7 @@ function prototype:_setParam(param)
         return false; 
     end;
     local res = {};
-    res.path = param.motionFilename;
+    res.path = "motions/clips/" .. param.motionFilename;
     res.count = 1;
     self.eventData_ = {
         resourcesNeeded_ = {res},
