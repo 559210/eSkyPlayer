@@ -106,6 +106,12 @@ function prototype:_loadTracks(trackPath)
         if trackData:loadTrack(trackPath) == false then
             return false;
         end
+    elseif string.match(trackPath, "mod/plans/motion/.+/morphTrack") then
+        trackData = newClass("eSkyPlayer/eSkyPlayerRoleMorphTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath) == false then
+            return false;
+        end
     else
         return true;
     end

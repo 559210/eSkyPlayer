@@ -74,6 +74,7 @@ function prototype:_loadFromBuff(buff)
         else
             return false;
         end
+
         eventObj:initialize();
         if self:isSupported(eventObj) == false then
             return false;
@@ -86,6 +87,7 @@ function prototype:_loadFromBuff(buff)
         if eventObj:_loadFromBuff(buff) == false then
             return false;
         end
+
         self:_insertEvent(eventFile,eventObj);
     end
     return true;

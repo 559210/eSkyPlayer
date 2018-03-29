@@ -57,9 +57,31 @@ end
 
 function prototype.checkParam(proto, param)
     if param == nil then return false; end
-    for k,v in pairs(proto) do
-        if param[k] == nil or type(param[k]) ~= v then
+    for k, v in pairs(proto) do
+        if param[k] == nil then
             return false;
+        end
+
+        local s, e = string.find(v, ",");
+        if s ~= nil and e ~= nil then
+            local pre = string.sub(v, 1, s - 1);
+            local lst = string.sub(v, e + 1, string.len(v));
+            if pre == "array" then
+                local field = param[k];
+                if type(field) ~= "table" then
+                    return false;
+                end
+
+                for i = 1, #field do
+                    if field[i] == nil or type(field[i]) ~= lst then
+                        return false;
+                    end
+                end
+            end
+        else
+            if type(param[k]) ~= v then
+                return false;
+            end
         end
     end
     return true;

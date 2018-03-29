@@ -23,18 +23,8 @@ function prototype:initialize(camera)
     self.time_ = newClass("eSkyPlayer/eSkyPlayerTimeLine");
     self.timerId_ = TimersEx.Add(0, 0, delegate(self, self._update));
     self.camera_ = camera;
-    -- self.tacticByTrack_ = {
-    --     {
-    --         trackType_ = definations.TRACK_TYPE.CAMERA_EFFECT,
-    --         tacticType_ = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY
-    --     },
-    --     {
-    --         trackType_ = definations.TRACK_TYPE.SCENE_MOTION,
-    --         tacticType_ = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY
-    --     },
 
-    -- };
-    self.tacticByTrack_[definations.TRACK_TYPE.CAMERA_EFFECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
+    self.tacticByTrack_[definations.TRACK_TYPE.CAMERA_EFFECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.SCENE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.ROLE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_ON_THE_FLY_RELEASE_IMMEDIATELY;
     self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
@@ -64,12 +54,13 @@ end
 
 function prototype:load(filename,callback)
     if self:loadProject(filename) == false then
-        return false;
+        callback(false);
+        return;
     end
     self:loadResource(function(isPrepared)
         callback(isPrepared);
     end);
-    return true;
+
 end
 
 
@@ -210,7 +201,7 @@ end
 
 
 --动态添加track
-function prototype:addTrack(track,callback)
+function prototype:addTrack(track, callback)
     local player = self:_createPlayerByTrack(track);
     if player ~= nil then
         local trackType = player.trackObj_:getTrackType();
@@ -219,10 +210,7 @@ function prototype:addTrack(track,callback)
             self:changeResourceManagerTactic(player, tacticType);
             self:changeResourceManagerTactic(track, tacticType);
             for i = 1, track:getEventCount() do
-                local event = track:getEventAt(i);
-                if #event.eventData_.resourcesNeeded_ > 0 then
-                    self:changeResourceManagerTactic(event, tacticType);
-                end
+                self:changeResourceManagerTactic(track:getEventAt(i), tacticType);
             end
         end
         
@@ -261,6 +249,8 @@ function prototype:_createPlayerByTrack(track)
         player = newClass("eSkyPlayer/eSkyPlayerRolePlanPlayer", self);
     elseif trackType == definations.TRACK_TYPE.ROLE_MOTION then
         player = newClass("eSkyPlayer/eSkyPlayerRoleMotionPlayer", self);
+    elseif trackType == definations.TRACK_TYPE.ROLE_MORPH then
+        player = newClass("eskyPlayer/eSkyPlayerRoleMorphPlayer", self);
     else
         player = nil;
     end
@@ -356,14 +346,11 @@ function prototype:_releaseResource()
     end
 end
 
+
 function prototype:_getTacticTypeByTrackType(trackType)
-    if trackType == nil then
-        return nil;
-    end
-    local tacticType = nil;
-    tacticType = self.tacticByTrack_[trackType];
-    return tacticType;
+    return self.tacticByTrack_[trackType];
 end
+
 
 function prototype:_assignDefaultTactic()
     if #self.players_ == 0 then
@@ -446,19 +433,5 @@ end
 function prototype:setAnimatorCrossFadeTransitionDuration(obj, duration) --obj必须为"eSkyPlayerRoleMotionPlayer"对象；
     obj.transitionDuration_ = duration;
 end
---------------------------------------------------------------------------
--- 下面是动态创建track，event的代码，其他代码往上写
-function prototype:getPlayerByTrackType(trackType)
-end
-
-
-function prototype:createTrackPlayer(trackObj)   -- trackObj由track类的静态函数createObject生成
-end
-
-
-function prototype:createEventToTrackPlayer(trackPlayer, eventObj) -- eventObj由event类的静态函数createObject生成
-end
-
-
 
 return prototype;

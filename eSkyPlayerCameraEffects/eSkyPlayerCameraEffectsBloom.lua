@@ -8,6 +8,5 @@ function prototype:ctor()
 end
 
 function prototype:initialize(camera)
-    self.camera.gameObject:AddComponent("");
     return true;
 end

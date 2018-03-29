@@ -15,7 +15,7 @@ function prototype:ctor(director)
 
     -- self.xxx = {
     --     definations.CAMERA_EFFECT_TYPE.BLOOM : {
-    --         "creator" : prototype._creatBlackEffect,
+    --         "creator" : prototype._createBlackEffect,
     --         "update" : prototype._updatexxxx,
     --     },
     -- }
@@ -75,17 +75,17 @@ function prototype:onEventEntered(eventObj, beginTime)
     local eventType = eventObj.eventType_;
 
     if eventType == definations.EVENT_TYPE.CAMERA_EFFECT_BLOOM then
-        self.param_ = self:_creatBloomEffect(eventObj);
+        self.param_ = self:_createBloomEffect(eventObj);
     elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_CHROMATIC_ABERRATION then
-        self.param_ = self:_creatChromaticAberrationEffect(eventObj);
+        self.param_ = self:_createChromaticAberrationEffect(eventObj);
     elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_DEPTH_OF_FIELD then
-        self.param_ = self:_creatDepthOfFieldEffect(eventObj);
+        self.param_ = self:_createDepthOfFieldEffect(eventObj);
     elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_VIGNETTE then
-        self.param_ = self:_creatVignetteEffect(eventObj);
+        self.param_ = self:_createVignetteEffect(eventObj);
     elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_BLACK then
-        self.param_ = self:_creatBlackEffect(eventObj);
+        self.param_ = self:_createBlackEffect(eventObj);
     elseif eventType == definations.EVENT_TYPE.CAMERA_EFFECT_CROSS_FADE then
-        self.param_ = self:_creatCrossFadeEffect(eventObj);
+        self.param_ = self:_createCrossFadeEffect(eventObj);
     end
 end
 
@@ -132,7 +132,7 @@ function prototype:_update()
 end
 
 
-function prototype:_creatBloomEffect(eventObj)
+function prototype:_createBloomEffect(eventObj)
     self.effectId_= self.cameraEffectManager_:createBloomEffect();
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
@@ -163,7 +163,7 @@ function prototype:_updateBloomEffect(eventObj, param, beginTime)
 end
 
 
-function prototype:_creatChromaticAberrationEffect(eventObj)
+function prototype:_createChromaticAberrationEffect(eventObj)
     self.effectId_ = self.cameraEffectManager_:createChromaticAberrationEffect();
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
@@ -187,7 +187,7 @@ function prototype:_updateChromaticAberrationEffect(eventObj, param, beginTime)
 end
 
 
-function prototype:_creatDepthOfFieldEffect(eventObj)
+function prototype:_createDepthOfFieldEffect(eventObj)
     self.effectId_ = self.cameraEffectManager_:createDepthOfFieldEffect();
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
@@ -208,7 +208,7 @@ function prototype:_updateDepthOfFieldEffect(eventObj, param, beginTime)
 end
 
 
-function prototype:_creatVignetteEffect(eventObj)
+function prototype:_createVignetteEffect(eventObj)
     self.effectId_ = self.cameraEffectManager_:createVignetteEffect();
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
@@ -257,7 +257,7 @@ function prototype:_updateFieldOfViewEffect(eventObj, beginTime)
 end
 
 
-function prototype:_creatBlackEffect(eventObj)
+function prototype:_createBlackEffect(eventObj)
     self.effectId_ = self.cameraEffectManager_:createScreenOverlayEffect();
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
@@ -281,7 +281,7 @@ function prototype:_updateBlackEffect(eventObj, param, beginTime)
 end
 
 
-function prototype:_creatCrossFadeEffect(eventObj)
+function prototype:_createCrossFadeEffect(eventObj)
     self.effectId_ = self.cameraEffectManager_:createCrossFadeEffect(eventObj.eventData_.timeLength_);
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);

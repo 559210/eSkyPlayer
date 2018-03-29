@@ -130,7 +130,7 @@ function prototype:_loadFromBuff()
 end
 
 
-function prototype:_insertEvent(eventFile,eventObj)
+function prototype:_insertEvent(eventFile, eventObj)
     local event = {};
     event.eventFile_ = eventFile;
     event.eventObj_ = eventObj;
