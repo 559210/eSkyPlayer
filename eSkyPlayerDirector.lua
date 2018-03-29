@@ -362,18 +362,10 @@ function prototype:_assignDefaultTactic()
             local trackType = player.trackObj_:getTrackType();
             local tacticType = self:_getTacticTypeByTrackType(trackType);
             if tacticType ~= nil then
-                local count = 0;
-                for k, v in pairs(player.resTable_) do
-                    count = count + 1;
-                end
-                if count > 0 and player.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                if player.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
                     self:changeResourceManagerTactic(player, tacticType);
                 end
-                count = 0;
-                for k, v in pairs(player.trackObj_.resTable_) do
-                    count = count + 1;
-                end
-                if count > 0 and player.trackObj_.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                if player.trackObj_.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
                     self:changeResourceManagerTactic(player.trackObj_, tacticType);
                 end
                 count = player.trackObj_:getEventCount();

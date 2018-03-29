@@ -165,24 +165,18 @@ end
 
 function prototype:loadResourceInitiallySync()
     local playerTacticType = self.resourceManagerTacticType_;
-    if playerTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then  --如果有player管理的资源需要加载
+    if playerTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then  --player管理的资源
         local resTactic  = self:_getResourceTactic(playerTacticType);
         local resList = self:_getResList(self.resTable_);
-        if resTactic == nil then  --playerTacticType策略不存在
-            return false;
-        end
         if resTactic:loadResourceInitiallySync(resList) == false then
             return false;
         end
     end
 
     local trackTacticType = self.trackObj_.resourceManagerTacticType_;
-    if trackTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then  --如果trcak上有资源需要加载
+    if trackTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then  --trcak管理的资源
         local resTactic  = self:_getResourceTactic(trackTacticType);
         local resList = self:_getResList(self.trackObj_.resTable_);
-        if resTactic == nil then  --playerTacticType策略不存在
-            return false;
-        end
         if resTactic:loadResourceInitiallySync(resList) == false then
             return false;
         end
@@ -194,9 +188,6 @@ function prototype:loadResourceInitiallySync()
         if eventTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
             if #eventObj.eventData_.resourcesNeeded_ ~= 0 then
                 local resTactic  = self:_getResourceTactic(eventTacticType);
-                if resTactic == nil then
-                    return false;
-                end
                 if resTactic:loadResourceInitiallySync(eventObj.eventData_.resourcesNeeded_) == false then
                     return false;
                 end
@@ -214,17 +205,13 @@ function prototype:loadResourceInitially(callback)
             if playerTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
                 local resTactic  = self:_getResourceTactic(playerTacticType);
                 local resList = self:_getResList(self.resTable_);
-                if resTactic ~= nil then
-                    resTactic:loadResourceInitially(resList,function (isPrepared)
-                        if isPrepared == false then
-                            done("playerTacticType error");
-                        else
-                            done();
-                        end
-                    end);
-                else
-                    done("tactic error");
-                end
+                resTactic:loadResourceInitially(resList,function (isPrepared)
+                    if isPrepared == false then
+                        done("playerTacticType error");
+                    else
+                        done();
+                    end
+                end);
             else
                 done();
             end
@@ -234,17 +221,13 @@ function prototype:loadResourceInitially(callback)
             if trackTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
                 local resTactic  = self:_getResourceTactic(trackTacticType);
                 local resList = self:_getResList(self.trackObj_.resTable_);
-                if resTactic ~= nil then
-                    resTactic:loadResourceInitially(resList,function (isPrepared)
-                        if isPrepared == false then
-                            done("trackTacticType error");
-                        else
-                            done();
-                        end
-                    end);
-                else
-                    done("tactic error");
-                end
+                resTactic:loadResourceInitially(resList,function (isPrepared)
+                    if isPrepared == false then
+                        done("trackTacticType error");
+                    else
+                        done();
+                    end
+                end);
             else
                 done();
             end
@@ -267,7 +250,6 @@ function prototype:loadResourceInitially(callback)
 
             async.mapSeries(eventTable, 
                 function(event, done1)
-                    if event.resTactic ~= nil then
                         event.resTactic:loadResourceInitially(event.resList,function (isPrepared)
                             if isPrepared == false then
                                 done1("eventTacticType error");
@@ -275,9 +257,6 @@ function prototype:loadResourceInitially(callback)
                             end
                             done1();
                         end);
-                    else
-                        done1("tactic error");
-                    end
                 end, function(err)
                         done(err)
                     end);
@@ -389,36 +368,28 @@ function prototype:preparePlayingEvents(callback)
                     if self.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
                         local resTactic  = self:_getResourceTactic(self.resourceManagerTacticType_);
                         local resList = self:_getNeededResList(self.resTable_, eventType);
-                        if resTactic ~= nil then
-                            resTactic:loadResourceOnTheFly(resList,function (isPrepared)
-                                if isPrepared == false then
-                                    done("playerTacticType error");
-                                else
-                                    done();
-                                end
-                            end);
-                        else
-                            done("tactic error");
-                        end
+                        resTactic:loadResourceOnTheFly(resList,function (isPrepared)
+                            if isPrepared == false then
+                                done("playerTacticType error");
+                            else
+                                done();
+                            end
+                        end);
                     else
                         done();
                     end
                 end,
                 function(done)
                     if self.trackObj_.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
-                        local resTactic  = self:_getResourceTactic(trackTacticType);
+                        local resTactic  = self:_getResourceTactic(self.trackObj_.resourceManagerTacticType_);
                         local resList = self:_getNeededResList(self.trackObj_.resTable_, eventType);
-                        if resTactic ~= nil then
-                            resTactic:loadResourceOnTheFly(resList,function (isPrepared)
-                                if isPrepared == false then
-                                    done("trackTacticType error");
-                                else
-                                    done();
-                                end
-                            end);
-                        else
-                            done("tactic error");
-                        end
+                        resTactic:loadResourceOnTheFly(resList,function (isPrepared)
+                            if isPrepared == false then
+                                done("trackTacticType error");
+                            else
+                                done();
+                            end
+                        end);
                     else
                         done();
                     end
@@ -426,17 +397,13 @@ function prototype:preparePlayingEvents(callback)
                 function(done)
                     if event.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
                         local resTactic  = self:_getResourceTactic(event.resourceManagerTacticType_);
-                        if resTactic ~= nil then
-                            resTactic:loadResourceOnTheFly(event.eventData_.resourcesNeeded_,function (isPrepared)
-                                if isPrepared == false then
-                                    done("trackTacticType error");
-                                else
-                                    done();
-                                end
-                            end);
-                        else
-                            done("tactic error");
-                        end
+                        resTactic:loadResourceOnTheFly(event.eventData_.resourcesNeeded_,function (isPrepared)
+                            if isPrepared == false then
+                                done("trackTacticType error");
+                            else
+                                done();
+                            end
+                        end);
                     else
                         done();
                     end
@@ -463,26 +430,17 @@ function prototype:_addPlayingEvent(eventObj, beginTime, endTime)
     if self.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
         local resTactic  = self:_getResourceTactic(self.resourceManagerTacticType_);
         local resList = self:_getNeededResList(self.resTable_, eventType);
-        if resTactic == nil then
-            return;
-        end
         resTactic:loadResourceOnTheFlySync(resList);
     end
 
     if self.trackObj_.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
         local resTactic  = self:_getResourceTactic(self.trackObj_.resourceManagerTacticType_);
         local resList = self:_getNeededResList(self.trackObj_.resTable_, eventType);
-        if resTactic == nil then
-            return;
-        end
         resTactic:loadResourceOnTheFlySync(resList);
     end
 
     if eventObj.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
         local resTactic  = self:_getResourceTactic(eventObj.resourceManagerTacticType_);
-        if resTactic == nil then
-            return;
-        end
         resTactic:loadResourceOnTheFlySync(eventObj.eventData_.resourcesNeeded_);
     end
 end
@@ -536,6 +494,8 @@ function prototype:_creatTactic(tacticType)
         self.resourceTactics_[tacticType] = newClass("eSkyPlayer/eSkyPlayerResourceLoadOnTheFlyReleaseOnTheFly");
     elseif tacticType == definations.MANAGER_TACTIC_TYPE.LOAD_ON_THE_FLY_SYNC_RELEASE_IMMEDIATELY then
         self.resourceTactics_[tacticType] = newClass("eSkyPlayer/eSkyPlayerResourceLoadOnTheFlySyncReleaseOnTheFly");
+    else
+        assert(false, "error: creat tactic failed!");
     end
 end
 
