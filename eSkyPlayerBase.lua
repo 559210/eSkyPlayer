@@ -14,7 +14,8 @@ function prototype:ctor(director)
     self.resTable_ = {};  --键值对，用于存放player管理的资源中需要遇到特定类型event时加载的资源；key为event类型eventType_，value为资源路径path_(数组)；
     self.playingEvents_ = {};  --数组，存放正在播放的event，eventObj对象和开始时间；
     self.resourceTactics_ = {};  --键值对，键为tactictype，值为对应的策略类对象；
-    self.eventLoaded_ = {};    --数组，存放已经通过异步加载判断条件过的event，作为标志防止多次异步加载，release过之后对应event删除；
+    self.eventLoadedStatus_ = {};    --键值对，存放event通过异步加载的加载状态（忽略event的策略类型，策略为同步加载的event也会进入此键值对）
+                                     --键为event,值为加载状态："waiting","finished","filed"
 end
 
 
@@ -109,7 +110,7 @@ function prototype:seek(time)
                 event.obj = eventObj;
                 event.beginTime = beginTime;
                 event.endTime = endTime;
-                eventNeedAdd[#eventNeedAdd + 1] = event;
+                eventNeedAdd[#eventNeedAdd + 1] = event;  --seek统一为同步加载，所以不需要考虑异步加载状态，不需要对self.eventLoadedStatus_判断；
             end
         end
 
@@ -315,7 +316,7 @@ function prototype:onEventLeft(eventObj)
 end
 
 
-function prototype:preparePlayingEvents(callback)
+function prototype:preparePlayingEvents()
     local beginTime = self.trackObj_:getEventBeginTimeAt(self.index_);
     local event = self.trackObj_:getEventAt(self.index_);
     local endTime = -1;
@@ -348,73 +349,75 @@ function prototype:preparePlayingEvents(callback)
             end
         end
         if isEventEntered == true then
-            self:_addPlayingEvent(event,beginTime,endTime);  --必须先调_addPlayingEvent函数，再调onEventEntered函数；seek函数中也是。
-            self:onEventEntered(event, beginTime);
+            if self.eventLoadedStatus_[event] == "failed" then
+                assert(false, "error: load resource on the fly failed!");
+            elseif self.eventLoadedStatus_[event] == "finished" or self.eventLoadedStatus_[event] == nil then
+                self:_addPlayingEvent(event,beginTime,endTime);  --必须先调_addPlayingEvent函数，再调onEventEntered函数；seek函数中也是。
+                self:onEventEntered(event, beginTime);
+            end
         end
     end
 
-    if self.director_.isSeek_ == false then
-        for i = 1, #self.eventLoaded_ do
-            if self.eventLoaded_[i] == event then
-                callback(true);
-                return;
-            end
-        end
-        if beginTime - self.director_.timeLine_ <= 2 and beginTime - self.director_.timeLine_ > 0 then
-            local eventType = event:getEventType();
-            self.eventLoaded_[#self.eventLoaded_ + 1] = event;
-            async.series({
-                function(done)
-                    if self.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
-                        local resTactic  = self:_getResourceTactic(self.resourceManagerTacticType_);
-                        local resList = self:_getNeededResList(self.resTable_, eventType);
-                        resTactic:loadResourceOnTheFly(resList,function (isPrepared)
-                            if isPrepared == false then
-                                done("playerTacticType error");
-                            else
-                                done();
-                            end
-                        end);
-                    else
-                        done();
-                    end
-                end,
-                function(done)
-                    if self.trackObj_.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
-                        local resTactic  = self:_getResourceTactic(self.trackObj_.resourceManagerTacticType_);
-                        local resList = self:_getNeededResList(self.trackObj_.resTable_, eventType);
-                        resTactic:loadResourceOnTheFly(resList,function (isPrepared)
-                            if isPrepared == false then
-                                done("trackTacticType error");
-                            else
-                                done();
-                            end
-                        end);
-                    else
-                        done();
-                    end
-                end,
-                function(done)
-                    if event.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
-                        local resTactic  = self:_getResourceTactic(event.resourceManagerTacticType_);
-                        resTactic:loadResourceOnTheFly(event.eventData_.resourcesNeeded_,function (isPrepared)
-                            if isPrepared == false then
-                                done("trackTacticType error");
-                            else
-                                done();
-                            end
-                        end);
-                    else
-                        done();
-                    end
-                end}, function(err)
-                    if err ~= nil then
-                        callback(false);
-                    else
-                        callback(true);
-                    end
-                end);
-        end
+    if self.director_.isSeek_ == true then
+        return;
+    end
+    if self.eventLoadedStatus_[event] ~= nil then
+        return;
+    end
+    if beginTime - self.director_.timeLine_ <= 2 and beginTime - self.director_.timeLine_ > 0 then
+        local eventType = event:getEventType();
+        self.eventLoadedStatus_[event] = "waiting";
+        async.series({
+            function(done)
+                if self.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                    local resTactic  = self:_getResourceTactic(self.resourceManagerTacticType_);
+                    local resList = self:_getNeededResList(self.resTable_, eventType);
+                    resTactic:loadResourceOnTheFly(resList,function (isPrepared)
+                        if isPrepared == false then
+                            done("playerTacticType error");
+                        else
+                            done();
+                        end
+                    end);
+                else
+                    done();
+                end
+            end,
+            function(done)
+                if self.trackObj_.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                    local resTactic  = self:_getResourceTactic(self.trackObj_.resourceManagerTacticType_);
+                    local resList = self:_getNeededResList(self.trackObj_.resTable_, eventType);
+                    resTactic:loadResourceOnTheFly(resList,function (isPrepared)
+                        if isPrepared == false then
+                            done("trackTacticType error");
+                        else
+                            done();
+                        end
+                    end);
+                else
+                    done();
+                end
+            end,
+            function(done)
+                if event.resourceManagerTacticType_ ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                    local resTactic  = self:_getResourceTactic(event.resourceManagerTacticType_);
+                    resTactic:loadResourceOnTheFly(event.eventData_.resourcesNeeded_,function (isPrepared)
+                        if isPrepared == false then
+                            done("trackTacticType error");
+                        else
+                            done();
+                        end
+                    end);
+                else
+                    done();
+                end
+            end}, function(err)
+                if err ~= nil then
+                    self.eventLoadedStatus_[event] = "failed";
+                else
+                    self.eventLoadedStatus_[event] = "finished";
+                end
+            end);
     end
 end
 
@@ -443,6 +446,8 @@ function prototype:_addPlayingEvent(eventObj, beginTime, endTime)
         local resTactic  = self:_getResourceTactic(eventObj.resourceManagerTacticType_);
         resTactic:loadResourceOnTheFlySync(eventObj.eventData_.resourcesNeeded_);
     end
+    self.eventLoadedStatus_[eventObj] = nil;
+    -- table.remove(self.eventLoadedStatus_,eventObj);
 end
 
 
@@ -477,11 +482,6 @@ function prototype:_deletePlayingEvent(index)
         end
     end
 
-    for i = 1, #self.eventLoaded_ do
-        if self.eventLoaded_[i] == eventObj then
-            table.remove(self.eventLoaded_,i)
-        end
-    end 
     table.remove(self.playingEvents_,index);
 end
 
@@ -548,10 +548,7 @@ function prototype:_update()
         return;
     end
     self.playState_ = definations.PLAY_STATE.PLAYING;
-    self:preparePlayingEvents(function(done)
-        
-    end);
-    return;
+    self:preparePlayingEvents();
 end
 
 
