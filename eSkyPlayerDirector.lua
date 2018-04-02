@@ -16,6 +16,7 @@ function prototype:ctor()
     self.time_ = nil;
     self.roleObj_ = nil;
     self.tacticByTrack_ = {};
+    self.cameras_ = {};
 end
 
 
@@ -23,6 +24,7 @@ function prototype:initialize(camera)
     self.time_ = newClass("eSkyPlayer/eSkyPlayerTimeLine");
     self.timerId_ = TimersEx.Add(0, 0, delegate(self, self._update));
     self.camera_ = camera;
+    self.cameras_ = {camera};
 
     self.tacticByTrack_[definations.TRACK_TYPE.CAMERA_EFFECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.SCENE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
@@ -234,6 +236,10 @@ function prototype:setNewCamera(camera)
 end
 
 
+function prototype:getCameras()
+    return self.cameras_;
+end
+
 function prototype:_createPlayerByTrack(track)
     local trackType = track:getTrackType();
     if track:getTrackLength() > self.timeLength_ then
@@ -290,14 +296,14 @@ function prototype:_createCamera()
     local obj_ = newGameObject("camera");
     self.additionalCamera_ = obj_:AddComponent(typeof(Camera));
     self.additionalCamera_.enabled = false;
+    self.cameras_[#self.cameras_ + 1] = self.additionalCamera_;
 end
 
-
+--TODO:以后考虑是否支持多个cameraMotionTrack的播放，cameras（包括主camera和additionalCamera_为一组）分组设置；
 function prototype:_createAdditionalCamera()
     if self.additionalCamera_ ~= nil then 
         return false;
     end
-
     for i = 1, #self.players_ do
         if self.players_[i]:isNeedAdditionalCamera() == true then
             if self.additionalCamera_ == nil then

@@ -12,7 +12,9 @@ function prototype:ctor(director)
     self.additionalCamera_ = nil;
     self.isEventPlaying_ = false;
     self.effectId_ = -1;
-
+    self.cameras_ = director:getCameras(); --考虑到fov需要赋值给哪几个camera；
+                                           --由于现在camera的event保存数据中的fov_值废弃不用了，由cameraEffect里的fov特效来决定camera的fov，暂定每遇到fov的event就遍历所有camera并赋值；
+                                           --TODO:以后恢复cameraMotionEventData中存储的fov的用途，由自身保存的数据来决定camera的fov值，废弃fov的特效
     -- self.xxx = {
     --     definations.CAMERA_EFFECT_TYPE.BLOOM : {
     --         "creator" : prototype._createBlackEffect,
@@ -92,7 +94,9 @@ end
 
 function prototype:onEventLeft(eventObj)
     if eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW then
-        self.mainCamera_.fieldOfView = 60;
+        for i = 1, #self.cameras_ do
+            self.cameras_[i].fieldOfView = 60;
+        end
     else
 
         self.cameraEffectManager_:destroy(self.effectId_);
@@ -244,7 +248,9 @@ function prototype:_updateFieldOfViewEffect(eventObj, beginTime)
     local names = {"fov"};
     local fov = 60;
     fov = eventObj.eventData_.fov.values[1] + deltaTime * (eventObj.eventData_.fov.values[2] - eventObj.eventData_.fov.values[1]);
-    self.mainCamera_.fieldOfView = fov;
+    for i = 1, #self.cameras_ do
+        self.cameras_[i].fieldOfView = fov;
+    end
 end
 
 
