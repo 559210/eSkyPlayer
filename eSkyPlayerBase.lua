@@ -544,6 +544,9 @@ function prototype:_getNeededResList(tab, eventType)
 end
 
 function prototype:_update()
+    if self.director_.timeLine_ > self.director_.timeLength_ then
+        return;
+    end
     self.playState_ = definations.PLAY_STATE.PLAYING;
     self:preparePlayingEvents(function(done)
         

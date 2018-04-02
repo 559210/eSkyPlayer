@@ -78,9 +78,6 @@ end
 
 function prototype:_update()
     self.base:_update();
-    if self.director_.timeLine_ > self.director_.timeLength_ then
-        return;
-    end
 
     for index = 1, #self.playingEvents_ do
         self:_transformCamera(self.playingEvents_[index]);

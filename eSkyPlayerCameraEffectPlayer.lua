@@ -106,10 +106,6 @@ end
 
 function prototype:_update()
     self.base:_update();
-    if self.director_.timeLine_ >= self.director_.timeLength_ then
-        return;
-    end
-
     -- assert(#self.playingEvents_ < 2, "error: cameraEffect play failed!"); -- 如果正在播放的event不止一个，则报错(cameraEffect的event不允许重叠);
 
     for i = 1, #self.playingEvents_ do

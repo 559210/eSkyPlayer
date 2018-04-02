@@ -62,10 +62,5 @@ function prototype:stop()
     self.base:stop();
 end
 
-function prototype:_update()
-    self.base:_update();
-end
-
-
 
 return prototype;
