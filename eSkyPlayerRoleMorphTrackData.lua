@@ -12,13 +12,15 @@ function prototype:ctor()
 end
 
 
-function prototype:_loadFromBuff(buff)
+function prototype:_loadFromBuff(buff, name, nameTable)
     if buff == nil then 
         return false; 
     end
 
     local slot = buff:ReadByte();
     local trackTitle = buff:ReadString();
+    local idx = self:getNameId(self.trackType_ .."_" ..trackTitle, nameTable);
+    self.name_ = name .."/" ..self.trackType_ .."_" ..trackTitle .."_" ..idx
     local eventCount = buff:ReadShort();
 
     if eventCount == 0 then
@@ -61,13 +63,12 @@ function prototype:_loadFromBuff(buff)
                 end
             end
         end
-
-
         self:_insertEvent(eventFile,eventObj);
     end
         
     return true;
 end
+
 
 function prototype.createObject(param)
     local obj = prototype:create();

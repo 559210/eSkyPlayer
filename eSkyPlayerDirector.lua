@@ -15,6 +15,7 @@ function prototype:ctor()
     self.project_ = nil;
     self.time_ = nil;
     self.tacticByTrack_ = {};
+    self.trackNameTable_ = {};--key:track字符串id,value:player
 end
 
 
@@ -72,6 +73,7 @@ function prototype:loadProject(filename)
         return false;
     end
     self:_createAdditionalCamera();
+    self:_makeTrackNameTable();
     return true;
 end
 
@@ -251,6 +253,16 @@ function prototype:_createPlayerByTrack(track)
     end
 end
 
+function prototype:_makeTrackNameTable()
+    for i = 1, #self.players_ do
+        self:_setTrackNameTable(self.players_[i]);
+    end
+end
+
+function prototype:_setTrackNameTable(player)
+    --暂定:没有直接添加,存在直接覆盖.后续根据需求修改
+    self.trackNameTable_[player.trackObj_.name_] = player;
+end
 
 function prototype:setNewCamera(camera)
     self.camera_ = camera;--改变camera的函数

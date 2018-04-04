@@ -14,7 +14,9 @@ function prototype:initialize()
 end
 
 
-function prototype:loadProject(filename)
+function prototype:loadProject(filename, name, nameTable)
+    if nameTable == nil then nameTable = {}; end
+    if name == nil then name = ""; end
     local isScene = string.match(filename,"mod/plans/scene/.+");
     if isScene then
         self:_loadSceneConfig(filename);
@@ -22,7 +24,7 @@ function prototype:loadProject(filename)
     local tracks, isLoopPlay = self:_loadConfig(filename);
     for i = 1,#tracks do
         local trackPath = filename .. "/" .. tracks[i].name .. ".byte";
-        if self:_loadTracks(trackPath) == false then
+        if self:_loadTracks(trackPath, name, nameTable) == false then
             return false;
         end
     end
@@ -60,62 +62,61 @@ function  prototype:_loadConfig(filename)
 end
 
 
-function prototype:_loadTracks(trackPath)
+function prototype:_loadTracks(trackPath, name, nameTable)
     local trackData = nil;
     if string.match(trackPath,"mod/plans/camera/.+/cameraTrack") or
         string.match(trackPath,"mod/projects/.+/plans/camera/.+/cameraTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerCameraMotionTrackData");
         trackData:initialize();
-        if trackData:loadTrack(trackPath) == false then
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
             return false;
         end
     elseif string.match(trackPath,"mod/projects/.+/cameraTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerCameraPlanTrackData");
         trackData:initialize();
-        if trackData:loadTrack(trackPath) == false then
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
             return false;
         end
     elseif string.match(trackPath,"mod/plans/camera/.+/cameraMotionTrack") or
         string.match(trackPath,"mod/projects/.-/plans/camera/.+/cameraMotionTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
         trackData:initialize();
-        if trackData:loadTrack(trackPath) == false then
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
             return false;
         end
     elseif string.match(trackPath,"mod/plans/scene/.-/sceneTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerSceneTrackData");
         trackData:initialize();
-        if trackData:loadTrack(trackPath) == false then
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
             return false;
         end
     elseif string.match(trackPath,"mod/projects/.+/sceneTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerScenePlanTrackData");
         trackData:initialize();
-        if trackData:loadTrack(trackPath) == false then
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
             return false;
         end
     elseif string.match(trackPath,"mod/projects/.+/motionTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerRolePlanTrackData");
         trackData:initialize();
-        if trackData:loadTrack(trackPath) == false then
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
             return false;
         end
     elseif string.match(trackPath, "mod/plans/motion/.+/motionTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerRoleMotionTrackData");
         trackData:initialize();
-        if trackData:loadTrack(trackPath) == false then
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
             return false;
         end
     elseif string.match(trackPath, "mod/plans/motion/.+/morphTrack") then
         trackData = newClass("eSkyPlayer/eSkyPlayerRoleMorphTrackData");
         trackData:initialize();
-        if trackData:loadTrack(trackPath) == false then
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
             return false;
         end
     else
         return true;
     end
-
     self.projectFile_.tracks_[#self.projectFile_.tracks_ + 1] = trackData;
     if trackData:getTrackType() ~= definations.TRACK_TYPE.CAMERA_PLAN and
         trackData:getTrackType() ~= definations.TRACK_TYPE.ROLE_PLAN and

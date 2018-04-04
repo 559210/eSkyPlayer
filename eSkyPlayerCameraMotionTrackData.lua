@@ -10,11 +10,13 @@ function prototype:ctor()
     self.createParameters = {};
 end
 
-function prototype:_loadFromBuff(buff)
+function prototype:_loadFromBuff(buff, name, nameTable)
     if buff == nil then 
         return false; 
     end
-    local trackTitle = buff:ReadString();
+    local title = buff:ReadString();
+    local idx = self:getNameId(self.trackType_ .."_" ..title, nameTable);
+    self.name_ = name .."/" ..self.trackType_ .."_" ..title .."_" ..idx
     local eventCount = buff:ReadShort();
     self:_setParam({});
     if eventCount == 0 then
@@ -31,7 +33,7 @@ function prototype:_loadFromBuff(buff)
         eventFile.name_ = buff:ReadString();
         eventFile.storeType_ = buff:ReadByte();
         eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
-        buff:ReadByte();--labelID
+        buff:ReadByte();--labelID 
         eventObj = newClass("eSkyPlayer/eSkyPlayerCameraMotionEventData");
         eventObj:initialize();
         if self:isSupported(eventObj) == false then
@@ -54,9 +56,9 @@ function prototype:_loadFromBuff(buff)
         end
         self:_insertEvent(eventFile,eventObj);
     end
-
     return true;
 end
+
 
 function prototype.createObject(param)
     local obj = prototype:create();

@@ -9,17 +9,18 @@ function prototype:ctor()
     self.eventsSupportted_ = {definations.EVENT_TYPE.CAMERA_PLAN};
 end
 
-function prototype:_loadFromBuff(buff)
+function prototype:_loadFromBuff(buff, name, nameTable)
     if buff == nil then 
         return false; 
     end
-
-    local trackTitle = buff:ReadString();
+    local title = buff:ReadString();
+    local tName = self.trackType_ .."_" ..title;
+    local idx = self:getNameId(tName, nameTable);
+    self.name_ = name ..tName .."_" ..idx;
     local eventCount = buff:ReadShort();
     if eventCount == 0 then
         return true;
     end
-
     for e = 1, eventCount do
         local eventFile = {};
         local eventObj = nil;
@@ -39,17 +40,17 @@ function prototype:_loadFromBuff(buff)
             return false;
         end
         if eventFile.storeType == 1 then
-            if eventObj:loadEvent( self.pathHeader_ .. "plans/camera/" .. eventFile.name_) == false then 
+            if eventObj:loadEvent( self.pathHeader_ .. "plans/camera/" .. eventFile.name_, self.name_, nameTable) == false then 
                 return false;
             end
         else 
-            if eventObj:loadEvent( "mod/plans/camera/" .. eventFile.name_) == false then 
+            if eventObj:loadEvent( "mod/plans/camera/" .. eventFile.name_, self.name_, nameTable) == false then 
                 return false;
             end
         end
+        
         self:_insertEvent(eventFile,eventObj);
     end
-
     return true;
 end
 

@@ -5,6 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
     self.title_ = nil;
+    self.name_ = ""; --动态生成
     self.pathHeader_ = nil;
     self.eventsSupportted_ = nil;
     self.mainSceneModelPath_ = nil;
@@ -22,7 +23,7 @@ function prototype:initialize()
 end
 
 
-function prototype:loadTrack(filename)
+function prototype:loadTrack(filename, name, nameTable)
     self.filename = filename;
     local path = Util.AppDataRoot .. "/" ..filename;
     if string.match(filename,"^mod/plans") ~= nil then
@@ -40,7 +41,7 @@ function prototype:loadTrack(filename)
     if self:_loadHeaderFromBuff(buff) == false then
         return false;
     end
-    return self:_loadFromBuff(buff);
+    return self:_loadFromBuff(buff, name, nameTable);
 end
 
 
@@ -169,6 +170,17 @@ function prototype:isSupported(eventObj)
     return false;
 end
 
+function prototype:getNameId(name, nameTable)
+    if nameTable[name] == nil then
+        nameTable[name] = 1;
+        return 1;
+    else
+        local idx = nameTable[name];
+        idx = idx + 1;
+        nameTable[name] = idx;
+        return idx;
+    end
+end
 
 function prototype.createObject(param)
     return nil;

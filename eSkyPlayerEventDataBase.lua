@@ -16,11 +16,11 @@ function prototype:initialize()
 end
 
 
-function prototype:loadEvent(filename)--filename为相对路径；
+function prototype:loadEvent(filename, name, nameTable)--filename为相对路径；
     if string.sub(filename,-5,-1) ~= ".byte" then
         self.projectData_ = newClass("eSkyPlayer/eSkyPlayerProjectData");
         self.projectData_:initialize();
-        return self.projectData_:loadProject(filename);
+        return self.projectData_:loadProject(filename, name, nameTable);
     else
         self.eventData_ = {};
         local path = Util.AppDataRoot .. "/" ..filename;

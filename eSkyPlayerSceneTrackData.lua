@@ -14,9 +14,11 @@ function prototype:ctor()
 end
 
 
-function prototype:_loadFromBuff(buff)
+function prototype:_loadFromBuff(buff, name, nameTable)
     if buff == nil then return false; end
-    buff:ReadString(); --name 
+    local title = buff:ReadString(); --name 
+    local idx = self:getNameId(self.trackType_ .."_" ..title, nameTable);
+    self.name_ = name .."/" ..self.trackType_ .."_" ..title .."_" ..idx
     self:_setParam({stagePath = buff:ReadString()});
     local eventCount = buff:ReadShort();
     if eventCount == 0 then
@@ -29,7 +31,7 @@ function prototype:_loadFromBuff(buff)
             return false;
         end
         eventFile.beginTime_ = buff:ReadFloat();
-        eventFile.name_ = buff:ReadString();
+        eventFile.name_ = buff:ReadString();--event对应的文件名
         eventFile.storeType_ = buff:ReadByte();
         eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
         eventFile.labelID_ = buff:ReadByte();
@@ -48,6 +50,7 @@ function prototype:_loadFromBuff(buff)
     return true;
 end
 
+
 function prototype.createObject(param)
     local obj = prototype:create();
     if obj:_setParam(param) == false then
@@ -57,7 +60,7 @@ function prototype.createObject(param)
 end
 
 function prototype:_setParam(param)
-    if misc.checkParam(self.createParameters,param) == false then
+    if misc.checkParam(self.createParameters, param) == false then
         return false;
     end
     self.stagePath = param.stagePath;

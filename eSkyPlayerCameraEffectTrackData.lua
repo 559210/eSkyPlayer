@@ -19,12 +19,14 @@ function prototype:ctor()
 end
 
 
-function prototype:_loadFromBuff(buff)
+function prototype:_loadFromBuff(buff, name, nameTable)
     if buff == nil then 
         return false; 
     end
 
-    local trackTitle = buff:ReadString();
+    local title = buff:ReadString();
+    local idx = self:getNameId(self.trackType_ .."_" ..title, nameTable);
+    self.name_ = name .."/" ..self.trackType_ .."_" ..title .."_" ..idx
     local eventCount = buff:ReadShort();
     self:_setParam({});
     if eventCount == 0 then
@@ -84,7 +86,7 @@ function prototype:_loadFromBuff(buff)
         if eventObj:_loadHeaderFromBuff(buff) == false then
             return false;
         end
-        if eventObj:_loadFromBuff(buff) == false then
+        if eventObj:_loadFromBuff(buff, self.name_, nameTable) == false then
             return false;
         end
 
