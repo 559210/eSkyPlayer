@@ -12,6 +12,8 @@ prototype.SERIALIZE_FIELD = {
     "animator_",
     "currentAssetName_",
     "animatorStates_",
+    "animatorOverrideContoller_",
+    "stateIndex_",
 }
 
 function prototype:ctor()
@@ -19,7 +21,9 @@ function prototype:ctor()
     self.roleGameObject_ = nil;
     self.animator_ = nil;
     self.currentAssetName_ = nil;
+    self.animatorOverrideContoller_ = nil;
     self.animatorStates_ = {};
+    self.stateIndex_ = 1;
 end
 
 
@@ -29,27 +33,28 @@ function prototype:initialize(role)  --参数role一般由G.characterFactory来c
     self.roleObj_:shutDownMotion();
     self.animator_ = self.roleGameObject_:GetComponent("Animator");
     self.animatorStates_ = {"swapLeft", "swapRight"};
-    self.stateIndex = 1;
-    self.animatorOverrideContoller = UtilEx.createAnimatorOverrideController(self.animator_);  --TODO:评估一下是否要释放
-    self.animator_.runtimeAnimatorController = self.animatorOverrideContoller;
+    self.stateIndex_ = 1;
+    self.animatorOverrideContoller_ = UtilEx.createAnimatorOverrideController(self.animator_);  --TODO:评估一下是否要释放
+    self.animator_.runtimeAnimatorController = self.animatorOverrideContoller_;
     return true;
 end
 
 
 function prototype:play(asset, speed, transitionDuration, fixedTime) -- asset为要播放动作的资源；speed为动画速度；transitionDuration为过渡的时间，单位为s；fixedTimed为目标状态的开始时间，单位为s；
-    self.animator_.speed = speed;
-    local animatorState = self.animatorStates_[self.stateIndex];
+    local animatorState = self.animatorStates_[self.stateIndex_];
 
     if self.currentAssetName_ ~= asset.name then
         self.currentAssetName_ = asset.name;
         self:_changStateIndex();
-        animatorState = self.animatorStates_[self.stateIndex];
-        self.animatorOverrideContoller:set_Item(animatorState, asset);
+        animatorState = self.animatorStates_[self.stateIndex_];
+        self.animatorOverrideContoller_:set_Item(animatorState, asset);
     end
     self.animator_:CrossFadeInFixedTime(animatorState, transitionDuration, -1, fixedTime);
     if speed == 0 then
+        self.animator_.speed = 1;
         self.animator_:Update(0.033);
     end
+    self.animator_.speed = speed;
     return true;
 end
 
@@ -60,10 +65,10 @@ end
 
 
 function prototype:_changStateIndex()
-        if self.stateIndex == 1 then
-        self.stateIndex = 2;
+        if self.stateIndex_ == 1 then
+        self.stateIndex_ = 2;
     else
-        self.stateIndex = 1;
+        self.stateIndex_ = 1;
     end
 end
 

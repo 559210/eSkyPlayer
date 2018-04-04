@@ -2,7 +2,7 @@ local prototype = class("eSkyPlayerCameraCtrl", mvc.viewCtrl)
 local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 
 -- 创建MVC事件号，参数为字符串
- CREATE_MVC_CUSTOM_EVENT_GROUP(
+CREATE_MVC_CUSTOM_EVENT_GROUP(
     "SKYPLAYER_CAMERA_RETURN_BUTTON_CLICKED",
     "SKYPLAYER_CAMERA_PLAY_BUTTON_CLICKED",
     "SKYPLAYER_CAMERA_PAUSE_BUTTON_CLICKED",
@@ -36,6 +36,8 @@ function prototype:onStart()
     -- self.cameraTrack = nil;
     -- self.cameraPlayer = nil;
     G.M.create(ModelList.USER, 0);
+    G.M.create(ModelList.MARRIAGE_INFO, 0);
+
     self.playerDirector = nil;
     self.camera = nil;
     self.view_:setSliderTouchable(false);
@@ -175,23 +177,35 @@ function prototype:onCameraLoadButtonClicked()
 
     self.camera = self.view_:getCamera();
     self.playerDirector = newClass("eSkyPlayer/eSkyPlayerDirector");
-    self.playerDirector:initialize(self.camera);
-    self:_createProject(); --动态创建
-    -- self.playerDirector:load("mod/projects/cameraEffectP",function(isLoaded)--mytscene wedding 0001PVE animPlayTest noScene onlyScene cameraEffectP
-    --     if isLoaded == true then
-    --         logError("load success");
-    --     else
-    --         logError("load failed")
-    --     end
-    -- end);
+
+    local itemCodes = {100153 , 100154 , 100155 ,100156 ,100157,100158,100159,100011,100010};
+    local skeletonUrl = "avatars/biped/man_biped";
+    local role = G.characterFactory:createTempRole(itemCodes, {}, false, skeletonUrl);
+    role.onRoleRefreshFinished = function(body, obj, sourceId)
+        local roleAgent = newClass("eSkyPlayer/eSkyPlayerRoleAgent/eSkyPlayerRoleAgent");
+        roleAgent:initialize(role);
+        self.playerDirector:addRole(roleAgent);
+        self.playerDirector:initialize(self.camera);
+        self.playerDirector:load("mod/projects/test0002",function(isLoaded)--mytscene wedding 0001PVE animPlayTest noScene onlyScene cameraEffectP
+            if isLoaded == true then
+                logError("load success");
+            else
+                logError("load failed")
+            end
+        end);
+    end;
+    role:refresh();
+
+    -- self:_createProject(); --动态创建
+
 
 end
 
 function prototype:_createProject()
     self:_createVirtualCamreaMotionTrack(0, 22);
     self:_createScene();
-    self:_createSceneMotionAnimTrack(0, 3);
-    self:_createSceneMotionEffectTrack(0, 3);
+    --self:_createSceneMotionTrack1(0, 3);
+    --self:_createSceneMotionTrack2(0, 3);
     self:_createVirtualCamreaaEffectTrackByBlackEvent(0.5, 3);
     self:_createVirtualCamreaaEffectTrackByBloomEvent(3.1, 6);
     self:_createVirtualCameraEffectTrackByCrossFade(0.1, 1);
@@ -407,7 +421,7 @@ function prototype:_createVirtualCameraEffectTrackByVignette(beginTime,timeLengt
 end
 function prototype:_createScene()
     local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneTrackData");
-    local mySceneTrack = sceneTrack.createObject({stagePath = "stages/stage_01/prefabs/stage_01"});
+    local mySceneTrack = sceneTrack.createObject({stagePath = "stages/stage_03/prefabs/stage_03"});
     self.playerDirector:addTrack(mySceneTrack,function (isLoaded)
         if not isLoaded then
             logError("createScene fail");
@@ -415,10 +429,10 @@ function prototype:_createScene()
     end);
 end
 
-function prototype:_createSceneMotionAnimTrack(beginTime,timeLength)
+function prototype:_createSceneMotionTrack1(beginTime,timeLength)
     local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneTrackData");
     local sceneEvent = require("eSkyPlayer/eSkyPlayerSceneMotionEventData");
-    local mySceneTrack = sceneTrack.createObject({stagePath = "stages/common/prefabs/qizi_c"});
+    local mySceneTrack = sceneTrack.createObject({stagePath = "stages/stage_01/prefabs/qizi_c"});
     local mySceneEvent1 = sceneEvent.createObject({timeLength = 2.664, beginCut = 0, endCut = 1});
     local mySceneEvent2 = sceneEvent.createObject({timeLength = 5.366, beginCut = 0, endCut = 1});
     local mySceneEvent3 = sceneEvent.createObject({timeLength = 1.332, beginCut = 0, endCut = 1});
@@ -433,7 +447,7 @@ function prototype:_createSceneMotionAnimTrack(beginTime,timeLength)
         end
     end);
 end
-function prototype:_createSceneMotionEffectTrack(beginTime,timeLength)
+function prototype:_createSceneMotionTrack2(beginTime,timeLength)
     local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneTrackData");
     local sceneEvent = require("eSkyPlayer/eSkyPlayerSceneMotionEventData");
     local mySceneTrack = sceneTrack.createObject({stagePath = "effects/prefabs/fx_stage_03_lizi"});
@@ -461,7 +475,16 @@ function prototype:onCameraPlayButtonClicked()
         self.view_:setSliderMax(self.playerDirector.timeLength_);
         self.view_:setSliderTouchable(true);
     end
-
+---------------------------------------------------
+-- local path = "motions/clips/dance/huiguniang/xiandai_hgn_74_08_8";
+--  ddResManager.loadAsset(path, function(asset)
+--     if asset == nil then
+--         logError("xxxxxxxxxxxxx")
+--     else
+--         self.roleAgent:play(asset, 0, 0, 6)
+--     end
+-- end)
+------------------------------
     -- if self.cameraTrack == nil then
     --  return;
     -- end
@@ -530,11 +553,23 @@ end
 
 
 function prototype:onCameraPauseButtonClicked()
+    -- self.roleAgent:setSpeed(0);
+
+--     local path = "motions/clips/dance/huiguniang/xiandai_hgn_74_08_8";
+--  ddResManager.loadAsset(path, function(asset)
+--     if asset == nil then
+--         logError("xxxxxxxxxxxxx")
+--     else
+--         self.roleAgent:play(asset, 1, 0, 2, false)
+--     end
+-- end)
+
+
     if self.playerDirector == nil then 
         return;
     end
     self.playerDirector:stop();
-
+--------------------------------
     -- -- Test for camera effect
     -- if self.cameraEffectManager:pause(self.bloomEffectId) == false then
     --     logError("pause camera effect bloom failed");

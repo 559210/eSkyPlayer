@@ -12,7 +12,9 @@ function prototype:ctor(director)
     self.additionalCamera_ = nil;
     self.isEventPlaying_ = false;
     self.effectId_ = -1;
-
+    self.cameras_ = director:getCameras(); --考虑到fov需要赋值给哪几个camera；
+                                           --由于现在camera的event保存数据中的fov_值废弃不用了，由cameraEffect里的fov特效来决定camera的fov，暂定每遇到fov的event就遍历所有camera并赋值；
+                                           --TODO:以后恢复cameraMotionEventData中存储的fov的用途，由自身保存的数据来决定camera的fov值，废弃fov的特效
     -- self.xxx = {
     --     definations.CAMERA_EFFECT_TYPE.BLOOM : {
     --         "creator" : prototype._createBlackEffect,
@@ -92,7 +94,9 @@ end
 
 function prototype:onEventLeft(eventObj)
     if eventObj.eventData_.motionType_ == definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW then
-        self.mainCamera_.fieldOfView = 60;
+        for i = 1, #self.cameras_ do
+            self.cameras_[i].fieldOfView = 60;
+        end
     else
 
         self.cameraEffectManager_:destroy(self.effectId_);
@@ -102,10 +106,6 @@ end
 
 function prototype:_update()
     self.base:_update();
-    if self.director_.timeLine_ >= self.director_.timeLength_ then
-        return;
-    end
-
     -- assert(#self.playingEvents_ < 2, "error: cameraEffect play failed!"); -- 如果正在播放的event不止一个，则报错(cameraEffect的event不允许重叠);
 
     for i = 1, #self.playingEvents_ do
@@ -137,11 +137,8 @@ function prototype:_createBloomEffect(eventObj)
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.antiFlicker = misc.getBoolByByte(eventObj.eventData_.antiFlicker);
-    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
-    if tactic ~= nil then
-        param.lenDirtTexture = tactic:getResource(eventObj.texturePath_);
-    end
-    return param; 
+    param.lenDirtTexture = self:getResource(eventObj, eventObj.texturePath_);
+    return param;
 end
 
 
@@ -167,11 +164,8 @@ function prototype:_createChromaticAberrationEffect(eventObj)
     self.effectId_ = self.cameraEffectManager_:createChromaticAberrationEffect();
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
-    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
-    if tactic ~= nil then
-        param.spectralTexture = tactic:getResource(eventObj.texturePath_);
-    end
-    return param; 
+    param.spectralTexture = self:getResource(eventObj, eventObj.texturePath_);
+    return param;
 end
 
 
@@ -214,10 +208,7 @@ function prototype:_createVignetteEffect(eventObj)
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.mode = eventObj.eventData_.mode - 1;
     param.rounded = misc.getBoolByByte(eventObj.eventData_.rounded);
-    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
-    if tactic ~= nil then
-        param.mask = tactic:getResource(eventObj.texturePath_);
-    end
+    param.mask = self:getResource(eventObj, eventObj.texturePath_);
     return param; 
 end
 
@@ -253,7 +244,9 @@ function prototype:_updateFieldOfViewEffect(eventObj, beginTime)
     local names = {"fov"};
     local fov = 60;
     fov = eventObj.eventData_.fov.values[1] + deltaTime * (eventObj.eventData_.fov.values[2] - eventObj.eventData_.fov.values[1]);
-    self.mainCamera_.fieldOfView = fov;
+    for i = 1, #self.cameras_ do
+        self.cameras_[i].fieldOfView = fov;
+    end
 end
 
 
@@ -262,10 +255,7 @@ function prototype:_createBlackEffect(eventObj)
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
     param.blendMode = eventObj.eventData_.blendMode - 1;
-    local tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
-    if tactic ~= nil then
-        param.texture = tactic:getResource(eventObj.texturePath_);
-    end
+    param.texture = self:getResource(eventObj, eventObj.texturePath_);
     return param; 
 end
 

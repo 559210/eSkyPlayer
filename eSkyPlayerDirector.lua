@@ -14,7 +14,9 @@ function prototype:ctor()
     self.cameraEffectManager_ = nil;
     self.project_ = nil;
     self.time_ = nil;
+    self.roleObj_ = nil;
     self.tacticByTrack_ = {};
+	self.cameras_ = {};
     self.trackNameTable_ = {};--key:track字符串id,value:player
 end
 
@@ -23,9 +25,11 @@ function prototype:initialize(camera)
     self.time_ = newClass("eSkyPlayer/eSkyPlayerTimeLine");
     self.timerId_ = TimersEx.Add(0, 0, delegate(self, self._update));
     self.camera_ = camera;
+    self.cameras_ = {camera};
 
     self.tacticByTrack_[definations.TRACK_TYPE.CAMERA_EFFECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.SCENE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
+    self.tacticByTrack_[definations.TRACK_TYPE.ROLE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_ON_THE_FLY_RELEASE_IMMEDIATELY;
     self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
     return true;
 end
@@ -139,7 +143,6 @@ function prototype:play()
     if #self.players_ == 0 then
         return false;
     end
-    self.isSeek_ = false;
     self.isPlaying_ = true;
     for i = 1, #self.players_ do
         if self.players_[i]:play() == false then
@@ -175,17 +178,28 @@ function prototype:seek(time)
     self.time_:setTime(time);
     self.timeLine_ = time;
 
-    for i = 1, #self.players_ do
-        if self.players_[i]:seek(time) == false then
-            return false;
+    if self.isPlaying_ == true then
+        self.isPlaying_ = false;
+        for i = 1, #self.players_ do
+            if self.players_[i]:seek(time) == false then
+                return false;
+            end
+            if self.players_[i]:play() == false then
+                return false;
+            end
         end
-    end
-    if self.isPlaying_ == false then
+        self.isPlaying_ = true;
+    else
+        for i = 1, #self.players_ do
+            if self.players_[i]:seek(time) == false then
+                return false;
+            end
+        end
         self.isPlaying_ = true;
         self:_update();
         self.isPlaying_ = false;
     end
-
+    self.isSeek_ = false;
     return true;
 end
 
@@ -218,6 +232,15 @@ function prototype:addTrack(track, callback)
     end
 end
 
+
+function prototype:setNewCamera(camera)
+    self.camera_ = camera;--改变camera的函数
+end
+
+
+function prototype:getCameras()
+    return self.cameras_;
+end
 
 function prototype:_createPlayerByTrack(track)
     local trackType = track:getTrackType();
@@ -290,14 +313,14 @@ function prototype:_createCamera()
     local obj_ = newGameObject("camera");
     self.additionalCamera_ = obj_:AddComponent(typeof(Camera));
     self.additionalCamera_.enabled = false;
+    self.cameras_[#self.cameras_ + 1] = self.additionalCamera_;
 end
 
-
+--TODO:以后考虑是否支持多个cameraMotionTrack的播放，cameras（包括主camera和additionalCamera_为一组）分组设置；
 function prototype:_createAdditionalCamera()
     if self.additionalCamera_ ~= nil then 
         return false;
     end
-
     for i = 1, #self.players_ do
         if self.players_[i]:isNeedAdditionalCamera() == true then
             if self.additionalCamera_ == nil then
@@ -362,18 +385,10 @@ function prototype:_assignDefaultTactic()
             local trackType = player.trackObj_:getTrackType();
             local tacticType = self:_getTacticTypeByTrackType(trackType);
             if tacticType ~= nil then
-                local count = 0;
-                for k, v in pairs(player.resTable_) do
-                    count = count + 1;
-                end
-                if count > 0 and player.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                if player.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
                     self:changeResourceManagerTactic(player, tacticType);
                 end
-                count = 0;
-                for k, v in pairs(player.trackObj_.resTable_) do
-                    count = count + 1;
-                end
-                if count > 0 and player.trackObj_.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
+                if player.trackObj_.resourceManagerTacticType_ == definations.MANAGER_TACTIC_TYPE.NO_NEED then
                     self:changeResourceManagerTactic(player.trackObj_, tacticType);
                 end
                 count = player.trackObj_:getEventCount();
@@ -423,8 +438,15 @@ end
 
 -- roleObj必须是eSkyPlayerRoleAgent对象
 function prototype:addRole(roleObj)
-
+    self.roleObj_ = roleObj;
 end
 
+function prototype:getRole()
+    return self.roleObj_;
+end
+
+function prototype:setAnimatorCrossFadeTransitionDuration(obj, duration) --obj必须为"eSkyPlayerRoleMotionPlayer"对象；
+    obj.transitionDuration_ = duration;
+end
 
 return prototype;

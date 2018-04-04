@@ -78,13 +78,10 @@ end
 
 function prototype:_update()
     self.base:_update();
-    if self.director_.timeLine_ > self.director_.timeLength_ then
-        return;
-    end
+
     for index = 1, #self.playingEvents_ do
         self:_transformCamera(self.playingEvents_[index]);
     end
-
 end
 
 function prototype:_transformCamera(queue)
@@ -98,10 +95,23 @@ function prototype:_transformCamera(queue)
         end
     end
     local ratio = deltaTime / eventObj.eventData_.timeLength_ ;
-    camera.transform.position = Vector3.Lerp (eventObj.eventData_.beginFrame_, eventObj.eventData_.endFrame_, ratio );
-    camera.transform.rotation = Quaternion.Lerp (eventObj.eventData_.beginDr_, eventObj.eventData_.endDr_, ratio );
+    local quater = Quaternion.Lerp (eventObj.eventData_.beginDr_, eventObj.eventData_.endDr_, ratio );
+    local lookPos = Vector3.Lerp (eventObj.eventData_.beginLookAt_, eventObj.eventData_.endLookAt_, ratio );
+    local beginDistance = Vector3.Distance(eventObj.eventData_.beginFrame_, eventObj.eventData_.beginLookAt_);
+    local endDistance = Vector3.Distance(eventObj.eventData_.endFrame_, eventObj.eventData_.endLookAt_);
+    local distance = beginDistance + (endDistance - beginDistance) * ratio;
+    local pos = self:_getPosByAngle(quater.eulerAngles, lookPos, distance);
+    camera.transform:SetPositionAndRotation(pos, quater)
 -----------------------
 --TODO:fov要用起来；cameraMotionPlayer的播放要在cameraEffectPlayer的前面
+end
+
+function prototype:_getPosByAngle(angle, offsetPos, distance)
+    distance = math.max(distance, 0);
+    local radiusVes = Vector3.New(0, 0, - distance);
+    local qn = Quaternion.Euler(angle.x, angle.y, angle.z);
+    local pos = qn * radiusVes + Vector3.New(offsetPos.x, offsetPos.y, offsetPos.z);
+    return pos;
 end
 
 function prototype:_requestCamera()
@@ -174,17 +184,17 @@ function prototype:_getTime(time, totalTime, ctrlPoint1, ctrlPoint2)
 end
 
 function prototype:_getNearPoint(posY, minTimeRatio, maxTimeRatio, ctrlPoint1, ctrlPoint2)
-    local _curveResultData = {};
+    local curveResultData = {};
     local middleTimeRatio = self:_getMiddleTimeRatio(minTimeRatio, maxTimeRatio);
-    _curveResultData.pos = self:_getPosByTime(middleTimeRatio, self:_getPoints(ctrlPoint1, ctrlPoint2, Rect.New(0, 0, 1, 1)));
-    _curveResultData.minTime = middleTimeRatio;
-    _curveResultData.maxTime = maxTimeRatio;
-    if posY < _curveResultData.pos.y then
-        _curveResultData.minTime = minTimeRatio;
-        _curveResultData.maxTime = middleTimeRatio;
+    curveResultData.pos = self:_getPosByTime(middleTimeRatio, self:_getPoints(ctrlPoint1, ctrlPoint2, Rect.New(0, 0, 1, 1)));
+    curveResultData.minTime = middleTimeRatio;
+    curveResultData.maxTime = maxTimeRatio;
+    if posY < curveResultData.pos.y then
+        curveResultData.minTime = minTimeRatio;
+        curveResultData.maxTime = middleTimeRatio;
     end
 
-    return _curveResultData;
+    return curveResultData;
 end
 
 function prototype:_getMiddleTimeRatio(minTimeRatio, maxTimeRatio)
