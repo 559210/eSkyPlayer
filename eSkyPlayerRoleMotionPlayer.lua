@@ -24,8 +24,9 @@ end
 function prototype:onEventEntered(eventObj, beginTime)
     local path = eventObj.eventData_.resourcesNeeded_[1].path;
     local asset = self:getResource(eventObj, path);
-    if eventObj.eventData_.timeLength_ < self.currentAnimatorSpeed_ then
-        self.currentAnimatorSpeed_ = eventObj.eventData_.timeLength_;
+    local transitionDuration = self.transitionDuration_;
+    if eventObj.eventData_.timeLength_ < transitionDuration then
+        transitionDuration_ = eventObj.eventData_.timeLength_;
     end
     local speed = eventObj.eventData_.motionLength / eventObj.eventData_.timeLength_;
     self.currentAnimatorSpeed_ = speed;
@@ -33,7 +34,7 @@ function prototype:onEventEntered(eventObj, beginTime)
     if self.director_.isPlaying_ == false then
         speed = 0;
     end
-    self.roleAgent_:play(asset, speed, self.transitionDuration_, fixedTime);
+    self.roleAgent_:play(asset, speed, transitionDuration, fixedTime);
 end
 
 
