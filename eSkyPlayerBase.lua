@@ -5,7 +5,6 @@ function prototype:ctor(director)
     self.director_ = director;
     self.trackObj_  = nil;
     self.isNeedAdditionalCamera_ = false;
-    self.eventCount_ = 0;
     self.trackLength_ = 0;
     self.index_ = 1;
     self.playState_ = definations.PLAY_STATE.NORMAL;
@@ -22,7 +21,6 @@ end
 function prototype:initialize(trackObj)
     self.trackObj_ = trackObj; 
     self.trackLength_ = self.trackObj_:getTrackLength();
-    self.eventCount_ = self.trackObj_:getEventCount();
     self.index_ = 1;
     return true;
 end
@@ -92,7 +90,8 @@ function prototype:seek(time)
 
     local eventNeedAdd = {}; --数组，存放需要增加的eventObj,开始时间，结束时间；
     local eventNeedDelete = {}; --键为self.playingEvents_里的index，值为eventObj；
-    for i = 1, self.eventCount_  do
+    local eventCount = self.trackObj_:getEventCount();
+    for i = 1, eventCount  do
         local beginTime = self.trackObj_:getEventBeginTimeAt(i);
         local eventObj = self.trackObj_:getEventAt(i);
         local endTime = beginTime + eventObj.eventData_.timeLength_;
@@ -122,13 +121,13 @@ function prototype:seek(time)
                 end
             end
 
-            if i < self.eventCount_ then
+            if i < eventCount then
                 local nextEventBeginTime = self.trackObj_:getEventBeginTimeAt(i + 1);
                 if time >= endTime and time <= nextEventBeginTime then
                     self.index_ = i + 1;
                 end
             end
-            if i == self.eventCount_ and time >= endTime then
+            if i == eventCount and time >= endTime then
                 self.index_ = i + 1;
             end
             if i == 1 and time <= beginTime then
@@ -183,7 +182,8 @@ function prototype:loadResourceInitiallySync()
         end
     end
 
-    for i = 1, self.eventCount_  do
+    local eventCount = self.trackObj_:getEventCount();
+    for i = 1, eventCount  do
         local eventObj = self.trackObj_:getEventAt(i);
         local eventTacticType = eventObj.resourceManagerTacticType_;
         if eventTacticType ~= definations.MANAGER_TACTIC_TYPE.NO_NEED then
@@ -235,7 +235,8 @@ function prototype:loadResourceInitially(callback)
         end,
         function(done)
             local eventTable = {};
-            for i = 1, self.eventCount_  do
+            local eventCount = self.trackObj_:getEventCount();
+            for i = 1, eventCount  do
                 local event = {};
                 local eventObj = self.trackObj_:getEventAt(i);
                 local eventTacticType = eventObj.resourceManagerTacticType_;
@@ -293,7 +294,8 @@ function prototype:releaseResource()
         end
     end
 
-    for i = 1, self.eventCount_  do
+    local eventCount = self.trackObj_:getEventCount();
+    for i = 1, eventCount  do
         local eventObj = self.trackObj_:getEventAt(i);
         tactic = self.resourceTactics_[eventObj.resourceManagerTacticType_];
         if tactic ~= nil then

@@ -7,13 +7,11 @@ function prototype:ctor(director)
 	self.resPath_ = nil;
 	self.animators_ = nil; --动画
 	self.particleSys_ = nil;--粒子  self.trackObj_
-	self.eventCount_ = 0;
 	self.isSeeking_ = false;
 	self.currentEvent_ = {};
 end
 
 function prototype:initialize(trackObj)
-	self.eventCount_ = trackObj:getEventCount();
     return self.base:initialize(trackObj);
 end
 
