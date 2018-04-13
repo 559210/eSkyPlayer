@@ -97,7 +97,7 @@ function prototype:seek(time)
         local eventObj = self.trackObj_:getEventAt(i);
         local endTime = beginTime + eventObj.eventData_.timeLength_;
 
-        if self.director_.timeLine_ >= beginTime and self.director_.timeLine_ <= endTime then
+        if time >= beginTime and time <= endTime then
             local isEventEntered = true;
             for j = 1, #self.playingEvents_ do
                 if eventObj == self.playingEvents_[j].obj_ then 
@@ -114,7 +114,7 @@ function prototype:seek(time)
             end
         end
 
-        if self.director_.timeLine_ <= beginTime or self.director_.timeLine_ >= endTime then
+        if time <= beginTime or time >= endTime then
             for j = 1, #self.playingEvents_ do
                 if eventObj == self.playingEvents_[j].obj_ then
                     eventNeedDelete[j] = eventObj;
@@ -124,14 +124,14 @@ function prototype:seek(time)
 
             if i < self.eventCount_ then
                 local nextEventBeginTime = self.trackObj_:getEventBeginTimeAt(i + 1);
-                if self.director_.timeLine_ >= endTime and self.director_.timeLine_ <= nextEventBeginTime then
+                if time >= endTime and time <= nextEventBeginTime then
                     self.index_ = i + 1;
                 end
             end
-            if i == self.eventCount_ and self.director_.timeLine_ >= endTime then
+            if i == self.eventCount_ and time >= endTime then
                 self.index_ = i + 1;
             end
-            if i == 1 and self.director_.timeLine_ <= beginTime then
+            if i == 1 and time <= beginTime then
                 self.index_ = i;
             end
         end

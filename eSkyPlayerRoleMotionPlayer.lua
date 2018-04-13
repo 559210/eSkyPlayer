@@ -48,7 +48,7 @@ function prototype:seek(time)
     if #self.playingEvents_ == 1 then
         preTime = self.playingEvents_[1].beginTime_;
     end
-    self.base:seek();
+    self.base:seek(time);
     if #self.playingEvents_ == 0 then
         self.currentAnimatorSpeed_ = 0;
     end
