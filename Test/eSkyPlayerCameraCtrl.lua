@@ -186,19 +186,160 @@ function prototype:onCameraLoadButtonClicked()
         roleAgent:initialize(role);
         self.playerDirector:addRole(roleAgent);
         self.playerDirector:initialize(self.camera);
-        self.playerDirector:load("mod/projects/test0002",function(isLoaded)--mytscene wedding 0001PVE animPlayTest noScene onlyScene cameraEffectP
+        self.playerDirector:load("mod/projects/0002PVE",function(isLoaded)--mytscene wedding 0001PVE animPlayTest noScene onlyScene cameraEffectP
             if isLoaded == true then
                 logError("load success");
             else
                 logError("load failed")
             end
         end);
+
+            -- self.morph = newClass("eSkyPlayer/misc/morphPlay");
+            -- local mesh = GameObject.Find("mesh");
+            -- local meshRenderer = mesh:GetComponent(typeof(SkinnedMeshRenderer));
+            -- self.morph:initialize(meshRenderer);
+            -- if self.morph == nil then 
+            --     logError("xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            --     return;
+            -- end
     end;
     role:refresh();
 
     -- self:_createProject(); --动态创建
 
 
+end
+
+function prototype:onCameraPlayButtonClicked()
+    if self.playerDirector == nil then
+        return;
+    end
+
+    if self.playerDirector:play() == true then
+        self.view_:setSliderMax(self.playerDirector.timeLength_);
+        self.view_:setSliderTouchable(true);
+    end
+---------------------------------------------------
+--     local path = "morph/getAngry";
+--  ddResManager.loadAsset(path, function(asset)
+--     if asset == nil then
+--         logError("xxxxxxxxxxxxx")
+--     else
+--         -- local morphConfigInfo = cjson.decode(asset.text);
+--         local temp = {Vector2.New(0,0), Vector2.New(0,0), Vector2.New(1,1),
+--         Vector2.New(5,50), Vector2.New(4.8, 48), Vector2.New(5.2, 52),
+--         Vector2.New(10,100), Vector2.New(9.8,98), Vector2.New(10,100)};
+--         self.morph:play(asset.text, temp, 10, 100)
+--     end
+-- end)
+------------------------------
+    -- if self.cameraTrack == nil then
+    --  return;
+    -- end
+
+    -- if self.cameraPlayer:play(self.cameraTrack, self.camera) == true then
+    --  self.view_:setSliderMax(self.cameraPlayer.trackTimeLength_);
+    --  self.view_:setSliderTouchable(true);
+    -- end
+
+    -- Test for camera effect
+    -- if self.cameraEffectManager:start(self.bloomEffectId) == false then
+    --     logError("start camera effect bloom failed");
+    -- end
+    -- local param = self.cameraEffectManager:getParam(self.bloomEffectId);
+    -- if param ~= nil then
+    --     param.intensity = 0;
+    --     self.cameraEffectManager:setParam(self.bloomEffectId, param);
+    -- end
+
+
+    -- if self.cameraEffectManager:start(self.depthOfFieldEffectId) == false then
+    --     logError("start camera effect depthOfField failed");
+    -- end
+    -- param = self.cameraEffectManager:getParam(self.depthOfFieldEffectId);
+    -- if param ~= nil then
+    --     param.aperture = 0;
+    --     self.cameraEffectManager:setParam(self.depthOfFieldEffectId, param);
+    -- end
+
+    -- if self.cameraEffectManager:start(self.chromaticAberrationEffectId) == false then
+    --     logError("start camera effect chromaticAberration failed");
+    -- end
+    -- param = self.cameraEffectManager:getParam(self.chromaticAberrationEffectId);
+    -- if param ~= nil then
+    --     param.intensity = 0;
+    --     self.cameraEffectManager:setParam(self.chromaticAberrationEffectId, param);
+    -- end
+
+    -- if self.cameraEffectManager:start(self.vignetteEffectId) == false then
+    --     logError("start camera effect vignette failed");
+    -- end
+    -- param = self.cameraEffectManager:getParam(self.vignetteEffectId);
+    -- if param ~= nil then
+    --     param.intensity = 0;
+    --     self.cameraEffectManager:setParam(self.vignetteEffectId, param);
+    -- end
+end
+
+
+function prototype:onCameraPlaySliderChanged()
+    if self.playerDirector == nil then 
+        return;
+    end
+    self.playerDirector:seek(self.view_:getSliderValue());
+end
+
+function prototype:onCameraReturnButtonClicked()
+    -- self.playerDirector:uninitialize();
+    self:gotoScene("eSkyPlayerMainMenu");
+    return true;
+end
+
+
+function prototype:onCameraPauseButtonClicked()
+--     self.roleAgent:setSpeed(0);
+
+--     local path = "motions/clips/dance/huiguniang/xiandai_hgn_74_08_8";
+--  ddResManager.loadAsset(path, function(asset)
+--     if asset == nil then
+--         logError("xxxxxxxxxxxxx")
+--     else
+--         self.roleAgent:play(asset, 1, 0, 2, false)
+--     end
+-- end)
+
+
+    if self.playerDirector == nil then 
+        return;
+    end
+    self.playerDirector:stop();
+--------------------------------
+    -- -- Test for camera effect
+    -- if self.cameraEffectManager:pause(self.bloomEffectId) == false then
+    --     logError("pause camera effect bloom failed");
+    -- end
+    -- if self.cameraEffectManager:pause(self.depthOfFieldEffectId) == false then
+    --     logError("pause camera effect depthOfFieldEffectId failed");
+    -- end
+    -- if self.cameraEffectManager:pause(self.chromaticAberrationEffectId) == false then
+    --     logError("pause camera effect chromaticAberration failed");
+    -- end
+    -- if self.cameraEffectManager:pause(self.vignetteEffectId) == false then
+    --     logError("pause camera effect vignette failed");
+    -- end 
+end
+
+
+function prototype:_updateSlider()
+    if self.playerDirector == nil then 
+        return;
+    end
+    self.view_:setSliderValue(self.playerDirector.timeLine_);
+    self.view_:setTextContent(self.playerDirector.timeLine_);
+    -- if self.morph == nil then 
+    --     return;
+    -- end
+    -- self.morph:update();
 end
 
 function prototype:_createProject()
@@ -466,134 +607,6 @@ function prototype:_createSceneMotionTrack2(beginTime,timeLength)
     end);
 end
 
-function prototype:onCameraPlayButtonClicked()
-    if self.playerDirector == nil then
-        return;
-    end
-
-    if self.playerDirector:play() == true then
-        self.view_:setSliderMax(self.playerDirector.timeLength_);
-        self.view_:setSliderTouchable(true);
-    end
----------------------------------------------------
--- local path = "motions/clips/dance/huiguniang/xiandai_hgn_74_08_8";
---  ddResManager.loadAsset(path, function(asset)
---     if asset == nil then
---         logError("xxxxxxxxxxxxx")
---     else
---         self.roleAgent:play(asset, 0, 0, 6)
---     end
--- end)
-------------------------------
-    -- if self.cameraTrack == nil then
-    --  return;
-    -- end
-
-    -- if self.cameraPlayer:play(self.cameraTrack, self.camera) == true then
-    --  self.view_:setSliderMax(self.cameraPlayer.trackTimeLength_);
-    --  self.view_:setSliderTouchable(true);
-    -- end
-
-    -- Test for camera effect
-    -- if self.cameraEffectManager:start(self.bloomEffectId) == false then
-    --     logError("start camera effect bloom failed");
-    -- end
-    -- local param = self.cameraEffectManager:getParam(self.bloomEffectId);
-    -- if param ~= nil then
-    --     param.intensity = 0;
-    --     self.cameraEffectManager:setParam(self.bloomEffectId, param);
-    -- end
-
-
-    -- if self.cameraEffectManager:start(self.depthOfFieldEffectId) == false then
-    --     logError("start camera effect depthOfField failed");
-    -- end
-    -- param = self.cameraEffectManager:getParam(self.depthOfFieldEffectId);
-    -- if param ~= nil then
-    --     param.aperture = 0;
-    --     self.cameraEffectManager:setParam(self.depthOfFieldEffectId, param);
-    -- end
-
-    -- if self.cameraEffectManager:start(self.chromaticAberrationEffectId) == false then
-    --     logError("start camera effect chromaticAberration failed");
-    -- end
-    -- param = self.cameraEffectManager:getParam(self.chromaticAberrationEffectId);
-    -- if param ~= nil then
-    --     param.intensity = 0;
-    --     self.cameraEffectManager:setParam(self.chromaticAberrationEffectId, param);
-    -- end
-
-    -- if self.cameraEffectManager:start(self.vignetteEffectId) == false then
-    --     logError("start camera effect vignette failed");
-    -- end
-    -- param = self.cameraEffectManager:getParam(self.vignetteEffectId);
-    -- if param ~= nil then
-    --     param.intensity = 0;
-    --     self.cameraEffectManager:setParam(self.vignetteEffectId, param);
-    -- end
-end
-
-
-function prototype:onCameraPlaySliderChanged()
-    -- if self.cameraTrack == nil then 
-    --  return;
-    -- end
-
-    if self.playerDirector == nil then 
-        return;
-    end
-    self.playerDirector:seek(self.view_:getSliderValue());
-end
-
-function prototype:onCameraReturnButtonClicked()
-    -- self.playerDirector:uninitialize();
-    self:gotoScene("eSkyPlayerMainMenu");
-    return true;
-end
-
-
-function prototype:onCameraPauseButtonClicked()
-    -- self.roleAgent:setSpeed(0);
-
---     local path = "motions/clips/dance/huiguniang/xiandai_hgn_74_08_8";
---  ddResManager.loadAsset(path, function(asset)
---     if asset == nil then
---         logError("xxxxxxxxxxxxx")
---     else
---         self.roleAgent:play(asset, 1, 0, 2, false)
---     end
--- end)
-
-
-    if self.playerDirector == nil then 
-        return;
-    end
-    self.playerDirector:stop();
---------------------------------
-    -- -- Test for camera effect
-    -- if self.cameraEffectManager:pause(self.bloomEffectId) == false then
-    --     logError("pause camera effect bloom failed");
-    -- end
-    -- if self.cameraEffectManager:pause(self.depthOfFieldEffectId) == false then
-    --     logError("pause camera effect depthOfFieldEffectId failed");
-    -- end
-    -- if self.cameraEffectManager:pause(self.chromaticAberrationEffectId) == false then
-    --     logError("pause camera effect chromaticAberration failed");
-    -- end
-    -- if self.cameraEffectManager:pause(self.vignetteEffectId) == false then
-    --     logError("pause camera effect vignette failed");
-    -- end
-    
-end
-
-
-function prototype:_updateSlider()
-    if self.playerDirector == nil then 
-        return;
-    end
-    self.view_:setSliderValue(self.playerDirector.timeLine_);
-
-end
 
 
 return prototype;

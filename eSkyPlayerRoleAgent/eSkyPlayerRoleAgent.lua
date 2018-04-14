@@ -14,6 +14,7 @@ prototype.SERIALIZE_FIELD = {
     "animatorStates_",
     "animatorOverrideContoller_",
     "stateIndex_",
+    "morph_",
 }
 
 function prototype:ctor()
@@ -21,6 +22,7 @@ function prototype:ctor()
     self.roleGameObject_ = nil;
     self.animator_ = nil;
     self.currentAssetName_ = nil;
+    self.morph_ = nil;
     self.animatorOverrideContoller_ = nil;
     self.animatorStates_ = {};
     self.stateIndex_ = 1;
@@ -36,9 +38,19 @@ function prototype:initialize(role)  --参数role一般由G.characterFactory来c
     self.stateIndex_ = 1;
     self.animatorOverrideContoller_ = UtilEx.createAnimatorOverrideController(self.animator_);  --TODO:评估一下是否要释放
     self.animator_.runtimeAnimatorController = self.animatorOverrideContoller_;
+    self.morph_ = newClass("eSkyPlayer/misc/morphPlay");
+    local mesh = GameObject.Find("mesh");
+    local meshRenderer = mesh:GetComponent(typeof(SkinnedMeshRenderer));
+    self.morph_:initialize(meshRenderer);
     return true;
 end
 
+
+function prototype:uninitialize()
+    self.morph_:uninitialize();
+    self.animator_ = nil;
+    self.morph_ = nil;
+end
 
 function prototype:play(asset, speed, transitionDuration, fixedTime) -- asset为要播放动作的资源；speed为动画速度；transitionDuration为过渡的时间，单位为s；fixedTimed为目标状态的开始时间，单位为s；
     local animatorState = self.animatorStates_[self.stateIndex_];
@@ -65,11 +77,34 @@ end
 
 
 function prototype:_changStateIndex()
-        if self.stateIndex_ == 1 then
+    if self.stateIndex_ == 1 then
         self.stateIndex_ = 2;
     else
         self.stateIndex_ = 1;
     end
+end
+
+------------------------------------------------ Morph below
+
+function prototype:playMorphWithoutReset(morphConfigInfo, controlPoints, duration, offsetTime)  --jsonBuff为asset.text;controlPoints为存放控制点的数组;duration表示时间范围;offsetTime表示偏移时间
+    self.morph_:playWithoutReset(morphConfigInfo, controlPoints, duration, offsetTime);           --playMorphWithoutReset表示离开event时不清除表情各参数的数据
+end
+
+function prototype:playMorphWithReset(morphConfigInfo, controlPoints, duration, offsetTime)       --playMorphWithReset表示离开event时把表情各参数全部置0
+    self.morph_:playWithReset(morphConfigInfo, controlPoints, duration, offsetTime);
+end
+
+
+function prototype:stopMorph()
+    self.morph_:stop();
+end
+
+function prototype:resumeMorph()
+    self.morph_:resume();
+end
+
+function prototype:resetMorph()
+    self.morph_:reset();
 end
 
 

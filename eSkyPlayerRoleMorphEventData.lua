@@ -11,9 +11,10 @@ function prototype:ctor()
     self.base:ctor();
     self.eventType_ = definations.EVENT_TYPE.ROLE_MORPH;
     self.createParameters = {
-        morphConfigFilename = "string", -- Assets/game/res/morph目录下json文件，实际就是morph的配置文件
+        -- morphConfigFilename = "string", -- Assets/game/res/morph目录下json文件，实际就是morph的配置文件
         timeLength = "number",  -- event的时长
-        curveConfigPoints = "array,number",    -- morph变化的曲线控制点，偶数个，不定长度
+        curveConfigPoints = "table, table",    -- morph变化的曲线控制点，偶数个，不定长度
+        morphConfigInfo = "table, number",
     };
 
 end
@@ -43,8 +44,8 @@ function prototype:_loadFromBuff(buff)
         morphConfigFilename = buff:ReadString(),
         timeLength = buff:ReadFloat(),
         curveConfigPoints = {},
+        morphConfigInfo = {};
     };
-
     local curveConfigFilename = buff:ReadString();
 
     local s, e = string.find(self.eventPath_, ".*/");
@@ -54,15 +55,23 @@ function prototype:_loadFromBuff(buff)
         return false;
     end
 
-    local count = curveBuff:ReadShort() * 2;
+    local count = curveBuff:ReadShort() ;
     for i = 1, count do
-        param.curveConfigPoints[#param.curveConfigPoints + 1] = curveBuff:ReadFloat();
+        local point = Vector2.New(x, y);
+        point.x = curveBuff:ReadFloat();
+        point.y = curveBuff:ReadFloat();
+        param.curveConfigPoints[#param.curveConfigPoints + 1] = point;
     end
-
+    local jsonPath = "morph/" .. param.morphConfigFilename;
+    local asset = ddResManager.loadAssetFromFile(jsonPath);
+    if asset == nil then
+        return false;
+    end
+    local morphConfigInfo = cjson.decode(asset.text);
+    param.morphConfigInfo = morphConfigInfo;
     if self:_setParam(param) == false then
         return false;
     end
-
     return true;
 end
 
@@ -83,9 +92,10 @@ function prototype:_setParam(param)
     end;
 
     self.eventData_ = {
-        morphConfigFilename_ = param.morphConfigFilename,
+        -- morphConfigFilename_ = param.morphConfigFilename,
         timeLength_ = param.timeLength,
         curveConfigPoints_ = param.curveConfigPoints,
+        morphConfigInfo_ = param.morphConfigInfo,
     };
 
     return true;

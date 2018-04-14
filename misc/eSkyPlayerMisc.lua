@@ -87,4 +87,13 @@ function prototype.checkParam(proto, param)
     return true;
 end
 
+
+function prototype.getPosByTime(t, points)
+    local p = Vector2.New(x,y);
+    p.x = points[0].x * (1 - t) ^ 3 + 3 * points[1].x * t * (1 - t) ^ 2 + 3 * points[2].x * t ^ 2 * (1 - t) + points[3].x * t ^ 3;
+    p.y = points[0].y * (1 - t) ^ 3 + 3 * points[1].y * t * (1 - t) ^ 2 + 3 * points[2].y * t ^ 2 * (1 - t) + points[3].y * t ^ 3;
+    return p;
+end
+
+
 return prototype;

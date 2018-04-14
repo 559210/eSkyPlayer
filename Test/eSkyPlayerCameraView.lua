@@ -32,6 +32,7 @@ eSkyPlayerCameraView.RESOURCE_BINDING = {
         { path = "sliderPlay.grip.n1", id = "n8_dohc.n3.n1" },
         { path = "sliderPlay.grip.n2", id = "n8_dohc.n3.n2" },
         { path = "sliderPlay.grip.n3", id = "n8_dohc.n3.n3" },
+        { path = "time", id = "n9_s3yx" },
     }
 }]] 
 
@@ -54,6 +55,7 @@ prototype.RESOURCE_BINDING = {
         { path = "btnLoad", id = "n6_dohc", gevents = { onClick = G.events.SKYPLAYER_CAMERA_LOAD_BUTTON_CLICKED } },
         { path = "btnPlay", id = "n1_sc9b", gevents = { onClick = G.events.SKYPLAYER_CAMERA_PLAY_BUTTON_CLICKED } },
         { path = "btnPause", id = "n5_dohc", gevents = { onClick = G.events.SKYPLAYER_CAMERA_PAUSE_BUTTON_CLICKED } },
+        time_ = { path = "time", id = "n9_s3yx" },
         slider_ = { path = "sliderPlay", id = "n8_dohc" },
     }
 }
@@ -118,6 +120,10 @@ end
 
 function prototype:onSliderChanged(eventContext)
     self:triggerEvent(G.events.SKYPLAYER_CAMERA_PLAY_SLIDER_CHANGED);
+end
+
+function prototype:setTextContent(num)
+    self.time_.text = num;
 end
 
 return prototype;
