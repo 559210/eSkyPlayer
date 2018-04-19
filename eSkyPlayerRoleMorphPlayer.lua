@@ -21,7 +21,15 @@ function prototype:onEventEntered(eventObj, beginTime)
     local controlPoints = eventObj.eventData_.curveConfigPoints_;
     local duration = eventObj:getTimeLength();
     local offsetTime = self.director_.timeLine_ - beginTime;
+    if self.director_.isPlaying_ == true then
+        self.roleAgent_:resumeMorph();
+    end
     self.roleAgent_:playMorphWithoutReset(morphConfigInfo, controlPoints, duration, offsetTime);
+end
+
+
+function prototype:onEventLeft(eventObj)
+    self.roleAgent_:stopMorph();
 end
 
 
