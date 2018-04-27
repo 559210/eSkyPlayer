@@ -74,8 +74,17 @@ local definations = {
         NORMAL = 0, --就绪
         PLAY = 1,--开始播放
         PLAYING = 2,--播放中
-        PLAYEND = 3 --播放结束
+        PLAYEND = 3, --播放结束
     };
+
+    EVENT_ADDTYPE = {
+        NORMAL = 0, --正常顺序添加
+        EVENT_BREAK_ADD = 1,--中断event然后添加
+        EVENT_WAIT_ADD = 2, --等待event结束后添加
+        EVENT_REPLACEMORE_ADD = 3,--替换添加多个
+        EVENT_REPLACEONE_ADD = 4,--替换1个
+    };
+
 }
 
 return definations;

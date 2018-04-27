@@ -25,8 +25,7 @@ function prototype:_loadFromBuff(buff, name, nameTable)
     end
 
     local title = buff:ReadString();
-    local idx = self:getNameId(self.trackType_ .."_" ..title, nameTable);
-    self.name_ = name .."/" ..self.trackType_ .."_" ..title .."_" ..idx
+    self.name_ = self:getTrackName(name, self.trackType_, title, nameTable);
     local eventCount = buff:ReadShort();
     self:_setParam({});
     if eventCount == 0 then

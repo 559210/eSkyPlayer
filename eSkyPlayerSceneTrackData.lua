@@ -17,8 +17,7 @@ end
 function prototype:_loadFromBuff(buff, name, nameTable)
     if buff == nil then return false; end
     local title = buff:ReadString(); --name 
-    local idx = self:getNameId(self.trackType_ .."_" ..title, nameTable);
-    self.name_ = name .."/" ..self.trackType_ .."_" ..title .."_" ..idx
+    self.name_ = self:getTrackName(name, self.trackType_, title, nameTable);
     self:_setParam({stagePath = buff:ReadString()});
     local eventCount = buff:ReadShort();
     if eventCount == 0 then

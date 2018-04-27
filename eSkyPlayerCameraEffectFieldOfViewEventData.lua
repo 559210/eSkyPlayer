@@ -3,7 +3,7 @@ local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
-    prototype.super.ctor(self);
+    self.base:ctor();
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.FIELD_OF_VIEW;
     self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_FIELD_OF_VIEW;
     self.createParameters = {
@@ -50,6 +50,7 @@ function prototype:_setParam(param)
         fov = self:_getInfoData(param.fovWeight0, param.fovRanges0, param.fovWeight1, param.fovRanges1),
         resourcesNeeded_ = {},
     };
+    self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 
@@ -62,5 +63,6 @@ function prototype:_getInfoData(param1, param2, param3, param4)
     info.values = misc.getValuesByInfo(info);
     return info;
 end
+
 
 return prototype;

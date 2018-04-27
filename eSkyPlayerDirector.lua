@@ -205,9 +205,10 @@ end
 
 
 --动态添加track
-function prototype:addTrack(track, callback)
+function prototype:addTrack(trackName, track, callback)
     local player = self:_createPlayerByTrack(track);
     if player ~= nil then
+        self:_setTrackNameTable(trackName, player);
         local trackType = player.trackObj_:getTrackType();
         local tacticType = self:_getTacticTypeByTrackType(trackType);
         if tacticType ~= nil then
@@ -237,6 +238,15 @@ function prototype:setNewCamera(camera)
     self.camera_ = camera;--改变camera的函数
 end
 
+function prototype:_refreshTimeLength()
+    for i = 1, #self.players_ do
+        local pTrackObj = self.players_[i].trackObj_;
+        local trackLength = pTrackObj:getTrackLength();
+        if trackLength > self.timeLength_ then
+            self.timeLength_ = trackLength;
+        end
+    end
+end
 
 function prototype:getCameras()
     return self.cameras_;
@@ -278,13 +288,25 @@ end
 
 function prototype:_makeTrackNameTable()
     for i = 1, #self.players_ do
-        self:_setTrackNameTable(self.players_[i]);
+        local player = self.players_[i];
+        self:_setTrackNameTable(player.trackObj_.name_, player);
     end
 end
 
-function prototype:_setTrackNameTable(player)
-    --暂定:没有直接添加,存在直接覆盖.后续根据需求修改
-    self.trackNameTable_[player.trackObj_.name_] = player;
+function prototype:getPlayerByTrackName(trackName)
+    if self.trackNameTable_[trackName] then
+        return self.trackNameTable_[trackName];
+    end
+    return nil;
+end
+
+function prototype:_setTrackNameTable(playerName, player)
+    local pPlayer = self.trackNameTable_[playerName];
+    if pPlayer == nil then
+        self.trackNameTable_[playerName] = player;
+    else
+        logError("名字重复 >>>>" ..playerName);
+    end
 end
 
 function prototype:setNewCamera(camera)
@@ -355,13 +377,39 @@ function prototype:_update()
     if self.isPlaying_ == false then
         return;
     end
+    local isRefreshTimeLine = false;
     self.timeLine_ = self.time_:getTime();
     self.time_:setTime(self.timeLine_ + Time.deltaTime);
     for i = 1, #self.players_ do
-        self.players_[i]:_update();
+        local player = self.players_[i];
+        if player.trackObj_.isDirtyEvent_ then
+            player.trackObj_.isDirtyEvent_ = false;
+            self:seek(self.timeLine_);
+            isRefreshTimeLine = true;
+        end
+        player:_update();
+    end
+    if isRefreshTimeLine then 
+        isRefreshTimeLine = false; 
+        self:_refreshTimeLength(); 
     end
 end
 
+function prototype:addEventCallbackToTrack(trackName, callback, type)
+    return false;
+end
+
+function prototype:addEvnetCallbackToEvent(trackName, event, callback, type)
+    return false;
+end
+
+function prototype:findEventByTime(trackName, time)
+    return {};
+end
+
+function prototype:findEventByAt(trackName, eventIndex)
+    return eventObj;
+end
 
 function prototype:_releaseResource()
     for i = 1, #self.players_ do

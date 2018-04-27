@@ -3,7 +3,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 
 function prototype:ctor()
-    prototype.super.ctor(self);
+    self.base:ctor();
     self.eventType_ = definations.EVENT_TYPE.CAMERA_MOTION;
     self.createParameters = {
         ----------beginFrame--------起点坐标
@@ -71,7 +71,6 @@ end
 
 -- param是一个table
 function prototype.createObject(param)
-    if param == nil then return nil; end
     local obj = prototype:create()
     if obj:_setParam(param) == false then
         return nil;
@@ -96,6 +95,7 @@ function prototype:_setParam(param)
         timeLength_ = param.timeLength,
         resourcesNeeded_ = {},
     };
+    self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

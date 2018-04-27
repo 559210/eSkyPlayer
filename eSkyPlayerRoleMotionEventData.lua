@@ -71,8 +71,15 @@ function prototype:_setParam(param)
         timeLength_ = param.eventLength,
         motionLength = param.motionLength
     }
-
+    self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
+end
+
+function prototype:clipEvent(newLength)
+    self.base:clipEvent(newLength);
+    local oldLen = self.eventData_.timeLength_;
+    local tLength = self.eventData_.endTime - self.eventData_.beginTime;
+    self.eventData_.endTime = (newLength / oldLen) * tLength + self.eventData_.beginTime;
 end
 
 

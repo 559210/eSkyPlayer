@@ -6,17 +6,9 @@ prototype.SERIALIZE_FIELD = {
     "eventPath_",
 }
 
-
 function prototype:ctor()
     self.base:ctor();
     self.eventType_ = definations.EVENT_TYPE.ROLE_MORPH;
-    self.createParameters = {
-        -- morphConfigFilename = "string", -- Assets/game/res/morph目录下json文件，实际就是morph的配置文件
-        timeLength = "number",  -- event的时长
-        curveConfigPoints = "table, table",    -- morph变化的曲线控制点，偶数个，不定长度
-        morphConfigInfo = "table, number",
-    };
-
 end
 
 
@@ -76,28 +68,14 @@ function prototype:_loadFromBuff(buff)
 end
 
 
--- param是一个table
-function prototype.createObject(param)      
-    local obj = prototype:create()
-    if obj:_setParam(param) == false then
-        return nil;
-    end 
-    return obj;
-end
-
-
 function prototype:_setParam(param)
-    if misc.checkParam(self.createParameters, param) == false then 
-        return false; 
-    end;
-
     self.eventData_ = {
         -- morphConfigFilename_ = param.morphConfigFilename,
         timeLength_ = param.timeLength,
         curveConfigPoints_ = param.curveConfigPoints,
         morphConfigInfo_ = param.morphConfigInfo,
     };
-
+    self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

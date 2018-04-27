@@ -3,7 +3,7 @@ local misc = require("eSkyPlayer/misc/eSkyPlayerMisc");
 local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor()
-    prototype.super.ctor(self);
+    self.base:ctor(self);
     self.motionType_ = definations.CAMERA_EFFECT_TYPE.CROSS_FADE;
     self.eventType_ = definations.EVENT_TYPE.CAMERA_EFFECT_CROSS_FADE;
     self.createParameters = {
@@ -56,6 +56,7 @@ function prototype:_setParam(param)
         alphaTo = self:_getInfoData(param.alphaToWeight0, param.alphaToRanges0, param.alphaToWeight1, param.alphaToRanges1),
         resourcesNeeded_ = {},
     };
+    self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 
@@ -68,5 +69,6 @@ function prototype:_getInfoData(param1,param2,param3,param4)
     info.values = misc.getValuesByInfo(info);
     return info;
 end
+
 
 return prototype;

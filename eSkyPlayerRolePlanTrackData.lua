@@ -18,9 +18,7 @@ function prototype:_loadFromBuff(buff, name, nameTable)
 
     local slot = buff:ReadByte();
     local title = buff:ReadString();
-    local tName = self.trackType_ .."_" ..title;
-    local idx = self:getNameId(tName, nameTable);
-    self.name_ = name ..tName .."_" ..idx;
+    self.name_ = self:getTrackName(name, self.trackType_, title, nameTable);
     local eventCount = buff:ReadShort();
 
     if eventCount == 0 then

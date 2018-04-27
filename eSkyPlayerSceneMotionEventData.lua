@@ -46,8 +46,15 @@ function prototype:_setParam(param)
         eventData_.mainSceneModelPath_ = param.mainSceneModelPath_;
     end
     self.eventData_ = eventData_;
+    self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 
+function prototype:clipEvent(newLength)
+    self.base:clipEvent(newLength);
+    local oldLen = self.eventData_.timeLength_;
+    local tLength = self.eventData_.endCut - self.eventData_.beginCut;
+    self.eventData_.endTime = (newLength / oldLen) * tLength + self.eventData_.beginCut;
+end
 
 return prototype;
