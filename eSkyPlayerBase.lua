@@ -141,6 +141,7 @@ function prototype:seek(time)
         local index = #self.playingEvents_ + 1 - i;
         if eventNeedDelete[index] ~= nil then
             self:onEventLeft(eventNeedDelete[index]);
+            self:_callEventCallbackByEventState(eventNeedDelete[index], definations.EVENT_PLAYER_STATE.EVENT_END);
             self:_deletePlayingEvent(index);
         end
         
@@ -149,6 +150,7 @@ function prototype:seek(time)
     for i = 1, #eventNeedAdd do
         self:_addPlayingEvent(eventNeedAdd[i].obj, eventNeedAdd[i].beginTime, eventNeedAdd[i].endTime);
         self:onEventEntered(eventNeedAdd[i].obj, eventNeedAdd[i].beginTime);
+        self:_callEventCallbackByEventState(eventNeedAdd[i].obj, definations.EVENT_PLAYER_STATE.EVENT_START);
     end
     return true;
 end
@@ -331,16 +333,18 @@ function prototype:preparePlayingEvents()
             endTime = beginTime + event:getTimeLength();
         end
     end
-
     for i = 1, #self.playingEvents_ do
         local playingEvent = self.playingEvents_[i].obj_;
         local playingBeginTime = self.playingEvents_[i].beginTime_;
         local playingEndTime = playingBeginTime + playingEvent:getTimeLength();
-        if self.director_.timeLine_ >= playingEndTime or self.director_.timeLine_ <= playingBeginTime then
+        if self.director_.timeLine_ >= playingEndTime or self.director_.timeLine_ <= playingBeginTime then --event 离开
             self:onEventLeft(playingEvent);
+            self:_callEventCallbackByEventState(playingEvent, definations.EVENT_PLAYER_STATE.EVENT_END);
             self:_deletePlayingEvent(i);
             break;
         end
+        --event 执行中
+        self:_callEventCallbackByEventState(playingEvent, definations.EVENT_PLAYER_STATE.EVENT_UPDATE);
     end
 
     if self.director_.timeLine_ > beginTime and self.director_.timeLine_ < endTime then
@@ -356,6 +360,7 @@ function prototype:preparePlayingEvents()
             elseif self.eventLoadedStatus_[event] == "finished" or self.eventLoadedStatus_[event] == nil then
                 self:_addPlayingEvent(event,beginTime,endTime);  --必须先调_addPlayingEvent函数，再调onEventEntered函数；seek函数中也是。
                 self:onEventEntered(event, beginTime);
+                self:_callEventCallbackByEventState(event, definations.EVENT_PLAYER_STATE.EVENT_START);
             end
         end
     end
@@ -423,6 +428,25 @@ function prototype:preparePlayingEvents()
     end
 end
 
+
+function prototype:_callEventCallbackByEventState(event, evnetPlayerState)
+    if event.playerStates ~= nil then
+        local eventCallbacks = event.playerStates[evnetPlayerState];
+        if eventCallbacks ~= nil then
+            for _, v in pairs(eventCallbacks) do
+                v(self.trackObj_, event);
+            end
+        end
+    end
+    if self.trackObj_.playerStates ~= nil then
+        local trackCallbacks = self.trackObj_.playerStates[evnetPlayerState];
+        if trackCallbacks ~= nil then
+            for _, v in pairs(trackCallbacks) do
+                v(self.trackObj_, event);
+            end
+        end
+    end
+end
 
 function prototype:_addPlayingEvent(eventObj, beginTime, endTime)
     local event = {};

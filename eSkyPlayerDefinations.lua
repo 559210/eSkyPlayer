@@ -85,6 +85,12 @@ local definations = {
         EVENT_REPLACEONE_ADD = 4,--替换1个
     };
 
+    EVENT_PLAYER_STATE = {
+        EVENT_START = 1,
+        EVENT_UPDATE = 2,
+        EVENT_END = 3,
+    };
+
 }
 
 return definations;
