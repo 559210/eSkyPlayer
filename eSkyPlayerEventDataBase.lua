@@ -8,6 +8,11 @@ function prototype:ctor()
     self.eventDataLength_ = 0;
     self.eventType_ = definations.EVENT_TYPE.UNKOWN;
     self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
+    self.eventCallbacks_ = {
+        [definations.EVENT_PLAYER_STATE.EVENT_START] = {},
+        [definations.EVENT_PLAYER_STATE.EVENT_UPDATE] = {},
+        [definations.EVENT_PLAYER_STATE.EVENT_END] = {},
+    };
     -- self.resourcesNeeded_ = {};
 end
 
@@ -16,6 +21,14 @@ function prototype:initialize()
     return true;
 end
 
+
+function prototype:addEventCallback(eventState, callbackIndex, callback)
+    self.eventCallbacks_[eventState][callbackIndex] = callback;
+end
+
+function prototype:getEventCallback(callbackState)
+    return self.eventCallbacks_[callbackState];
+end
 
 function prototype:loadEvent(filename, name, nameTable)--filename为相对路径；
     if string.sub(filename,-5,-1) ~= ".byte" then

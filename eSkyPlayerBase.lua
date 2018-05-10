@@ -429,23 +429,20 @@ function prototype:preparePlayingEvents()
 end
 
 
-function prototype:_callEventCallbackByEventState(event, evnetPlayerState)
-    if event.playerStates ~= nil then
-        local eventCallbacks = event.playerStates[evnetPlayerState];
-        if eventCallbacks ~= nil then
-            for _, v in pairs(eventCallbacks) do
-                v(self.trackObj_, event);
-            end
+function prototype:_callEventCallbackByEventState(event, callbackState)
+    local eventCallbacks = event:getEventCallback(callbackState);
+    if eventCallbacks ~= nil then
+        for _, v in pairs(eventCallbacks) do
+            v(self.trackObj_, event);
         end
     end
-    if self.trackObj_.playerStates ~= nil then
-        local trackCallbacks = self.trackObj_.playerStates[evnetPlayerState];
-        if trackCallbacks ~= nil then
-            for _, v in pairs(trackCallbacks) do
-                v(self.trackObj_, event);
-            end
+    local trackCallbacks = self.trackObj_:getTrackCallback(callbackState);
+    if trackCallbacks ~= nil then
+        for _, v in pairs(trackCallbacks) do
+            v(self.trackObj_, event);
         end
     end
+    
 end
 
 function prototype:_addPlayingEvent(eventObj, beginTime, endTime)

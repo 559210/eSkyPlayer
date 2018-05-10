@@ -19,6 +19,7 @@ function prototype:ctor()
 	self.cameras_ = {};
     self.trackNameTable_ = {};--key:track字符串id,value:player
     self.callbackIndex_ = 0; --key :用于给track和event添加回调标记.
+    self.callbackObjects_ = {}; --key:self.callbackIndex_,value: event对象或者track对象
 end
 
 
@@ -396,41 +397,57 @@ function prototype:_update()
     end
 end
 
-function prototype:addEventCallbackToTrack(playerName, callback, eventPlayerState)
+function prototype:addEventCallbackToTrack(playerName, callback, callbackState)
     local player = self:getPlayerByTrackName(playerName);
     if player == nil then
         logError(playerName .." not find");
         return;
     end
-    if player.trackObj_.playerStates == nil then
-        player.trackObj_.playerStates = {};
-    end
-    if player.trackObj_.playerStates[eventPlayerState] == nil then
-        player.trackObj_.playerStates[eventPlayerState] = {};
-    end
-
     self.callbackIndex_ = self.callbackIndex_ + 1;
-    player.trackObj_.playerStates[eventPlayerState][self.callbackIndex_] = callback;
+    player.trackObj_:addTrackCallback(callbackState, self.callbackIndex_, callback);
+    local tmp = {};
+    tmp.trackObj = player.trackObj_;
+    tmp.isTrackCallback = true;
+    tmp.callbackState = callbackState;
+    self.callbackObjects_[self.callbackIndex_] = tmp;
     return self.callbackIndex_;
 
 end
 
-function prototype:addEventCallbackToEvent(event, callback, eventPlayerState)
+function prototype:addEventCallbackToEvent(event, callback, callbackState)
     if callback == nil then
         logError("callback is nil");
         return;
     end
-    if event.eventObj_.playerStates == nil then
-        event.eventObj_.playerStates = {};
-    end
-    if event.eventObj_.playerStates[eventPlayerState] == nil then
-        event.eventObj_.playerStates[eventPlayerState] = {};
-    end
+
     self.callbackIndex_ = self.callbackIndex_ + 1;
-    event.eventObj_.playerStates[eventPlayerState][self.callbackIndex_] = callback;
+    event.eventObj_:addEventCallback(callbackState, self.callbackIndex_, callback);
+    local tmp = {};
+    tmp.eventObj = event.eventObj_;
+    tmp.isTrackCallback = false;
+    tmp.callbackState = callbackState;
+    self.callbackObjects_[self.callbackIndex_] = tmp;
     return self.callbackIndex_;
 end
 
+function prototype:removeCallback(callbackIndex)
+    if self.callbackObjects_[callbackIndex] then
+        local tmp = self.callbackObjects_[callbackIndex];
+        if tmp.isTrackCallback then
+            local trackCallbacks = tmp.trackObj:getTrackCallback(tmp.callbackState);
+            self:_removeCallback(trackCallbacks, callbackIndex);
+        else
+            local eventCallbacks = tmp.eventObj:getEventCallback(tmp.callbackState);
+            self:_removeCallback(eventCallbacks, callbackIndex);
+        end
+    end
+
+end
+
+function prototype:_removeCallback(callbacks, callbackIndex)
+    callbacks[callbackIndex] = nil;
+    self.callbackObjects_[callbackIndex] = nil;
+end
 
 function prototype:findEventByTime(playerName, time)
     local events = self:_getTrackEvents(playerName);
@@ -454,55 +471,6 @@ function prototype:findEventAt(playerName, eventIndex)
         return events[eventIndex];
     end
     return nil;
-end
-
-function prototype:removeTrackCallbackAt(playerName, eventPlayerState, index)
-    local player = self:getPlayerByTrackName(playerName);
-    if player == nil or player.trackObj_.playerStates == nil then
-        logError(playerName ..": error");
-        return;
-    end
-    local tCallbacks = player.trackObj_.playerStates[eventPlayerState];
-    if tCallbacks ~= nil and tCallbacks[index] ~= nil then
-        table.remove(tCallbacks, index);
-        tCallbacks[index] = nil;
-    end
-end
-
--- function prototype:removeTrackAllCallback(playerName)
---     local player = self:getPlayerByTrackName(playerName);
---     if player == nil then
---         logError(playerName ..": error");
---         return;
---     end
---     self:_removeCallback(player.trackObj_);
--- end
-
-function prototype:removeEventCallbackAt(event, eventPlayerState, index)
-    if event.eventObj_.playerStates ~= nil then
-        local eCallbacks = event.eventObj_.playerStates[eventPlayerState];
-        if eCallbacks ~= nil and eCallbacks[index] ~= nil then
-            table.remove(eCallbacks, index);
-            eCallbacks[index] = nil;
-        end
-    end
-end
-
--- function prototype:removeEventAllCallback(event)
---     self:_removeCallback(event.eventObj_);
--- end
-
-function prototype:_removeCallback(obj)
-    if obj.playerStates ~= nil then
-        for k, v in pairs(obj.playerStates) do
-            for i, j in pairs(v) do
-                table.remove(v, i);
-                v[i] = nil;
-            end
-            table.remove(obj.playerStates, k);
-            obj.playerStates[k] = nil;
-        end
-    end
 end
 
 function prototype:_getTrackEvents(playerName)

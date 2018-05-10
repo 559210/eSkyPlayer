@@ -16,14 +16,26 @@ function prototype:ctor()
     self.trackFileType_ = definations.TRACK_FILE_TYPE.UNKOWN;
     self.resourceManagerTacticType_ = definations.MANAGER_TACTIC_TYPE.NO_NEED;
     self.isDirtyEvent_ = false;
+    self.trackCallbacks_ = {
+        [definations.EVENT_PLAYER_STATE.EVENT_START] = {},
+        [definations.EVENT_PLAYER_STATE.EVENT_UPDATE] = {},
+        [definations.EVENT_PLAYER_STATE.EVENT_END] = {},
+    };
 end
 
-            
+
 
 function prototype:initialize()
     return true;
 end
 
+function prototype:addTrackCallback(eventState, callbackIndex, callback)
+    self.trackCallbacks_[eventState][callbackIndex] = callback;
+end
+
+function prototype:getTrackCallback(callbackState)
+    return self.trackCallbacks_[callbackState];
+end
 
 function prototype:loadTrack(filename, name, nameTable)
     self.filename = filename;
