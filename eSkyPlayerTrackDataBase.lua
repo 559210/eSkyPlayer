@@ -228,8 +228,19 @@ function prototype:addEvent(beginTime, eventData, addType, replaceNum)
             isAdd = self:_addEventByEventBreakAdd(eventFile, eventData);
             self.isDirtyEvent_ = isAdd;
         end),
-        case(definations.EVENT_ADDTYPE.EVENT_WAIT_ADD, function()
-            
+        case(definations.EVENT_ADDTYPE.EVENT_LAST_ADD, function()
+            isAdd = self:_addEventByEventLastAdd(eventFile, eventData);
+            self.isDirtyEvent_ = isAdd;
+        end),
+        case(definations.EVENT_ADDTYPE.EVENT_REPLACE_MORE_ADD, function()
+            if replaceNum ~= nil  and replaceNum > 0 then
+                isAdd = self:_replaceEventAdd(eventFile, eventData, replaceNum);
+                self.isDirtyEvent_ = isAdd;
+            end
+        end),
+        case(definations.EVENT_ADDTYPE.EVENT_REPLACE_ONE_ADD, function()
+            isAdd = self:_replaceEventAdd(eventFile, eventData, 1);
+            self.isDirtyEvent_ = isAdd;
         end)
 
         );
@@ -239,23 +250,23 @@ end
 function prototype:_addEventByEventBreakAdd(eventFile, eventData)
     local isAdd = false;
     if #self.events_ > 0 then
-        local findEventsData = self:_getEventsByTime(eventFile.beginTime_);
-        if findEventsData == nil then
+        local eventsIndex = self:_getEventsByTime(eventFile.beginTime_);
+        if eventsIndex == nil then
             self:_insertEvent(eventFile, eventData);
             return true;
         end
-        if #findEventsData.findEvents > 0 then
-            for i = 1, #findEventsData.findEvents do
-                local fevent = findEventsData.findEvents[i];
-                if findEventsData.findEvents[i + 1] == nil then
+        if #eventsIndex.findEventsIndex > 0 then
+            for i = 1, #eventsIndex.findEventsIndex do
+                local fevent = self.events_[eventsIndex.findEventsIndex[i]];
+                if eventsIndex.findEventsIndex[i + 1] == nil then
                     fevent.event.eventObj_:clipEvent(eventFile.beginTime_ - fevent.event.eventFile_.beginTime_);
                     self:_insertEvent(eventFile, eventData);
                     isAdd = true;
                 end
             end
         else
-            if findEventsData.upEventData ~= nil then
-                if self:_getNextEventByIndex(findEventsData.upEventData.index) == nil then
+            if eventsIndex.prevEventIndex > 0 then
+                if self:_getNextEventByIndex(eventsIndex.prevEventIndex) == nil then
                     self:_insertEvent(eventFile, eventData);
                     isAdd = true;
                 end
@@ -270,34 +281,64 @@ function prototype:_addEventByEventBreakAdd(eventFile, eventData)
 
 end
 
+function prototype:_addEventByEventLastAdd(eventFile, eventData)
+    return true;
+end
+
+function prototype:_replaceEventAdd(eventFile, eventData, replaceNum)
+    local findEvents = self:_getEventsByTime(eventFile.beginTime_);
+    if findEvents ~= nil and #findEvents.findEventsIndex > 0 then
+        local firstEventIndex = findEvents.findEventsIndex[1];
+        local lastEventIndex = 1;
+        if #findEvents.findEventsIndex > 1 then
+            for i = 2, replaceNum do
+                lastEventIndex = firstEventIndex + i - 1;
+                if lastEventIndex > #self.events_ then
+                    return false;
+                end
+            end
+        else
+            lastEventIndex = firstEventIndex;
+        end
+        local lastEvent = self.events_[lastEventIndex];
+        eventFile.beginTime_ = self.events_[firstEventIndex].eventFile_.beginTime_;
+        eventData.eventData_.timeLength_ = (lastEvent.eventFile_.beginTime_ + lastEvent.eventObj_.eventData_.timeLength_) - eventFile.beginTime_;
+
+        for i = 1, replaceNum do
+            table.remove(self.events_, firstEventIndex);
+         end
+        self:_insertEvent(eventFile, eventData);
+
+        return true;
+    end
+
+    return false;
+
+end
+
 
 function prototype:_getEventsByTime(time)
-    local findEvents = {};
-    local upEventData = nil;
+    local findEventsIndex = {};--将符合条件的evnet放在容器中
+    local prevEventIndex = -1;
     for i = 1, #self.events_ do
         local currentEvent = self.events_[i];
         local beginTime = currentEvent.eventFile_.beginTime_;
         local endTime = beginTime + currentEvent.eventObj_. eventData_.timeLength_;
-        if time > beginTime and time <= endTime and self:_getNextEventByIndex(i + 1) == nil then
-            local findEvent = {};--将符合条件的evnet放在容器中
-            findEvent.index = i;
-            findEvent.event = currentEvent; 
-            findEvents[#findEvents + 1] = findEvent;
+        if time > beginTime and time <= endTime then
+            findEventsIndex[#findEventsIndex + 1] = i;
         else
             if time <= beginTime then
-                upEventData = {};
-                upEventData.index = i - 1;
-                upEventData.event = self.events_[upEventData.index];
+                prevEventIndex = i - 1;
                 break;
             end
         end
     end
 
-    if #findEvents > 0 then
-        return {findEvents = findEvents, upEventData = nil};
-    elseif upEventData ~= nil then
-        return {findEvents = findEvents, upEventData = upEventData};
-    elseif upEventData == nil then
+    if #findEventsIndex > 0 then --找到event返回找到
+        return {findEventsIndex = findEventsIndex, prevEventIndex = -1};
+    elseif prevEventIndex > 0 then --未找到返回上一个
+        return {findEventsIndex = {}, prevEventIndex = prevEventIndex};
+    else --没找到 上一个也没有返回默认 nil
         return nil;
     end
 end
