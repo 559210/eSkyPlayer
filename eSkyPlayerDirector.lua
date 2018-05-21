@@ -454,7 +454,7 @@ function prototype:findEventByTime(playerName, time)
     local findEvents = {};
     if events ~= nil and #events > 0 then
         for i = 1, #events do
-            local beginTime = events[i].eventFile_.beginTime_;
+            local beginTime = events[i].beginTime_;
             local endTime = beginTime + events[i].eventObj_.eventData_.timeLength_;
             if time >= beginTime and time <= endTime then
                 findEvents[#findEvents + 1] = events[i];
