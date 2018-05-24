@@ -36,7 +36,7 @@ function prototype:initialize(camera)
     self.tacticByTrack_[definations.TRACK_TYPE.CHARACTER] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.ADDON] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.AVATAR_PART] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
-    self.tacticByTrack_[definations.TRACK_TYPE.TWO_D_OBJECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
+    self.tacticByTrack_[definations.TRACK_TYPE.TWO_D_OBJECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
     self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
     return true;
 end
@@ -118,7 +118,7 @@ function prototype:_getPlayersNameByTrackType(trackType)
     return playersName;
 end
 
-function prototype:changeResourceManagerTactic(obj,tacticType)
+function prototype:changeResourceManagerTactic(obj, tacticType)
     if obj == nil or obj.resourceManagerTacticType_ == nil or tacticType == nil then
         return;
     end
@@ -130,13 +130,22 @@ function prototype:changeResourceManagerTactic(obj,tacticType)
         end
     end
     assert(isIncluded, "error: please assign right tactic!");  --如果分配策略错误，则报错，中断
+    if obj.eventType_ and obj.eventType_ == definations.EVENT_TYPE.TWO_D_OBJECT or   --2DObject的资源(UI)不能用同步方式加载
+        obj.trackObj_ and obj.trackObj_.trackType_ == definations.TRACK_TYPE.TWO_D_OBJECT or
+        obj.trackType_ and obj.trackType_ == definations.TRACK_TYPE.TWO_D_OBJECT then
+        if tacticType == LOAD_INITIALLY_SYNC_RELEASE_LASTLY or
+            tacticType == LOAD_ON_THE_FLY_SYNC_RELEASE_IMMEDIATELY then
+            assert(false, "error: please assign right tactic!");
+        end
+    end
     obj.resourceManagerTacticType_ = tacticType;
 end
 
 
 function prototype:loadResource(callback)
     if self:_loadResourceSync() == false then
-        return false;
+        callback(false);
+        return;
     end
 
     async.series({
@@ -170,7 +179,6 @@ function prototype:loadResource(callback)
                 callback(true);
             end
         end);
-    return true;
 end
 
 
@@ -220,11 +228,7 @@ function prototype:seek(time)
             if self.players_[i]:seek(time) == false then
                 return false;
             end
-            -- if self.players_[i]:play() == false then
-            --     return false;
-            -- end
         end
-        -- self.isPlaying_ = true;
     else
         for i = 1, #self.players_ do
             if self.players_[i]:seek(time) == false then
@@ -583,7 +587,7 @@ function prototype:findEventByTime(playerName, time)
     local findEvents = {};
     if events ~= nil and #events > 0 then
         for i = 1, #events do
-            local beginTime = events[i].eventFile_.beginTime_;
+            local beginTime = events[i].beginTime_;
             local endTime = beginTime + events[i].eventObj_.eventData_.timeLength_;
             if time >= beginTime and time <= endTime then
                 findEvents[#findEvents + 1] = events[i];

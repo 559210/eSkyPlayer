@@ -33,9 +33,6 @@ function prototype:_loadFromBuff(buff)
     eventFile.itemCode = buff:ReadString();
     eventFile.boneName = buff:ReadString();
     eventFile.boneNames = string.split(eventFile.boneName, "_");
-    for i = 3, #eventFile.boneNames do  --当数组长度大于2时，进行截断；
-        eventFile.boneNames[i] = nil;
-    end
     eventFile.posX = buff:ReadFloat();
     eventFile.posY = buff:ReadFloat();
     eventFile.posZ = buff:ReadFloat();
@@ -64,7 +61,9 @@ function prototype:_setParam(param)
     local res = {};
     res.path = G.configs.avatar:getAvatarUrl(param.itemCode);
     res.count = 1;
-
+    for i = 3, #param.boneNames do  --当数组长度大于2时，进行截断；
+        param.boneNames[i] = nil;
+    end
     self.eventData_ = {
         itemCode_ = self.itemCode,
         boneNames_ = param.boneNames,

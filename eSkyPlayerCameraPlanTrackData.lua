@@ -20,34 +20,34 @@ function prototype:_loadFromBuff(buff, name, nameTable)
         return true;
     end
     for e = 1, eventCount do
-        local eventFile = {};
+        local beginTime = 0;
         local eventObj = nil;
 
         if self.eventsSupportted_ == nil then
             return false;
         end
 
-        eventFile.beginTime_ = buff:ReadFloat();
-        eventFile.name_ = buff:ReadString();
-        eventFile.storeType_ = buff:ReadByte();
-        eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
+        beginTime = buff:ReadFloat();
+        local name = buff:ReadString();
+        local storeType = buff:ReadByte();
+        buff:ReadByte();--isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
         buff:ReadByte();--labelID
         eventObj = newClass("eSkyPlayer/eSkyPlayerCameraPlanEventData");
         eventObj:initialize();
         if self:isSupported(eventObj) == false then
             return false;
         end
-        if eventFile.storeType == 1 then
-            if eventObj:loadEvent( self.pathHeader_ .. "plans/camera/" .. eventFile.name_, self.name_, nameTable) == false then 
+        if storeType == 1 then
+            if eventObj:loadEvent( self.pathHeader_ .. "plans/camera/" .. name, self.name_, nameTable) == false then 
                 return false;
             end
         else 
-            if eventObj:loadEvent( "mod/plans/camera/" .. eventFile.name_, self.name_, nameTable) == false then 
+            if eventObj:loadEvent( "mod/plans/camera/" .. name, self.name_, nameTable) == false then 
                 return false;
             end
         end
         
-        self:_insertEvent(eventFile,eventObj);
+        self:_insertEvent(beginTime, eventObj);
     end
     return true;
 end

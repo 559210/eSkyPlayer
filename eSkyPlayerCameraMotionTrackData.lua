@@ -22,38 +22,38 @@ function prototype:_loadFromBuff(buff, name, nameTable)
         return true;
     end
     for e = 1, eventCount do
-        local eventFile = {};
+        local beginTime = 0;
         local eventObj = nil;
 
         if self.eventsSupportted_ == nil then
             return false;
         end
-        eventFile.beginTime_ = buff:ReadFloat();
-        eventFile.name_ = buff:ReadString();
-        eventFile.storeType_ = buff:ReadByte();
-        eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
+        beginTime = buff:ReadFloat();
+        local name = buff:ReadString();
+        local storeType = buff:ReadByte();
+        buff:ReadByte(); --isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
         buff:ReadByte();--labelID 
         eventObj = newClass("eSkyPlayer/eSkyPlayerCameraMotionEventData");
         eventObj:initialize();
         if self:isSupported(eventObj) == false then
             return false;
         end
-        if eventFile.storeType_ == 0 then
-            if eventObj:loadEvent( "mod/events/camera/" .. eventFile.name_ .. ".byte") == false then
+        if storeType == 0 then
+            if eventObj:loadEvent( "mod/events/camera/" .. name .. ".byte") == false then
                 return false;
             end
         else
             if self.pathHeader_ == nil then 
-                if eventObj:loadEvent( "mod/plans/camera/" .. self.title_ .. "/camera/" .. eventFile.name_ .. ".byte") == false then
+                if eventObj:loadEvent( "mod/plans/camera/" .. self.title_ .. "/camera/" .. name .. ".byte") == false then
                     return false;
                 end 
             else 
-                if eventObj:loadEvent(self.pathHeader_ .. "camera/" .. eventFile.name_) ==false then
+                if eventObj:loadEvent(self.pathHeader_ .. "camera/" .. name .. ".byte") == false then
                     return false;
                 end
             end
         end
-        self:_insertEvent(eventFile,eventObj);
+        self:_insertEvent(beginTime, eventObj);
     end
     return true;
 end

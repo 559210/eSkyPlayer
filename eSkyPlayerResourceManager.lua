@@ -46,7 +46,7 @@ function prototype:prepare(resInfo, callback)
                             return;
                         end);
                 elseif loadType == definations.RESOURCE_TYPE.UI then
-                    ddResManager.loadAssetBundle(res.path, function(resObj)
+                    ddResManager.loadAssetBundles(res.path, function(resObj)
                         if resObj == nil then
                             done(false);
                             return;
@@ -84,8 +84,6 @@ function prototype:prepareImmediately(resInfo)
             local loadType = res.type or definations.RESOURCE_TYPE.DEFAULT;
             if loadType == definations.RESOURCE_TYPE.DEFAULT then
                 resObj = ddResManager.loadAssetFromFile(res.path);
-            elseif loadType == definations.RESOURCE_TYPE.UI then
-                resObj = ddResManager.loadAssetBundles(res.path);
             else
                 return false;
             end
@@ -94,6 +92,7 @@ function prototype:prepareImmediately(resInfo)
         end
 
         if resObj == nil then
+            logError(res.type .. ".............")
             return false;
         end
         self:_pushResource(res.path, resObj, res.count);
@@ -121,7 +120,14 @@ function prototype:releaseResource(pathName)
     res.count = res.count - 1;
 
     if res.count <= 0 then
-        ddResManager.unloadAsset(pathName);
+        local loadType = res.type or definations.RESOURCE_TYPE.DEFAULT;
+        if loadType == definations.RESOURCE_TYPE.DEFAULT then
+            ddResManager.unloadAsset(pathName);
+        elseif loadType == definations.RESOURCE_TYPE.UI then
+            ddResManager.unloadAssetBundles(pathName);
+        else
+            return;
+        end
         self:_popResource(pathName);
     end
 end
@@ -129,7 +135,13 @@ end
 
 function prototype:releaseAllResource()
     for pathName,v in pairs(self.resourcePool) do
-        ddResManager.unloadAsset(pathName);
+        local res = self:_getResourceInfoByPathName(pathName);
+        local loadType = res.type or definations.RESOURCE_TYPE.DEFAULT;
+        if loadType == definations.RESOURCE_TYPE.DEFAULT then
+            ddResManager.unloadAsset(pathName);
+        elseif loadType == definations.RESOURCE_TYPE.UI then
+            ddResManager.unloadAssetBundles(pathName);
+        end
     end
 end
 

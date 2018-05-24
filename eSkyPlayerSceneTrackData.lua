@@ -24,26 +24,26 @@ function prototype:_loadFromBuff(buff, name, nameTable)
         return true;
     end
     for i = 1, eventCount do
-        local eventFile = {};
+        local beginTime = 0;
         local eventObj = nil;
         if self.eventsSupportted_ == nil then
             return false;
         end
-        eventFile.beginTime_ = buff:ReadFloat();
-        eventFile.name_ = buff:ReadString();--event对应的文件名
-        eventFile.storeType_ = buff:ReadByte();
-        eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
-        eventFile.labelID_ = buff:ReadByte();
+        beginTime = buff:ReadFloat();
+        local name = buff:ReadString();--event对应的文件名
+        buff:ReadByte();--storeType_ 
+        buff:ReadByte();--isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
+        buff:ReadByte();--labelID_ 
         eventObj = newClass("eSkyPlayer/eSkyPlayerSceneMotionEventData");
         eventObj:initialize();
         if self:isSupported(eventObj) == false then
             return false;
         end
-        local scene_path = string.format("mod/plans/scene/" ..self.title_ .."/scene/" ..eventFile.name_ ..".byte");
+        local scene_path = string.format("mod/plans/scene/" ..self.title_ .."/scene/" ..name ..".byte");
         if eventObj:loadEvent(scene_path) == false then
             return false;
         end
-        self:_insertEvent(eventFile,eventObj);
+        self:_insertEvent(beginTime, eventObj);
     end
 
     return true;

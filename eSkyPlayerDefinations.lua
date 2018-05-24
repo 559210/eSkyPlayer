@@ -121,9 +121,9 @@ local definations = {
     EVENT_ADDTYPE = {
         NORMAL = 0, --正常顺序添加
         EVENT_BREAK_ADD = 1,--中断event然后添加
-        EVENT_WAIT_ADD = 2, --等待event结束后添加
-        EVENT_REPLACEMORE_ADD = 3,--替换添加多个
-        EVENT_REPLACEONE_ADD = 4,--替换1个
+        EVENT_LAST_ADD = 2, --等待event结束后添加
+        EVENT_REPLACE_MORE_ADD = 3,--替换添加多个
+        EVENT_REPLACE_ONE_ADD = 4,--替换1个
     };
 
     EVENT_PLAYER_STATE = {

@@ -33,26 +33,26 @@ function prototype:_loadFromBuff(buff, name, nameTable)
     end
 
     for e = 1, eventCount do
-        local eventFile = {};
+        local beginTime = 0;
         local eventObj = nil;
 
         if self.eventsSupportted_ == nil then
             return false;
         end
-        eventFile.beginTime_ = buff:ReadFloat();
-        eventFile.name_ = buff:ReadString();
-        eventFile.storeType_ = buff:ReadByte();
-        eventFile.isLoopPlay_ = misc.getBoolByByte(buff:ReadByte());
+        beginTime = buff:ReadFloat();
+        local name = buff:ReadString();
+        local storeType = buff:ReadByte();
+        buff:ReadByte();--misc.getBoolByByte(buff:ReadByte());
         buff:ReadByte();--labelID
 
         local path = nil;
-        if eventFile.storeType_ == 0 then
-            path = Util.AppDataRoot .. "/mod/events/cameraMotion" .. eventFile.name_ .. ".byte";
+        if storeType == 0 then
+            path = Util.AppDataRoot .. "/mod/events/cameraMotion" .. name .. ".byte";
         else
             if self.pathHeader_ == nil then 
-                path = Util.AppDataRoot .. "/mod/plans/camera/" .. self.title_ .. "/cameraMotion/" .. eventFile.name_ .. ".byte";
+                path = Util.AppDataRoot .. "/mod/plans/camera/" .. self.title_ .. "/cameraMotion/" .. name .. ".byte";
             else 
-                path = Util.AppDataRoot .. "/" .. self.pathHeader_ .. "cameraMotion/" .. eventFile.name_ .. ".byte";
+                path = Util.AppDataRoot .. "/" .. self.pathHeader_ .. "cameraMotion/" .. name .. ".byte";
             end
         end
         local buff = misc.readAllBytes(path);
@@ -89,7 +89,7 @@ function prototype:_loadFromBuff(buff, name, nameTable)
             return false;
         end
 
-        self:_insertEvent(eventFile,eventObj);
+        self:_insertEvent(beginTime, eventObj);
     end
     return true;
 end
