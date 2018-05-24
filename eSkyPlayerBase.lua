@@ -59,6 +59,15 @@ function prototype:getResource(eventObj, path)  --根据参数获取对应路径
 end
 
 
+function prototype:getTrack()
+    return self.trackObj_;
+end
+
+
+function prototype:setRoleAgent()
+    return;
+end
+
 function prototype:setAdditionalCamera(camera)
     logError("你需要在子类中实现set函数");
 end
@@ -574,5 +583,8 @@ function prototype:_update()
     self:preparePlayingEvents();
 end
 
+function prototype:onCharacterEventEntered()
+    return;
+end
 
 return prototype;

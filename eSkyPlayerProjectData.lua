@@ -5,6 +5,7 @@ local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 function prototype:ctor()
     self.projectFile_ = nil;
     self.trackMaxLength_ = 0;
+    -- self.tracks_ = {};  --用于存放同一个project里的track，用于分组
 end
 
 
@@ -114,6 +115,30 @@ function prototype:_loadTracks(trackPath, name, nameTable)
         if trackData:loadTrack(trackPath, name, nameTable) == false then
             return false;
         end
+    elseif string.match(trackPath, "mod/plans/motion/.+/npcTrack") then
+        trackData = newClass("eSkyPlayer/eSkyPlayerCharacterTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
+            return false;
+        end
+    elseif string.match(trackPath, "mod/plans/motion/.+/effectTrack") then
+        trackData = newClass("eSkyPlayer/eSkyPlayerAddonTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
+            return false;
+        end
+    elseif string.match(trackPath, "mod/plans/motion/.+/avatarPartTrack") then
+        trackData = newClass("eSkyPlayer/eSkyPlayerAvatarPartTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
+            return false;
+        end
+    elseif string.match(trackPath, "mod/plans/motion/.+/2dObjectTrack") then
+        trackData = newClass("eSkyPlayer/eSkyPlayer2DObjectTrackData");
+        trackData:initialize();
+        if trackData:loadTrack(trackPath, name, nameTable) == false then
+            return false;
+        end
     else
         return true;
     end
@@ -131,6 +156,10 @@ function prototype:_loadTracks(trackPath, name, nameTable)
     return true;
 end
 
+
+function prototype:getTracks()
+    return self.projectFile_.tracks_;
+end
 
 function prototype:getTrackCount()
     return #self.projectFile_.tracks_;

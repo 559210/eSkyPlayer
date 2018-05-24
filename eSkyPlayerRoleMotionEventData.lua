@@ -58,7 +58,6 @@ end
 
 function prototype:_setParam(param)
     if misc.checkParam(self.createParameters, param) == false then 
-        logError(1);
         return false; 
     end;
     local res = {};

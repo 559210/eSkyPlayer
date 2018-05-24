@@ -31,11 +31,10 @@ function prototype:uninitialize()
 end
 
 
-function prototype:playWithoutReset(morphConfigInfo, controlPoints, duration, offsetTime)
+function prototype:play(morphConfigInfo, controlPoints, duration, offsetTime)
     if controlPoints == nil then
         return;
     end
-    self:_clearMorphCurve();
     for name,value in pairs(morphConfigInfo) do
         if value > 0 then
             local curve = newClass("eSkyPlayer/misc/BezierCurve");
@@ -56,10 +55,10 @@ function prototype:playWithoutReset(morphConfigInfo, controlPoints, duration, of
 end
 
 
-function prototype:playWithReset(morphConfigInfo, controlPoints, duration, offsetTime)
-    self:reset();
-    self:playWithoutReset(morphConfigInfo, controlPoints, duration, offsetTime);
-end
+-- function prototype:playWithReset(morphConfigInfo, controlPoints, duration, offsetTime)
+--     self:reset();
+--     self:playWithoutReset(morphConfigInfo, controlPoints, duration, offsetTime);
+-- end
 
 
 function prototype:stop()
@@ -71,12 +70,12 @@ function prototype:resume()
 end
 
 
-function prototype:reset()    --把SkinnedMeshRenderer所有参数值赋0，
-    local count = self.meshRenderer_.sharedMesh.blendShapeCount;
-    for i = 0, count - 1 do
-        self.meshRenderer_:SetBlendShapeWeight(i, 0);
-    end
-end
+-- function prototype:reset()    
+--     local count = self.meshRenderer_.sharedMesh.blendShapeCount;
+--     for i = 0, count - 1 do
+--         self.meshRenderer_:SetBlendShapeWeight(i, 0);
+--     end
+-- end
 
 
 function prototype:_update(dt)
@@ -90,8 +89,12 @@ function prototype:_update(dt)
     end
 end
 
-function prototype:_clearMorphCurve()
-    for k, v in pairs(self.morphCurve_) do
+function prototype:clearMorphCurve()
+    local count = self.meshRenderer_.sharedMesh.blendShapeCount;     --把SkinnedMeshRenderer所有参数值赋0，
+    for i = 0, count - 1 do
+        self.meshRenderer_:SetBlendShapeWeight(i, 0);
+    end
+    for k, v in pairs(self.morphCurve_) do                          --把所有的曲线制空
         self.morphCurve_[k] = nil;
     end
 end

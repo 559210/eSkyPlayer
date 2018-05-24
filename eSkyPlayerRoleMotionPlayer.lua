@@ -10,18 +10,19 @@ end
 
 
 function prototype:initialize(trackObj)
-    self.roleAgent_ = self.director_:getRole();
     return self.base:initialize(trackObj);
 end
 
 
 function prototype:play()
+    if self.roleAgent_ == nil then return end
     self.roleAgent_:setSpeed(self.currentAnimatorSpeed_);
     return self.base:play();
 end
 
 
 function prototype:onEventEntered(eventObj, beginTime)
+    if self.roleAgent_ == nil then return end
     local path = eventObj.eventData_.resourcesNeeded_[1].path;
     local asset = self:getResource(eventObj, path);
     local transitionDuration = self.transitionDuration_;
@@ -39,7 +40,13 @@ end
 
 
 function prototype:onEventLeft(eventObj)
+    if self.roleAgent_ == nil then return end
     self.roleAgent_:setSpeed(0);
+end
+
+
+function prototype:onCharacterEventEntered()
+    self:seek(self.director_.timeLine_);
 end
 
 
@@ -59,8 +66,13 @@ end
 
 
 function prototype:stop()
+    if self.roleAgent_ == nil then return end
     self.roleAgent_:setSpeed(0);
     self.base:stop();
+end
+
+function prototype:setRoleAgent(role)
+    self.roleAgent_ = role;
 end
 
 

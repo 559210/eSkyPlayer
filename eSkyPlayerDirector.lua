@@ -20,6 +20,7 @@ function prototype:ctor()
     self.trackNameTable_ = {};--key:track字符串id,value:player
     self.callbackIndex_ = 0; --key :用于给track和event添加回调标记.
     self.callbackObjects_ = {}; --key:self.callbackIndex_,value: event对象或者track对象
+    self.trackGroups_ = {};  --数组，数组每一个元素为一个table，放同一分组的tracks
 end
 
 
@@ -32,6 +33,10 @@ function prototype:initialize(camera)
     self.tacticByTrack_[definations.TRACK_TYPE.CAMERA_EFFECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.SCENE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_RELEASE_LASTLY;
     self.tacticByTrack_[definations.TRACK_TYPE.ROLE_MOTION] = definations.MANAGER_TACTIC_TYPE.LOAD_ON_THE_FLY_RELEASE_IMMEDIATELY;
+    self.tacticByTrack_[definations.TRACK_TYPE.CHARACTER] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
+    self.tacticByTrack_[definations.TRACK_TYPE.ADDON] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
+    self.tacticByTrack_[definations.TRACK_TYPE.AVATAR_PART] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
+    self.tacticByTrack_[definations.TRACK_TYPE.TWO_D_OBJECT] = definations.MANAGER_TACTIC_TYPE.LOAD_INITIALLY_SYNC_RELEASE_LASTLY;
     self.cameraEffectManager_ = eSkyPlayerCameraEffectManager.New();
     return true;
 end
@@ -40,6 +45,9 @@ end
 function prototype:uninitialize()
     self:_releaseResource();
     self.time_ = nil;
+    for i = 1, #self.players_ do
+        self.players_[i]:uninitialize();
+    end
     self.players_ = nil; 
     self.camera_ = nil;
     self.project_ = nil;
@@ -78,11 +86,37 @@ function prototype:loadProject(filename)
     if self:_createPlayer(self.project_) == false then
         return false;
     end
+    self:_creatTrackGroups();
+    self:_sortPlayers(self.players_);  --players排序
     self:_createAdditionalCamera();
     self:_makeTrackNameTable();
+    self:_addCallBackForCharacterTrack(delegate(self, self.onCharacterEventEntered), definations.EVENT_PLAYER_STATE.EVENT_START);  --添加character轨道的响应函数
+    self:_assignRole();  --给character的相关轨道分配role
     return true;
 end
 
+
+function prototype:_addCallBackForCharacterTrack(callback, eventPlayerState)
+    local characterPlayersName = self:_getPlayersNameByTrackType(definations.TRACK_TYPE.CHARACTER);
+    for i = 1, #characterPlayersName do
+        local playerName = characterPlayersName[i];
+        self:addEventCallbackToTrack(playerName, callback, eventPlayerState)
+    end
+end
+
+
+function prototype:_getPlayersNameByTrackType(trackType)
+    local playersName = {};
+    for i = 1, #self.players_ do
+        local player = self.players_[i];
+        local track = player:getTrack();
+        if track:getTrackType() == trackType then
+            local name = self:getTrackNameByPlayer(player);
+            playersName[#playersName + 1] = name;
+        end
+    end
+    return playersName;
+end
 
 function prototype:changeResourceManagerTactic(obj,tacticType)
     if obj == nil or obj.resourceManagerTacticType_ == nil or tacticType == nil then
@@ -181,16 +215,16 @@ function prototype:seek(time)
     self.timeLine_ = time;
 
     if self.isPlaying_ == true then
-        self.isPlaying_ = false;
+        -- self.isPlaying_ = false;
         for i = 1, #self.players_ do
             if self.players_[i]:seek(time) == false then
                 return false;
             end
-            if self.players_[i]:play() == false then
-                return false;
-            end
+            -- if self.players_[i]:play() == false then
+            --     return false;
+            -- end
         end
-        self.isPlaying_ = true;
+        -- self.isPlaying_ = true;
     else
         for i = 1, #self.players_ do
             if self.players_[i]:seek(time) == false then
@@ -205,6 +239,20 @@ function prototype:seek(time)
     return true;
 end
 
+
+function prototype:_sortPlayers(players)  --把角色类型的player置顶
+    for i = 1, #players do
+        local player = players[i];
+        local track = player:getTrack()
+        if track:getTrackType() == definations.TRACK_TYPE.CHARACTER then
+            for j = 2, i do
+                local index = i - j + 2;
+                players[index] = players[index - 1];
+            end
+            players[1] = player;
+        end
+    end
+end
 
 --动态添加track
 function prototype:addTrack(trackName, track, callback)
@@ -276,6 +324,14 @@ function prototype:_createPlayerByTrack(track)
         player = newClass("eSkyPlayer/eSkyPlayerRoleMotionPlayer", self);
     elseif trackType == definations.TRACK_TYPE.ROLE_MORPH then
         player = newClass("eskyPlayer/eSkyPlayerRoleMorphPlayer", self);
+    elseif trackType == definations.TRACK_TYPE.CHARACTER then
+        player = newClass("eskyPlayer/eSkyPlayerCharacterPlayer", self);
+    elseif trackType == definations.TRACK_TYPE.ADDON then
+        player = newClass("eskyPlayer/eSkyPlayerAddonPlayer", self);
+    elseif trackType == definations.TRACK_TYPE.AVATAR_PART then
+        player = newClass("eskyPlayer/eSkyPlayerAvatarPartPlayer", self);
+    elseif trackType == definations.TRACK_TYPE.TWO_D_OBJECT then
+        player = newClass("eskyPlayer/eSkyPlayer2DObjectPlayer", self);
     else
         player = nil;
     end
@@ -298,6 +354,15 @@ end
 function prototype:getPlayerByTrackName(trackName)
     if self.trackNameTable_[trackName] then
         return self.trackNameTable_[trackName];
+    end
+    return nil;
+end
+
+function prototype:getTrackNameByPlayer(player)
+    for k, v in pairs(self.trackNameTable_) do
+        if player == v then
+            return k;
+        end
     end
     return nil;
 end
@@ -397,6 +462,69 @@ function prototype:_update()
     end
 end
 
+
+function prototype:_assignRole()
+    for i = 1, #self.trackGroups_ do
+        local group = self.trackGroups_[i];
+        local role = self:_getRoleAgent(group);
+        for j = 1, #group do
+            local track = group[j];
+            local player = self:_getPlayerByTrack(track);
+            player:setRoleAgent(role);
+        end
+    end
+end
+
+
+function prototype:_getRoleAgent(group)  --group为数组，存放同一分组的tracks；
+    local player = nil;
+    local roleAgent = nil;
+    for i = 1, #group do
+        local track = group[i];
+        if track.trackType_ == definations.TRACK_TYPE.CHARACTER then
+            player = self:_getPlayerByTrack(track);
+            break;
+        end
+    end
+    if player ~= nil then
+        roleAgent = player:getRoleAgent();
+    end
+    return roleAgent;
+end
+
+
+function prototype:_getPlayerByTrack(track)
+    for i = 1, #self.players_ do
+        if self.players_[i]:getTrack() == track then
+            return self.players_[i];
+        end
+    end
+    return nil;
+end
+
+
+function prototype:_creatTrackGroups()
+    for i = 1, self.project_:getTrackCount() do
+        local track = self.project_:getTrackAt(i);
+        if track.trackType_ == definations.TRACK_TYPE.ROLE_PLAN then
+            if track:getEventCount() > 0 then    
+                local event = track:getEventAt(1);
+                local project = event:getProjectData();
+                local group = project:getTracks();
+                if #group > 0 then
+                    self:_addTrackGroup(group);
+                end
+            end
+        end
+    end
+end
+
+
+function prototype:_addTrackGroup(tab)
+    self.trackGroups_[#self.trackGroups_ + 1] = tab;
+end
+
+
 function prototype:addEventCallbackToTrack(playerName, callback, callbackState)
     local player = self:getPlayerByTrackName(playerName);
     if player == nil then
@@ -448,6 +576,7 @@ function prototype:_removeCallback(callbacks, callbackIndex)
     callbacks[callbackIndex] = nil;
     self.callbackObjects_[callbackIndex] = nil;
 end
+
 
 function prototype:findEventByTime(playerName, time)
     local events = self:_getTrackEvents(playerName);
@@ -568,5 +697,29 @@ end
 function prototype:setAnimatorCrossFadeTransitionDuration(obj, duration) --obj必须为"eSkyPlayerRoleMotionPlayer"对象；
     obj.transitionDuration_ = duration;
 end
+
+
+function prototype:onCharacterEventEntered(track, event)  --character的轨道有event进入时的回调函数
+    local group = self:_getGroupByTrack(track);
+    for i = 1, #group do
+        local track = group[i];
+        local trackType = track:getTrackType()
+        local player = self:_getPlayerByTrack(track);
+        player:onCharacterEventEntered();
+    end
+end
+
+function prototype:_getGroupByTrack(track)
+    for i = 1, #self.trackGroups_ do
+        local group = self.trackGroups_[i];
+        for j = 1, #group do
+            if group[j] == track then
+                return group;
+            end
+        end
+    end
+    return nil;
+end
+
 
 return prototype;

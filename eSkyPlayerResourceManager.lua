@@ -1,5 +1,5 @@
 local prototype = class("eSkyPlayerResourceManager");
-
+local definations = require("eSkyPlayer/eSkyPlayerDefinations");
 
 function prototype:ctor() 
     self.resourcePool = {}; -- resPathName -> {resourceObj, count}
@@ -27,14 +27,26 @@ function prototype:_getResourceInfoByPathName(pathName)
 end
 
 
--- 参数resInfo，数组，里面内容是{path = , count = }. resPath是资源所在路径， count是需要使用的次数
+-- 参数resInfo，数组，里面内容是{path = , count = , type = }. resPath是资源所在路径， count是需要使用的次数
 -- callback汇报资源加载情况，带一个参数，true表示全部加载成功，false表示碰到一个加载失败，从而中途中断加载
 function prototype:prepare(resInfo, callback)
     async.mapSeries(resInfo, 
         function(res, done)
             local ri = self:_getResourceInfoByPathName(res.path);
             if ri == nil then
-                ddResManager.loadAsset(res.path, function(resObj)
+                local loadType = res.type or definations.RESOURCE_TYPE.DEFAULT;
+                if loadType == definations.RESOURCE_TYPE.DEFAULT then
+                    ddResManager.loadAsset(res.path, function(resObj)
+                            if resObj == nil then
+                                done(false);
+                                return;
+                            end
+                            self:_pushResource(res.path, resObj, res.count);
+                            done(nil);
+                            return;
+                        end);
+                elseif loadType == definations.RESOURCE_TYPE.UI then
+                    ddResManager.loadAssetBundle(res.path, function(resObj)
                         if resObj == nil then
                             done(false);
                             return;
@@ -43,6 +55,10 @@ function prototype:prepare(resInfo, callback)
                         done(nil);
                         return;
                     end);
+                else
+                    done(false);
+                    return;
+                end
             else
                 self:_pushResource(res.path, ri.resourceObj, res.count);
                 done(nil);
@@ -65,7 +81,14 @@ function prototype:prepareImmediately(resInfo)
         local resObj = nil;
 
         if ri == nil then
-            resObj = ddResManager.loadAssetFromFile(res.path);
+            local loadType = res.type or definations.RESOURCE_TYPE.DEFAULT;
+            if loadType == definations.RESOURCE_TYPE.DEFAULT then
+                resObj = ddResManager.loadAssetFromFile(res.path);
+            elseif loadType == definations.RESOURCE_TYPE.UI then
+                resObj = ddResManager.loadAssetBundles(res.path);
+            else
+                return false;
+            end
         else
             resObj = ri.resourceObj;
         end

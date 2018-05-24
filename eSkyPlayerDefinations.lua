@@ -12,6 +12,10 @@ local definations = {
         SCENE_EFFECT = 8,
         ROLE_MOTION = 9,
         ROLE_MORPH = 10,
+        CHARACTER = 11,
+        ADDON = 12,
+        AVATAR_PART = 13,
+        TWO_D_OBJECT = 14,
     };
 
     EVENT_TYPE = {
@@ -32,6 +36,10 @@ local definations = {
         SCENE_EFFECT = 14,
         ROLE_MOTION = 15,
         ROLE_MORPH = 16,
+        CHARACTER = 17,
+        ADDON = 18,
+        AVATAR_PART = 19,
+        TWO_D_OBJECT = 20,
     };
 
     TRACK_FILE_TYPE = {
@@ -43,7 +51,7 @@ local definations = {
         CAMERA = 5,
         SCENE = 6,
         CAMERA_MOTION = 7,
-        FEMALE_ROLE = 8,
+        ROLE = 8,
         MALE_ROLE = 9,
         EFFECT = 10,
         AVATAR_PART = 11,
@@ -60,6 +68,39 @@ local definations = {
         CHROMATIC_ABERRATION = 6,
         USER_LUT = 7,
         VIGNETTE = 8,
+    };
+
+    EDITOR_RES_TYPE = {
+        PLAN = 0,
+        PROJECT = 1,
+        EVENT = 2,
+        MUSICS = 3,
+        MOTIONS = 4,
+        SCENES = 5, 
+        SCENE_ELEMENTS = 6,
+        TEXTURES = 7,
+        PLAYERS = 8,
+        CAMERA_MOTIONS = 9,
+        MORPH = 10,
+        SCENE_LABELS = 11,
+        ROLE = 12,
+        MUSICS_CONFIG = 13,
+        SCENE_CONFIGS = 14,
+        MORPH_CURVE_COMFIG = 15,
+        EFFECT = 16,
+        AVATAR_PART = 17,
+        DEFAULT_CONFIG = 18,
+        TWO_D_OBJECT_TYPE = 19,
+        FEMALE_ROLE = 20,
+        MALE_ROLE = 21,
+        AVATAR_ROLE = 22,
+        CAMERA = 23,
+    };
+
+    SKY_EDITOR_RES_TYPE_ROLE_TYPE_RELATION = {
+    --     [EDITOR_RES_TYPE.FEMALE_ROLE] = {roleType = SkyRoleType.People, gender = SexEnum.FEMALE},
+    --     [EDITOR_RES_TYPE.MALE_ROLE] = {roleType = SkyRoleType.People, gender = SexEnum.MALE},
+    --     [EDITOR_RES_TYPE.AVATAR_ROLE] = {roleType = SkyRoleType.Avatar, gender = SexEnum.BOTH},
     };
 
     MANAGER_TACTIC_TYPE = {
@@ -91,6 +132,21 @@ local definations = {
         EVENT_END = 3,
     };
 
+    AVATAR_URL = {
+        [AvatarResourceType.PREFAB]= "avatars/prefabs/",
+        [AvatarResourceType.TEXTURE] = "avatars/textures/",
+        [AvatarResourceType.EFFECT]= "avatars/prefabs/"
+    };
+
+    RESOURCE_TYPE = {
+        DEFAULT = 1,
+        UI = 2,
+    };
+
 }
+
+definations.SKY_EDITOR_RES_TYPE_ROLE_TYPE_RELATION[definations.EDITOR_RES_TYPE.FEMALE_ROLE] = {roleType = SkyRoleType.People, gender = SexEnum.FEMALE};
+definations.SKY_EDITOR_RES_TYPE_ROLE_TYPE_RELATION[definations.EDITOR_RES_TYPE.MALE_ROLE] = {roleType = SkyRoleType.People, gender = SexEnum.MALE};
+definations.SKY_EDITOR_RES_TYPE_ROLE_TYPE_RELATION[definations.EDITOR_RES_TYPE.AVATAR_ROLE] = {roleType = SkyRoleType.Avatar, gender = SexEnum.BOTH};
 
 return definations;
