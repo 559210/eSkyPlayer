@@ -690,8 +690,13 @@ end
 
 
 -- roleObj必须是eSkyPlayerRoleAgent对象
-function prototype:addRole(roleObj)
-    self.roleObj_ = roleObj;
+function prototype:addRole(roleObj, index)  --外部传入roleObj，指定index为self.trackGroups_数组的index值
+    local group = self.trackGroups_[index];  --把roleObj传给该分组的每一个track；
+    for j = 1, #group do
+        local track = group[j];
+        local player = self:_getPlayerByTrack(track);
+        player:setRoleAgent(roleObj);
+    end
 end
 
 function prototype:getRole()
