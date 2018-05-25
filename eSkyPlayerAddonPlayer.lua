@@ -19,6 +19,7 @@ end
 
 
 function prototype:onEventEntered(eventObj, beginTime)
+    if self.roleAgent_ == nil then return end
     local path = eventObj.eventData_.resourcesNeeded_[1].path;
     local asset = self:getResource(eventObj, path);
     local boneNames = eventObj.eventData_.boneNames_;
@@ -31,6 +32,7 @@ end
 
 
 function prototype:onEventLeft(eventObj)
+    if self.roleAgent_ == nil then return end
     self.roleAgent_:removeAttachment(self.attachemntIndex_);
     self.attachemnt_ = nil;
 end

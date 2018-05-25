@@ -16,12 +16,13 @@ end
 function prototype:onEventEntered(eventObj, beginTime)
     if self.roleAgent_ == nil then return end
     local manItemCode = eventObj.eventData_.manItemCode_;
-    local manItemCode = eventObj.eventData_.womanItemCode_;
+    local womanItemCode = eventObj.eventData_.womanItemCode_;
     eventObj.eventData_.itemCode_ = self.roleAgent_:equipAvatarPart(manItemCode, womanItemCode);
 end
 
 
 function prototype:onEventLeft(eventObj)
+    if self.roleAgent_ == nil then return end
     local itemCode = eventObj.eventData_.itemCode_;
     if itemCode and itemCode ~= -1 then
         self.roleAgent_:unequipAvatarPart(itemCode);
@@ -41,9 +42,6 @@ function prototype:seek(time)
         preTime = self.playingEvents_[1].beginTime_;
     end
     self.base:seek(time);
-    if #self.playingEvents_ == 0 then
-        self.currentAnimatorSpeed_ = 0;
-    end
     if #self.playingEvents_ == 1 and self.playingEvents_[1].beginTime_ == preTime then
         self:onEventLeft(self.playingEvents_[1].obj_);
         self:onEventEntered(self.playingEvents_[1].obj_, self.playingEvents_[1].beginTime_);

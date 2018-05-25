@@ -35,7 +35,7 @@ end
 
 
 function prototype:onEventLeft(eventObj)
-    if self.bubbleID == -1 then return end
+    if self.bubbleID == -1 or self.roleAgent_ == nil then return end
     self.roleAgent_:unequipAvatarPart(self.bubbleID);
     destroy(self.chatBubble);
 end
