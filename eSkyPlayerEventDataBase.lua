@@ -70,7 +70,15 @@ function prototype:getEventType()
     return self.eventType_;
 end
 
+
+function prototype:getBeginTime()
+    return self.beginTime_;
+end
+
 function prototype:getTimeLength()
+    if self.eventData_ == nil then
+        return 0;
+    end
     return self.eventData_.timeLength_;
 end
 
@@ -90,6 +98,9 @@ function prototype.createObject(param)
     return nil;
 end
 
+function prototype:setBeginTime(time)
+    self.beginTime_ = time;
+end
 
 function prototype:scaleEvent(newLength)
     self.eventDataLength_ = newLength;

@@ -553,9 +553,9 @@ function prototype:addEventCallbackToEvent(event, callback, callbackState)
     end
 
     self.callbackIndex_ = self.callbackIndex_ + 1;
-    event.eventObj_:addEventCallback(callbackState, self.callbackIndex_, callback);
+    event:addEventCallback(callbackState, self.callbackIndex_, callback);
     local tmp = {};
-    tmp.eventObj = event.eventObj_;
+    tmp.eventObj = event;
     tmp.isTrackCallback = false;
     tmp.callbackState = callbackState;
     self.callbackObjects_[self.callbackIndex_] = tmp;
@@ -587,8 +587,8 @@ function prototype:findEventByTime(playerName, time)
     local findEvents = {};
     if events ~= nil and #events > 0 then
         for i = 1, #events do
-            local beginTime = events[i].beginTime_;
-            local endTime = beginTime + events[i].eventObj_.eventData_.timeLength_;
+            local beginTime = events[i]:getBeginTime();
+            local endTime = beginTime + events[i]:getTimeLength();
             if time >= beginTime and time <= endTime then
                 findEvents[#findEvents + 1] = events[i];
             end

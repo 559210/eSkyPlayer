@@ -344,7 +344,7 @@ function prototype:preparePlayingEvents()
     end
     for i = 1, #self.playingEvents_ do
         local playingEvent = self.playingEvents_[i].obj_;
-        local playingBeginTime = self.playingEvents_[i].beginTime_;
+        local playingBeginTime = playingEvent:getBeginTime();
         local playingEndTime = playingBeginTime + playingEvent:getTimeLength();
         if self.director_.timeLine_ >= playingEndTime or self.director_.timeLine_ <= playingBeginTime then --event 离开
             self:onEventLeft(playingEvent);

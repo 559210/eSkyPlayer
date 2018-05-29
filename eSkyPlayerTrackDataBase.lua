@@ -70,10 +70,12 @@ function prototype:getTrackLength()
         self.trackType_ == definations.TRACK_TYPE.MUSIC_PLAN or
         self.trackType_ == definations.TRACK_TYPE.SCENE_PLAN then
         
-        local project = self.events_[#self.events_].eventObj_:getProjectData();
+        local project = self.events_[#self.events_]:getProjectData();
         trackLength = project:getTimeLength();
     else
-        trackLength = self.events_[#self.events_].beginTime_ + self.events_[#self.events_].eventObj_.eventData_.timeLength_;
+        local lastBeginTime = self.events_[#self.events_]:getBeginTime();
+        local lastTimeLength = self.events_[#self.events_]:getTimeLength();
+        trackLength = lastBeginTime + lastTimeLength;
     end
     return trackLength;
 end
@@ -97,7 +99,7 @@ function prototype:getEventAt(index)
     if index < 1 or index > #self.events_ then
         return nil;
     end
-    return self.events_[index].eventObj_;
+    return self.events_[index];
 end
 
 
@@ -105,7 +107,7 @@ function prototype:getEventBeginTimeAt(index)
     if index < 1 or index > #self.events_ then
         return -1;
     end
-    return self.events_[index].beginTime_;
+    return self.events_[index]:getBeginTime();
 end
 
 
@@ -116,8 +118,10 @@ end
 
 function prototype:isNeedAdditionalCamera()
     for i = 1, #self.events_ - 1 do
-        if self.events_[i].eventObj_ : isProject() == false then
-            if self.events_[i].beginTime_ + self.events_[i].eventObj_.eventData_.timeLength_ > self.events_[i + 1].beginTime_ then
+        if self.events_[i]: isProject() == false then
+            local preEndTime = self.events_[i]:getBeginTime() + self.events_[i]:getTimeLength();
+            local postBeginTime = self.events_[i + 1]:getBeginTime();
+            if preEndTime > postBeginTime then
                 return true;
             end
         end
@@ -147,22 +151,20 @@ end
 
 
 function prototype:_insertEvent(beginTime, eventObj)
-    local event = {};
-    event.beginTime_ = beginTime;
-    event.eventObj_ = eventObj;
+    eventObj:setBeginTime(beginTime);
     if #self.events_ == 0 then
-        self.events_[1] = event;
+        self.events_[1] = eventObj;
         return;
     end
     local isSorted = false;
     for m = 1, #self.events_ do
         local i = #self.events_ - m + 1;
-        if self.events_[i].beginTime_ < beginTime then
+        if self.events_[i]:getBeginTime() < beginTime then
             for j = i, #self.events_ do
                 local index = #self.events_ - j + i;
                 self.events_[index + 2] = self.events_[index + 1];
             end
-            self.events_[i + 1] = event;
+            self.events_[i + 1] = eventObj;
             isSorted = true;
             break;
         end
@@ -172,7 +174,7 @@ function prototype:_insertEvent(beginTime, eventObj)
             local index = #self.events_ - i + 1;
             self.events_[index + 1] = self.events_[index];
         end
-        self.events_[1] = event;
+        self.events_[1] = eventObj;
     end
 end
 
@@ -257,7 +259,7 @@ function prototype:_addEventByEventBreakAdd(beginTime, eventData)
             for i = 1, #eventsIndex.findEventsIndex do
                 local fevent = self.events_[eventsIndex.findEventsIndex[i]];
                 if eventsIndex.findEventsIndex[i + 1] == nil then
-                    fevent.eventObj_:clipEvent(beginTime - fevent.beginTime_);
+                    fevent:clipEvent(beginTime - fevent:getBeginTime());
                     self:_insertEvent(beginTime, eventData);
                     return true;
                 end
@@ -288,7 +290,7 @@ function prototype:_addEventByEventLastAdd(beginTime, eventData)
     local lastEventIndex = findEvents.findEventsIndex[#findEvents.findEventsIndex];
     if self:_getNextEventByIndex(lastEventIndex + 1) == nil then
         local eEvent = self.events_[lastEventIndex];
-        local eEventEndTime = eEvent.beginTime_ + eEvent.eventObj_.eventData_.timeLength_;
+        local eEventEndTime = eEvent:getBeginTime() + eEvent:getTimeLength();
         beginTime = eEventEndTime;
         self:_insertEvent(beginTime, eventData);
         return true;
@@ -314,8 +316,9 @@ function prototype:_replaceEventAdd(beginTime, eventData, replaceNum)
             lastEventIndex = firstEventIndex;
         end
         local lastEvent = self.events_[lastEventIndex];
-        beginTime = self.events_[firstEventIndex].beginTime_;
-        eventData.eventData_.timeLength_ = (lastEvent.beginTime_ + lastEvent.eventObj_.eventData_.timeLength_) - beginTime;
+        local lastEventEndTime = lastEvent:getBeginTime() + lastEvent:getTimeLength();
+        beginTime = self.events_[firstEventIndex]:getBeginTime();
+        eventData.eventData_.timeLength_ = lastEventEndTime - beginTime;
 
         for i = 1, replaceNum do
             table.remove(self.events_, firstEventIndex);
@@ -334,8 +337,8 @@ function prototype:_getEventsByTime(time)
     local prevEventIndex = -1;
     for i = 1, #self.events_ do
         local currentEvent = self.events_[i];
-        local beginTime = currentEvent.beginTime_;
-        local endTime = beginTime + currentEvent.eventObj_. eventData_.timeLength_;
+        local beginTime = currentEvent:getBeginTime();
+        local endTime = beginTime + currentEvent:getTimeLength();
         if time > beginTime and time <= endTime then
             findEventsIndex[#findEventsIndex + 1] = i;
         else

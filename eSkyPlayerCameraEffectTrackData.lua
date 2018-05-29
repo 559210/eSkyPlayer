@@ -117,7 +117,7 @@ end
 
 function prototype:isNeedAdditionalCamera()
     for i = 1, #self.events_ do
-        if self.events_[i].eventObj_.motionType_ == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
+        if self.events_[i].motionType_ == definations.CAMERA_EFFECT_TYPE.CROSS_FADE then
             return true;
         end
     end
