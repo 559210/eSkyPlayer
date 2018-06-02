@@ -67,7 +67,7 @@ function prototype:_setParam(param)
         resourcesNeeded_ = {res},
         intensity = self:_getInfoData(param.intensityWeight0, param.intensityRanges0, param.intensityWeight1, param.intensityRanges1),
     };
-    self.eventDataLength_ = self.eventData_.timeLength_;
+    -- self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

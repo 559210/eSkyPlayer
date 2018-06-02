@@ -259,8 +259,9 @@ function prototype:_sortPlayers(players)  --把角色类型的player置顶
 end
 
 --动态添加track
-function prototype:addTrack(trackName, track, callback)
+function prototype:addTrack(trackName, track, callback, index) --index为分组下标，如果为空则不分组
     local player = self:_createPlayerByTrack(track);
+    self:_sortPlayers(self.players_);
     if player ~= nil then
         self:_setTrackNameTable(trackName, player);
         local trackType = player.trackObj_:getTrackType();
@@ -272,7 +273,20 @@ function prototype:addTrack(trackName, track, callback)
                 self:changeResourceManagerTactic(track:getEventAt(i), tacticType);
             end
         end
-        
+        if index ~= nil then
+            local group = self.trackGroups_[index];
+            if track:getTrackType() == definations.TRACK_TYPE.CHARACTER then
+                local role = player:getRoleAgent();
+                for j = 1, #group do
+                    local track = group[j];
+                    local p = self:_getPlayerByTrack(track);
+                    p:setRoleAgent(role);
+                end
+            else
+                local role = self:_getRoleAgent(group);
+                player:setRoleAgent(role);
+            end
+        end
         local res = player:getResources();
         local isSyncPrepared = player:loadResourceInitiallySync();
         player:loadResourceInitially(function(isPrepared)
@@ -445,7 +459,7 @@ end
 
 
 function prototype:_update()
-    if self.isPlaying_ == false then
+    if self.isPlaying_ == false or self.timeLine_ > self.timeLength_ then
         return;
     end
     local isRefreshTimeLine = false;
@@ -471,6 +485,9 @@ function prototype:_assignRole()
     for i = 1, #self.trackGroups_ do
         local group = self.trackGroups_[i];
         local role = self:_getRoleAgent(group);
+        if role == nil then 
+            return;
+        end
         for j = 1, #group do
             local track = group[j];
             local player = self:_getPlayerByTrack(track);
@@ -587,8 +604,8 @@ function prototype:findEventByTime(playerName, time)
     local findEvents = {};
     if events ~= nil and #events > 0 then
         for i = 1, #events do
-            local beginTime = events[i]:getBeginTime();
-            local endTime = beginTime + events[i]:getTimeLength();
+            local beginTime = events[i]:getCurrentBeginTime();
+            local endTime = beginTime + events[i]:getEventCurrentLength();
             if time >= beginTime and time <= endTime then
                 findEvents[#findEvents + 1] = events[i];
             end

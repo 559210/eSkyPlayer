@@ -21,17 +21,19 @@ function prototype:play()
 end
 
 
-function prototype:onEventEntered(eventObj, beginTime)
+function prototype:onEventEntered(eventObj)
     if self.roleAgent_ == nil then return end
     local path = eventObj.eventData_.resourcesNeeded_[1].path;
     local asset = self:getResource(eventObj, path);
     local transitionDuration = self.transitionDuration_;
-    if eventObj.eventData_.timeLength_ < transitionDuration then
-        transitionDuration_ = eventObj.eventData_.timeLength_;
+    local eventLength = eventObj:getEventCurrentLength();
+    if eventLength < transitionDuration then
+        transitionDuration_ = eventLength;
     end
-    local speed = eventObj.eventData_.motionLength / eventObj.eventData_.timeLength_;
+    local speed = 1 / (eventObj:getScaleRatio() * eventObj:getInitialRatio());
     self.currentAnimatorSpeed_ = speed;
-    local fixedTime = self.director_.timeLine_ - beginTime + eventObj.eventData_.beginTime;
+    local beginTime = eventObj:getDataBeginTime();
+    local fixedTime = self.director_.timeLine_ - beginTime;
     if self.director_.isPlaying_ == false then
         speed = 0;
     end
@@ -60,7 +62,7 @@ function prototype:seek(time)
         self.currentAnimatorSpeed_ = 0;
     end
     if #self.playingEvents_ == 1 and self.playingEvents_[1].beginTime_ == preTime then
-        self:onEventEntered(self.playingEvents_[1].obj_, self.playingEvents_[1].beginTime_);
+        self:onEventEntered(self.playingEvents_[1].obj_);
     end
 end
 

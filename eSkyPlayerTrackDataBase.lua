@@ -73,9 +73,9 @@ function prototype:getTrackLength()
         local project = self.events_[#self.events_]:getProjectData();
         trackLength = project:getTimeLength();
     else
-        local lastBeginTime = self.events_[#self.events_]:getBeginTime();
-        local lastTimeLength = self.events_[#self.events_]:getTimeLength();
-        trackLength = lastBeginTime + lastTimeLength;
+        local lastBeginTime = self.events_[#self.events_]:getCurrentBeginTime();
+        local lastTimeLength = self.events_[#self.events_]:getEventCurrentLength();
+        trackLength = lastBeginTime + lastTimeLength + 0.33;
     end
     return trackLength;
 end
@@ -103,14 +103,6 @@ function prototype:getEventAt(index)
 end
 
 
-function prototype:getEventBeginTimeAt(index)
-    if index < 1 or index > #self.events_ then
-        return -1;
-    end
-    return self.events_[index]:getBeginTime();
-end
-
-
 function prototype:getResources()
     return self.resList_;
 end
@@ -119,8 +111,8 @@ end
 function prototype:isNeedAdditionalCamera()
     for i = 1, #self.events_ - 1 do
         if self.events_[i]: isProject() == false then
-            local preEndTime = self.events_[i]:getBeginTime() + self.events_[i]:getTimeLength();
-            local postBeginTime = self.events_[i + 1]:getBeginTime();
+            local preEndTime = self.events_[i]:getCurrentBeginTime() + self.events_[i]:getEventCurrentLength();
+            local postBeginTime = self.events_[i + 1]:getCurrentBeginTime();
             if preEndTime > postBeginTime then
                 return true;
             end
@@ -159,7 +151,7 @@ function prototype:_insertEvent(beginTime, eventObj)
     local isSorted = false;
     for m = 1, #self.events_ do
         local i = #self.events_ - m + 1;
-        if self.events_[i]:getBeginTime() < beginTime then
+        if self.events_[i]:getCurrentBeginTime() < beginTime then
             for j = i, #self.events_ do
                 local index = #self.events_ - j + i;
                 self.events_[index + 2] = self.events_[index + 1];
@@ -259,7 +251,7 @@ function prototype:_addEventByEventBreakAdd(beginTime, eventData)
             for i = 1, #eventsIndex.findEventsIndex do
                 local fevent = self.events_[eventsIndex.findEventsIndex[i]];
                 if eventsIndex.findEventsIndex[i + 1] == nil then
-                    fevent:clipEvent(beginTime - fevent:getBeginTime());
+                    fevent:clipEvent(beginTime - fevent:getCurrentBeginTime(), -1);
                     self:_insertEvent(beginTime, eventData);
                     return true;
                 end
@@ -290,7 +282,7 @@ function prototype:_addEventByEventLastAdd(beginTime, eventData)
     local lastEventIndex = findEvents.findEventsIndex[#findEvents.findEventsIndex];
     if self:_getNextEventByIndex(lastEventIndex + 1) == nil then
         local eEvent = self.events_[lastEventIndex];
-        local eEventEndTime = eEvent:getBeginTime() + eEvent:getTimeLength();
+        local eEventEndTime = eEvent:getCurrentBeginTime() + eEvent:getEventCurrentLength();
         beginTime = eEventEndTime;
         self:_insertEvent(beginTime, eventData);
         return true;
@@ -316,8 +308,8 @@ function prototype:_replaceEventAdd(beginTime, eventData, replaceNum)
             lastEventIndex = firstEventIndex;
         end
         local lastEvent = self.events_[lastEventIndex];
-        local lastEventEndTime = lastEvent:getBeginTime() + lastEvent:getTimeLength();
-        beginTime = self.events_[firstEventIndex]:getBeginTime();
+        local lastEventEndTime = lastEvent:getCurrentBeginTime() + lastEvent:getEventCurrentLength();
+        beginTime = self.events_[firstEventIndex]:getCurrentBeginTime();
         eventData.eventData_.timeLength_ = lastEventEndTime - beginTime;
 
         for i = 1, replaceNum do
@@ -337,8 +329,8 @@ function prototype:_getEventsByTime(time)
     local prevEventIndex = -1;
     for i = 1, #self.events_ do
         local currentEvent = self.events_[i];
-        local beginTime = currentEvent:getBeginTime();
-        local endTime = beginTime + currentEvent:getTimeLength();
+        local beginTime = currentEvent:getCurrentBeginTime();
+        local endTime = beginTime + currentEvent:getEventCurrentLength();
         if time > beginTime and time <= endTime then
             findEventsIndex[#findEventsIndex + 1] = i;
         else

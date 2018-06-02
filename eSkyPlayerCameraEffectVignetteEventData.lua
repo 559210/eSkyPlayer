@@ -127,7 +127,7 @@ function prototype:_setParam(param)
         rounded = param.rounded,
         resourcesNeeded_ = {res},
     };
-    self.eventDataLength_ = self.eventData_.timeLength_;
+    -- self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

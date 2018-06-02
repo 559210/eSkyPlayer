@@ -18,7 +18,7 @@ function prototype:play()
 end
 
 
-function prototype:onEventEntered(eventObj, beginTime)
+function prototype:onEventEntered(eventObj)
     if self.roleAgent_ == nil then return end
     local path = eventObj.eventData_.resourcesNeeded_[1].path;
     local asset = self:getResource(eventObj, path);
@@ -53,7 +53,7 @@ function prototype:seek(time)
     end
     if #self.playingEvents_ == 1 and self.playingEvents_[1].beginTime_ == preTime then
         self:onEventLeft(self.playingEvents_[1].obj_);
-        self:onEventEntered(self.playingEvents_[1].obj_, self.playingEvents_[1].beginTime_);
+        self:onEventEntered(self.playingEvents_[1].obj_);
     end
 end
 

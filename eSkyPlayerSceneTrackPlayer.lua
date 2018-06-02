@@ -54,8 +54,9 @@ function prototype:onEventLeft(eventObj)
 end
 
 
-function prototype:onEventEntered(eventObj, beginTime)
-	local endTime = beginTime + eventObj.eventData_.timeLength_;
+function prototype:onEventEntered(eventObj)
+	local beginTime = eventObj:getDataBeginTime();
+	local endTime = beginTime + eventObj:getDataLength();
 	self.currentEvent_.beginTime_ = beginTime;
 	self.currentEvent_.endTime_ = endTime;
 	if self.particleSys_ ~= nil then

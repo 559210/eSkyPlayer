@@ -14,7 +14,7 @@ end
 
 
 
-function prototype:onEventEntered(eventObj, beginTime)
+function prototype:onEventEntered(eventObj)
     if self.roleAgent_ == nil then return end
     if self.rootNode == nil then
         self.rootNode = newGameObject("2DObjectRootNode");
@@ -57,7 +57,7 @@ function prototype:seek(time)
     end
     if #self.playingEvents_ == 1 and self.playingEvents_[1].beginTime_ == preTime then
         self:onEventLeft(self.playingEvents_[1].obj_);
-        self:onEventEntered(self.playingEvents_[1].obj_, self.playingEvents_[1].beginTime_);
+        self:onEventEntered(self.playingEvents_[1].obj_);
     end
 end
 

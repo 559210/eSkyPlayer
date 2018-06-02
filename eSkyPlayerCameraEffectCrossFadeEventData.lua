@@ -56,7 +56,7 @@ function prototype:_setParam(param)
         alphaTo = self:_getInfoData(param.alphaToWeight0, param.alphaToRanges0, param.alphaToWeight1, param.alphaToRanges1),
         resourcesNeeded_ = {},
     };
-    self.eventDataLength_ = self.eventData_.timeLength_;
+    -- self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

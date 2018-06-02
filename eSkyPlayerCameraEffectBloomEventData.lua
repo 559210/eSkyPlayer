@@ -122,7 +122,7 @@ function prototype:_setParam(param)
         intensityBloom = self:_getInfoData(param.intensityBloomWeight0, param.intensityBloomRanges0, param.intensityBloomRanges1, param.intensityBloomWeight1),
         resourcesNeeded_ = {res},
     };
-    self.eventDataLength_ = self.eventData_.timeLength_;
+    -- self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

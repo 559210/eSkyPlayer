@@ -49,7 +49,7 @@ function prototype:_setParam(param)
         aperture = self:_getInfoData(param.apertureWeight0, param.apertureRanges0, param.apertureWeight1, param.apertureRanges1),
         resourcesNeeded_ = {},
     };
-    self.eventDataLength_ = self.eventData_.timeLength_;
+    -- self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

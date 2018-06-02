@@ -73,7 +73,7 @@ function prototype:_isNeedAdditionalCamera()
 end
 
 
-function prototype:onEventEntered(eventObj, beginTime)
+function prototype:onEventEntered(eventObj)
     local eventType = eventObj.eventType_;
 
     if eventType == definations.EVENT_TYPE.CAMERA_EFFECT_BLOOM then
@@ -146,7 +146,7 @@ function prototype:_updateBloomEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventDataLength_ ;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj:getDataLength() ;
     local names = {"intensity", "threshold", "softKnee", "radius", "antiFlicker", "intensityBloom", "textureBloom"};
     for _, name in ipairs(names) do
         if name == "intensityBloom" then
@@ -173,7 +173,7 @@ function prototype:_updateChromaticAberrationEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventDataLength_;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj:getDataLength();
     local names = {"intensity", "spectralTexture"};
     param.intensity = eventObj.eventData_.intensity.values[1] + deltaTime * (eventObj.eventData_.intensity.values[2] - eventObj.eventData_.intensity.values[1]);
 
@@ -194,7 +194,7 @@ function prototype:_updateDepthOfFieldEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventDataLength_;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj:getDataLength();
     local names = {"aperture"};
     param.aperture = eventObj.eventData_.aperture.values[1] + deltaTime * (eventObj.eventData_.aperture.values[2] - eventObj.eventData_.aperture.values[1]);
 
@@ -217,7 +217,7 @@ function prototype:_updateVignetteEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventDataLength_;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj:getDataLength();
     local names = {"mode", "allColor", "intensity", "smoothness", "roundness", "mask", "opacity", "rounded"};
     for _, name in ipairs(names) do
         if name == "allColor" then
@@ -240,7 +240,7 @@ function prototype:_updateFieldOfViewEffect(eventObj, beginTime)
     if eventObj == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventDataLength_;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj:getDataLength();
     local names = {"fov"};
     local fov = 60;
     fov = eventObj.eventData_.fov.values[1] + deltaTime * (eventObj.eventData_.fov.values[2] - eventObj.eventData_.fov.values[1]);
@@ -264,7 +264,7 @@ function prototype:_updateBlackEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj.eventDataLength_;
+    local deltaTime = (self.director_.timeLine_ - beginTime) / eventObj:getDataLength();
     local names = {"blendMode", "texture", "intensity"};
     param.intensity = eventObj.eventData_.intensity.values[1] + deltaTime * (eventObj.eventData_.intensity.values[2] - eventObj.eventData_.intensity.values[1]);
     self.cameraEffectManager_:setParam(self.effectId_,param);
@@ -272,7 +272,7 @@ end
 
 
 function prototype:_createCrossFadeEffect(eventObj)
-    self.effectId_ = self.cameraEffectManager_:createCrossFadeEffect(eventObj.eventDataLength_);
+    self.effectId_ = self.cameraEffectManager_:createCrossFadeEffect(eventObj:getDataLength());
     self.cameraEffectManager_:start(self.effectId_);
     local param = self.cameraEffectManager_:getParam(self.effectId_);
 
@@ -284,7 +284,7 @@ function prototype:_updateCrossFadeEffect(eventObj, param, beginTime)
     if eventObj == nil or param == nil then
         return;
     end 
-    param.progress = (self.director_.timeLine_ - beginTime) / eventObj.eventDataLength_;
+    param.progress = (self.director_.timeLine_ - beginTime) / eventObj:getDataLength();
     self.cameraEffectManager_:setParam(self.effectId_,param);
 end
 

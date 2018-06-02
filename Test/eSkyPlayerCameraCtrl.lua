@@ -178,15 +178,15 @@ function prototype:onCameraLoadButtonClicked()
     self.camera = self.view_:getCamera();
     self.playerDirector = newClass("eSkyPlayer/eSkyPlayerDirector");
 
-    local itemCodes = {100153 , 100154 , 100155 ,100156 ,100157,100158,100159,100011,100010};
-    local skeletonUrl = "avatars/biped/man_biped";
-    local role = G.characterFactory:createTempRole(itemCodes, {}, false, skeletonUrl);
-    role.onRoleRefreshFinished = function(body, obj, sourceId)
-        local roleAgent = newClass("eSkyPlayer/eSkyPlayerRoleAgent/eSkyPlayerRoleAgent");
-        roleAgent:initialize(role);
-        self.playerDirector:addRole(roleAgent);
+    -- local itemCodes = {100153 , 100154 , 100155 ,100156 ,100157,100158,100159,100011,100010};
+    -- local skeletonUrl = "avatars/biped/man_biped";
+    -- local role = G.characterFactory:createTempRole(itemCodes, {}, false, skeletonUrl);
+    -- role.onRoleRefreshFinished = function(body, obj, sourceId)
+    --     local roleAgent = newClass("eSkyPlayer/eSkyPlayerRoleAgent/eSkyPlayerRoleAgent");
+    --     roleAgent:initialize(role);
+    --     self.playerDirector:addRole(roleAgent);
         self.playerDirector:initialize(self.camera);
-        self.playerDirector:load("mod/projects/0002PVE",function(isLoaded)--mytscene wedding 0001PVE animPlayTest noScene onlyScene cameraEffectP
+        self.playerDirector:load("mod/projects/0001PVE",function(isLoaded)--mytscene test_role wedding 0001PVE animPlayTest noScene onlyScene cameraEffectP
             if isLoaded == true then
                 logError("load success");
             else
@@ -194,23 +194,16 @@ function prototype:onCameraLoadButtonClicked()
             end
         end);
 
-            -- self.morph = newClass("eSkyPlayer/misc/morphPlay");
-            -- local mesh = GameObject.Find("mesh");
-            -- local meshRenderer = mesh:GetComponent(typeof(SkinnedMeshRenderer));
-            -- self.morph:initialize(meshRenderer);
-            -- if self.morph == nil then 
-            --     logError("xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-            --     return;
-            -- end
         self:_createTrackAndEvent();
         self:_createScaleAndClip(); 
         self:_createTrackAndEvents();
         self:_eventCallback();
         self:_eventWaitAdd(30);
         self:_replaceEventAdd();
-    end;
+        self:_createSpawn(2, 22, 5, 13);
+    -- end;
 
-    role:refresh();
+    -- role:refresh();
 
 end
 
@@ -412,18 +405,18 @@ end
 --动态创建track和event测试代码
 function prototype:_createTrackAndEvent()
     logError("_createTrackAndEvent 开始...");
-    self:_createVirtualCamreaMotionTrack_A(26, 22);
-    self:_createScene();
-    self:_createSceneAnimEvent_A(27,10);
-    self:_createSceneEffectEvent_A(27.1, 100);
-    self:_createVirtualCamreaaEffectTrackByBlackEvent_A(29, 3);
-    self:_createVirtualCamreaaEffectTrackByBloomEvent_A(29, 3);
-    self:_createVirtualCameraEffectTrackByCrossFade_A(29, 1);
-    self:_createVirtualCameraEffectTrackByFieldOfView_A(29, 3);
-    self:_createVirtualCameraEffectTrackByChromaticAberration_A(29, 3);
-    self:_createVirtualCameraEffectTrackByDepthOfField_A(29,2);
-    self:_createVirtualCameraEffectTrackByVignette_A(29.5,1.5);
-    self:_createRoleMotionTrack_A(29, 6.5);
+    self:_createVirtualCamreaMotionTrack_A(2, 40);
+    -- self:_createScene();
+    -- self:_createSceneAnimEvent_A(27,10);
+    -- self:_createSceneEffectEvent_A(27.1, 100);
+    -- self:_createVirtualCamreaaEffectTrackByBlackEvent_A(29, 3);
+    -- self:_createVirtualCamreaaEffectTrackByBloomEvent_A(29, 3);
+    -- self:_createVirtualCameraEffectTrackByCrossFade_A(29, 1);
+    -- self:_createVirtualCameraEffectTrackByFieldOfView_A(29, 3);
+    -- self:_createVirtualCameraEffectTrackByChromaticAberration_A(29, 3);
+    -- self:_createVirtualCameraEffectTrackByDepthOfField_A(29,2);
+    -- self:_createVirtualCameraEffectTrackByVignette_A(29.5,1.5);
+    -- self:_createRoleMotionTrack_A(29, 6.5); 
     logError("_createTrackAndEvent 结束...");
 end
 
@@ -450,21 +443,24 @@ end
 function prototype:_createScaleAndClip()
     logError("event裁剪和缩放测试 开始...");
     local isScale = false;
+    -- local clipRemainSign = -1;
+    local clipRemainSign = 1;
     --beginTime:event开始时间
     --timeLength:event时长
     --isScale:是否缩放true缩放,false裁剪
     --scaleOrclipTime:缩放时长和裁剪时长,根据isScale决定他的含义
-    self:_createVirtualCamreaMotionTrack(0.5, 22,isScale,11);
-    self:_createSceneAnimEvent(0.1, 10,isScale,6);
-    self:_createSceneEffectEvent(0.5,100,isScale,98);
-    self:_createVirtualCamreaaEffectTrackByBlackEvent(0.5,3,isScale,1.2);
-    self:_createVirtualCamreaaEffectTrackByBloomEvent(3.1,3,isScale,1.5);
-    self:_createVirtualCameraEffectTrackByCrossFade(0.5,3,isScale,1.5);
-    self:_createVirtualCameraEffectTrackByFieldOfView(1.15, 3,isScale,1.2);
-    self:_createVirtualCameraEffectTrackByChromaticAberration(0.6,3,isScale,1.5);
-    self:_createVirtualCameraEffectTrackByDepthOfField(0.5,3,isScale, 1.2);
-    self:_createVirtualCameraEffectTrackByVignette(0.5,3,isScale, 1.5);
-    self:_createRoleMotionTrack(1.5,60,isScale, 30);
+    --clipRemainSign:如果是缩放，可忽略；如果是剪裁，作为保留哪边的标志，若<0表示保留左边，>=0保留右边
+    self:_createVirtualCamreaMotionTrack(0.5, 22,isScale,11,clipRemainSign);
+    self:_createSceneAnimEvent(0.1, 10,isScale,6, clipRemainSign);
+    self:_createSceneEffectEvent(0.5,10,isScale,8, clipRemainSign);
+    self:_createVirtualCamreaaEffectTrackByBlackEvent(0.5,3,isScale,2,clipRemainSign);
+    self:_createVirtualCamreaaEffectTrackByBloomEvent(3.1,3,isScale,1.5,clipRemainSign);
+    self:_createVirtualCameraEffectTrackByCrossFade(0.5,3,isScale,1.5,clipRemainSign);
+    self:_createVirtualCameraEffectTrackByFieldOfView(1.15, 3,isScale,2,clipRemainSign);
+    self:_createVirtualCameraEffectTrackByChromaticAberration(0.6,3,isScale,1.5,clipRemainSign);
+    self:_createVirtualCameraEffectTrackByDepthOfField(0.5,3,isScale, 2,clipRemainSign);
+    self:_createVirtualCameraEffectTrackByVignette(0.5,3,isScale, 2,clipRemainSign);
+    self:_createRoleMotionTrack(1.5,6.5,isScale, 2,clipRemainSign);
     logError("event裁剪和缩放测试 结束...");
 end
 
@@ -511,7 +507,7 @@ function prototype:_createVirtualCamreaMotionTrack_B(beginTime, timeLength)
     end);
 end
 --动态创建相机track中的MotionTrackData
-function prototype:_createVirtualCamreaMotionTrack(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createVirtualCamreaMotionTrack(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local cameraMotionTrack = require("eSkyPlayer/eSkyPlayerCameraMotionTrackData");
     local cameraMotionEvent = require("eSkyPlayer/eSkyPlayerCameraMotionEventData");
     local myMotionTrack = cameraMotionTrack.createObject({});
@@ -524,8 +520,8 @@ function prototype:_createVirtualCamreaMotionTrack(beginTime,timeLength,isScale,
                                                 fov = 60, pos1X = 0.33300000429153, pos1Y = 0.33300000429153,
                                                 pos2X = 0.66600000858307, pos2Y = 0, timeLength = timeLength, tweenType = 0});
     if myMotionTrack ~= nil then
-        self:_scaleOrclipEvent(myMotionEvent, scaleOrclipTime,isScale);
         myMotionTrack:addEvent(beginTime, myMotionEvent, defination.EVENT_ADDTYPE.NORMAL);--第一个参数表示开始时间,即event在track中的开始位置,第2个参数是event所需具体信息
+        self:_scaleOrclipEvent(myMotionEvent, scaleOrclipTime,isScale, clipRemainSign);
     end
     self.playerDirector:addTrack("cameraMotion", myMotionTrack,function (isLoaded)
         if not isLoaded then
@@ -534,15 +530,15 @@ function prototype:_createVirtualCamreaMotionTrack(beginTime,timeLength,isScale,
     end);
 end
 
-function prototype:_createVirtualCamreaaEffectTrackByBlackEvent(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createVirtualCamreaaEffectTrackByBlackEvent(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local cameraEffectTrack = require("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
     local cameraEffectEvent = require("eSkyPlayer/eSkyPlayerCameraEffectBlackEventData");
     local myEffectTrack = cameraEffectTrack.createObject({});
     local myEffectEvent = cameraEffectEvent.createObject({blendMode = 1, intensityRanges0 = 0, intensityRanges1 = -3,
                                             intensityWeight0 = 1, intensityWeight1 = 0, textureID = 1, timeLength = timeLength});
     if myEffectTrack ~= nil then
-        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale);
         myEffectTrack:addEvent(beginTime, myEffectEvent, defination.EVENT_ADDTYPE.NORMAL);--第一个参数表示开始时间,即event在track中的开始位置,第2个参数是event所需具体信息
+        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale, clipRemainSign);
     end
     self.playerDirector:addTrack("camneraEffectBlack", myEffectTrack,function (isLoaded)
         if not isLoaded then
@@ -595,7 +591,7 @@ function prototype:_createVirtualCamreaaEffectTrackByBlackEvent_B()
         end
     end);
 end
-function prototype:_createVirtualCamreaaEffectTrackByBloomEvent(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createVirtualCamreaaEffectTrackByBloomEvent(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local cameraEffectTrack = require("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
     local cameraEffectEvent = require("eSkyPlayer/eSkyPlayerCameraEffectBloomEventData");
     local myEffectTrack = cameraEffectTrack.createObject({});
@@ -606,8 +602,8 @@ function prototype:_createVirtualCamreaaEffectTrackByBloomEvent(beginTime,timeLe
                                                 thresholdRanges0 = 0,thresholdRanges1 = 1,thresholdWeight0 = 0,thresholdWeight1 = 1,timeLength = timeLength});
    
     if myEffectTrack ~= nil then
-        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale);
         myEffectTrack:addEvent(beginTime, myEffectEvent, defination.EVENT_ADDTYPE.NORMAL);--第一个参数表示开始时间,即event在track中的开始位置,第2个参数是event所需具体信息
+        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale, clipRemainSign);
     end
     self.playerDirector:addTrack("cameraEffectBloom", myEffectTrack,function (isLoaded)
         if not isLoaded then
@@ -663,7 +659,7 @@ function prototype:_createVirtualCamreaaEffectTrackByBloomEvent_B()
         end
     end);
 end
-function prototype:_createVirtualCameraEffectTrackByCrossFade(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createVirtualCameraEffectTrackByCrossFade(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
 
     local cameraEffectTrack = require("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
     local cameraEffectEvent = require("eSkyPlayer/eSkyPlayerCameraEffectCrossFadeEventData");
@@ -673,7 +669,7 @@ function prototype:_createVirtualCameraEffectTrackByCrossFade(beginTime,timeLeng
                             alphaToWeight1 = 1,timeLength = timeLength});
    
     if myEffectTrack ~= nil then
-        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale);
+        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale, clipRemainSign);
         myEffectTrack:addEvent(beginTime, myEffectEvent, defination.EVENT_ADDTYPE.NORMAL);--第一个参数表示开始时间,即event在track中的开始位置,第2个参数是event所需具体信息
     end
     self.playerDirector:addTrack("cameraEffectCrossFade", myEffectTrack,function (isLoaded)
@@ -724,15 +720,15 @@ function prototype:_createVirtualCameraEffectTrackByCrossFade_B()
         end
     end);
 end
-function prototype:_createVirtualCameraEffectTrackByFieldOfView(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createVirtualCameraEffectTrackByFieldOfView(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local cameraEffectTrack = require("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
     local cameraEffectEvent = require("eSkyPlayer/eSkyPlayerCameraEffectFieldOfViewEventData");
     local myEffectTrack = cameraEffectTrack.createObject({});
     local myEffectEvent = cameraEffectEvent.createObject({fovRanges0 = 1,fovRanges1 = 100,fovWeight0 = 0.2960000038147,
                                         fovWeight1 = 0.2960000038147,timeLength = timeLength});
     if myEffectTrack ~= nil then
-        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale);
         myEffectTrack:addEvent(beginTime, myEffectEvent, defination.EVENT_ADDTYPE.NORMAL);--第一个参数表示开始时间,即event在track中的开始位置,第2个参数是event所需具体信息
+        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale, clipRemainSign);
     end
     self.playerDirector:addTrack("cameraEffectFieldOfView", myEffectTrack,function (isLoaded)
         if not isLoaded then
@@ -776,16 +772,16 @@ function prototype:_createVirtualCameraEffectTrackByFieldOfView_B()
         end
     end);
 end
-function prototype:_createVirtualCameraEffectTrackByChromaticAberration(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createVirtualCameraEffectTrackByChromaticAberration(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local cameraEffectTrack = require("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
     local cameraEffectEvent = require("eSkyPlayer/eSkyPlayerCameraEffectChromaticAberrationEventData");
     local myEffectTrack = cameraEffectTrack.createObject({});
-    local myEffectEvent = cameraEffectEvent.createObject({intensityRanges0 = 0,intensityRanges1 = 1,intensityWeight0 = 0,
+    local myEffectEvent = cameraEffectEvent.createObject({intensityRanges0 = 0,intensityRanges1 = 1,intensityWeight0 = 0.7,
                                     intensityWeight1 = 1,textureID = 1,timeLength = timeLength});
    
     if myEffectTrack ~= nil then
-        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale);
         myEffectTrack:addEvent(beginTime, myEffectEvent, defination.EVENT_ADDTYPE.NORMAL);--第一个参数表示开始时间,即event在track中的开始位置,第2个参数是event所需具体信息
+        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale, clipRemainSign);
     end
     self.playerDirector:addTrack("cameraChromaticAberration", myEffectTrack,function (isLoaded)
         if not isLoaded then
@@ -829,15 +825,15 @@ function prototype:_createVirtualCameraEffectTrackByChromaticAberration_B()
         end
     end);
 end
-function prototype:_createVirtualCameraEffectTrackByDepthOfField(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createVirtualCameraEffectTrackByDepthOfField(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local cameraEffectTrack = require("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
     local cameraEffectEvent = require("eSkyPlayer/eSkyPlayerCameraEffectDepthOfFieldEventData");
     local myEffectTrack = cameraEffectTrack.createObject({});
     local myEffectEvent = cameraEffectEvent.createObject({apertureRanges0 = 0,apertureRanges1 = 15,apertureWeight0 = 1,
                                                             apertureWeight1 = 0,timeLength = timeLength});
     if myEffectTrack ~= nil then
-        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale);
         myEffectTrack:addEvent(beginTime, myEffectEvent, defination.EVENT_ADDTYPE.NORMAL);--第一个参数表示开始时间,即event在track中的开始位置,第2个参数是event所需具体信息
+        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale, clipRemainSign);
     end
     self.playerDirector:addTrack("cameraDepthOfField", myEffectTrack,function (isLoaded)
         if not isLoaded then
@@ -881,7 +877,7 @@ function prototype:_createVirtualCameraEffectTrackByDepthOfField_B()
         end
     end);
 end
-function prototype:_createVirtualCameraEffectTrackByVignette(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createVirtualCameraEffectTrackByVignette(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local cameraEffectTrack = require("eSkyPlayer/eSkyPlayerCameraEffectTrackData");
     local cameraEffectEvent = require("eSkyPlayer/eSkyPlayerCameraEffectVignetteEventData");
     local myEffectTrack = cameraEffectTrack.createObject({});
@@ -892,8 +888,8 @@ function prototype:_createVirtualCameraEffectTrackByVignette(beginTime,timeLengt
                                         smoothnessRanges0 = 0,smoothnessRanges1 = 1,smoothnessWeight0 = 0,smoothnessWeight1 = 1,
                                         textureID = 1,timeLength = timeLength});
     if myEffectTrack ~= nil then
-        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale);
         myEffectTrack:addEvent(beginTime, myEffectEvent, defination.EVENT_ADDTYPE.NORMAL);--第一个参数表示开始时间,即event在track中的开始位置,第2个参数是event所需具体信息
+        self:_scaleOrclipEvent(myEffectEvent, scaleOrclipTime,isScale, clipRemainSign);    
     end
     self.playerDirector:addTrack("cameraEffectVignette", myEffectTrack,function (isLoaded)
         if not isLoaded then
@@ -964,14 +960,14 @@ function prototype:_createScene()
     end);
 end
 
-function prototype:_createSceneAnimEvent(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createSceneAnimEvent(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneTrackData");
     local sceneEvent = require("eSkyPlayer/eSkyPlayerSceneMotionEventData");
     local mySceneTrack = sceneTrack.createObject({stagePath = "stages/common/prefabs/qizi_c"});
     local mySceneEvent = sceneEvent.createObject({timeLength = timeLength, beginCut = 0, endCut = 1});
     if mySceneTrack ~= nil then
-        self:_scaleOrclipEvent(mySceneEvent, scaleOrclipTime,isScale);
         mySceneTrack:addEvent(beginTime, mySceneEvent, defination.EVENT_ADDTYPE.NORMAL);
+        self:_scaleOrclipEvent(mySceneEvent, scaleOrclipTime,isScale, clipRemainSign);
     end
     self.playerDirector:addTrack("sceneAnim", mySceneTrack,function (isLoaded)
         if not isLoaded then
@@ -1011,14 +1007,14 @@ function prototype:_createSceneAnimEvent_B()
         end
     end);
 end
-function prototype:_createSceneEffectEvent(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createSceneEffectEvent(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local sceneTrack = require("eSkyPlayer/eSkyPlayerSceneTrackData");
     local sceneEvent = require("eSkyPlayer/eSkyPlayerSceneMotionEventData");
     local mySceneTrack = sceneTrack.createObject({stagePath = "effects/prefabs/fx_stage_03_lizi"});
     local mySceneEvent = sceneEvent.createObject({timeLength = timeLength, beginCut = 0, endCut = 1});
     if mySceneTrack ~= nil then
-        self:_scaleOrclipEvent(mySceneEvent, scaleOrclipTime,isScale);
         mySceneTrack:addEvent(beginTime,mySceneEvent, defination.EVENT_ADDTYPE.NORMAL);
+        self:_scaleOrclipEvent(mySceneEvent, scaleOrclipTime,isScale, clipRemainSign);
     end
     self.playerDirector:addTrack("sceneEffect", mySceneTrack,function (isLoaded)
         if not isLoaded then
@@ -1058,21 +1054,23 @@ function prototype:_createSceneEffectEvent_B()
         end
     end);
 end
-function prototype:_createRoleMotionTrack(beginTime,timeLength,isScale,scaleOrclipTime)
+function prototype:_createRoleMotionTrack(beginTime,timeLength,isScale,scaleOrclipTime, clipRemainSign)
     local roleMotionTrack = require("eSkyPlayer/eSkyPlayerRoleMotionTrackData");
     local roleMotionEvent = require("eSkyPlayer/eSkyPlayerRoleMotionEventData");
     local rMotionTrack = roleMotionTrack.createObject({});
     local eMotionEvent = roleMotionEvent.createObject({motionFilename = "dance/huiguniang/huiguniang_74_006_8", beginTime = -0,
-                            endTime = 13, eventLength = timeLength, motionLength = 6.5});
+                            endTime = 6.5, eventLength = timeLength, motionLength = 6.5});
     if rMotionTrack ~= nil then
-        self:_scaleOrclipEvent(eMotionEvent, scaleOrclipTime,isScale);
         rMotionTrack:addEvent(beginTime, eMotionEvent, defination.EVENT_ADDTYPE.NORMAL, nil);
+        self:_scaleOrclipEvent(eMotionEvent, scaleOrclipTime,isScale, clipRemainSign);
+        self:_scaleOrclipEvent(eMotionEvent, scaleOrclipTime,true);
+        self:_scaleOrclipEvent(eMotionEvent, scaleOrclipTime,isScale, clipRemainSign);
     end
     self.playerDirector:addTrack("roleMotionTrack", rMotionTrack, function (isLoaded)
         if not isLoaded then
             logError("add rolemotionTrack fail");
         end
-    end);
+    end, 1);
 end
 function prototype:_createRoleMotionTrack_A(beginTime, timeLength)
     local roleMotionTrack = require("eSkyPlayer/eSkyPlayerRoleMotionTrackData");
@@ -1087,7 +1085,7 @@ function prototype:_createRoleMotionTrack_A(beginTime, timeLength)
         if not isLoaded then
             logError("add rolemotionTrack fail");
         end
-    end);
+    end, 1);
 end
 function prototype:_createRoleMotionTrack_B()
     local roleMotionTrack = require("eSkyPlayer/eSkyPlayerRoleMotionTrackData");
@@ -1108,7 +1106,7 @@ function prototype:_createRoleMotionTrack_B()
         if not isLoaded then
             logError("add rolemotionTrack fail");
         end
-    end);
+    end, 1);
 end
 
 function prototype:_eventBreakAdd(time)
@@ -1306,11 +1304,34 @@ function prototype:_eventWaitAdd(time)
 
 end
 
-function prototype:_scaleOrclipEvent(event, time, isScale)
+function prototype:_createSpawn(beginTime, timeLength, beginCut, endCut)
+    local cameraMotionTrack = require("eSkyPlayer/eSkyPlayerCameraMotionTrackData");
+    local cameraMotionEvent = require("eSkyPlayer/eSkyPlayerCameraMotionEventData");
+    local myMotionTrack = cameraMotionTrack.createObject({});
+    local myMotionEvent = cameraMotionEvent.createObject({beginDrX = 26.718000411987,beginDrY = 247.32800292969,beginDrZ = 0.23700000345707,
+                                                beginFrameX = 9.3030004501343, beginFrameY = 6.3340001106262, beginFrameZ = -1.069000005722,
+                                                beginLookAtX = 0.48600000143051,beginLookAtY = 1.5230000019073,beginLookAtZ = -4.75,
+                                                endDrX = 17.010000228882, endDrY = 213.44700622559, endDrZ = 356.96600341797,
+                                                endFrameX = 4.3330001831055, endFrameY = 3.7820000648499, endFrameZ = 5.8480000495911,
+                                                endLookAtX = 0.24600000679493, endLookAtY = 1.5160000324249, endLookAtZ = -0.33700001239777,
+                                                fov = 60, pos1X = 0.33300000429153, pos1Y = 0.33300000429153,
+                                                pos2X = 0.66600000858307, pos2Y = 0, timeLength = timeLength, tweenType = 0});
+    if myMotionTrack ~= nil then
+        local event = myMotionEvent:spawn(beginCut, endCut)
+        myMotionTrack:addEvent(beginTime, event, defination.EVENT_ADDTYPE.NORMAL);--第一个参数表示开始时间,即event在track中的开始位置,第2个参数是event所需具体信息
+    end
+    self.playerDirector:addTrack("cameraMotion", myMotionTrack,function (isLoaded)
+        if not isLoaded then
+            logError("createVirtualCamreaMotionTrack fail");
+        end
+    end);
+end
+
+function prototype:_scaleOrclipEvent(event, time, isScale, clipRemainSign)
     if isScale then
-        event:scaleEvent(time);
+        event:scaleEvent(2);
     else
-        event:clipEvent(time);
+        event:clipEvent(time, clipRemainSign);
     end
     
 end

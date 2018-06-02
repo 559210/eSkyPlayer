@@ -47,7 +47,7 @@ function prototype:setAdditionalCamera(camera)
 end
 
 
-function prototype:onEventEntered(eventObj, beginTime)
+function prototype:onEventEntered(eventObj)
     local cam = self:_requestCamera();
     if cam ~= nil then
         self.playingEvents_[#self.playingEvents_].camera_ = cam;
@@ -88,13 +88,14 @@ function prototype:_transformCamera(queue)
     local camera = queue.camera_;
     local eventObj = queue.obj_;
     local deltaTime = self.director_.timeLine_ - queue.beginTime_;
+    local motionLength = eventObj:getDataLength();
     if eventObj.eventData_.tweenType_ == 0 then
-        deltaTime = self:_getTime(deltaTime, eventObj.eventDataLength_, eventObj.eventData_.pos1_, eventObj.eventData_.pos2_);
-        if deltaTime > eventObj.eventDataLength_ then
-            deltaTime = eventObj.eventDataLength_;
+        deltaTime = self:_getTime(deltaTime, motionLength, eventObj.eventData_.pos1_, eventObj.eventData_.pos2_);
+        if deltaTime > motionLength then
+            deltaTime = motionLength;
         end
     end
-    local ratio = deltaTime / eventObj.eventDataLength_;
+    local ratio = deltaTime / motionLength;
     local quater = Quaternion.Lerp (eventObj.eventData_.beginDr_, eventObj.eventData_.endDr_, ratio );
     local lookPos = Vector3.Lerp (eventObj.eventData_.beginLookAt_, eventObj.eventData_.endLookAt_, ratio );
     local beginDistance = Vector3.Distance(eventObj.eventData_.beginFrame_, eventObj.eventData_.beginLookAt_);

@@ -101,11 +101,13 @@ function prototype:seek(time)
     local eventNeedDelete = {}; --键为self.playingEvents_里的index，值为eventObj；
     local eventCount = self.trackObj_:getEventCount();
     for i = 1, eventCount  do
-        local beginTime = self.trackObj_:getEventBeginTimeAt(i);
         local eventObj = self.trackObj_:getEventAt(i);
-        local endTime = beginTime + eventObj.eventData_.timeLength_;
+        local initialBeginTime = eventObj:getDataBeginTime();               --event剪裁之前的原始开始时间
+        local realBeginTime = eventObj:getCurrentBeginTime();                      --event(支持剪裁)的实际播放开始时间
 
-        if time >= beginTime and time <= endTime then
+        local realEndTime = realBeginTime + eventObj:getEventCurrentLength();
+
+        if time >= realBeginTime and time <= realEndTime then
             local isEventEntered = true;
             for j = 1, #self.playingEvents_ do
                 if eventObj == self.playingEvents_[j].obj_ then 
@@ -116,13 +118,13 @@ function prototype:seek(time)
                 self.index_ = i;
                 local event = {};
                 event.obj = eventObj;
-                event.beginTime = beginTime;
-                event.endTime = endTime;
+                event.beginTime = initialBeginTime;
+                -- event.endTime = endTime;
                 eventNeedAdd[#eventNeedAdd + 1] = event;  --seek统一为同步加载，所以不需要考虑异步加载状态，不需要对self.eventLoadedStatus_判断；
             end
         end
 
-        if time <= beginTime or time >= endTime then
+        if time <= realBeginTime or time >= realEndTime then
             for j = 1, #self.playingEvents_ do
                 if eventObj == self.playingEvents_[j].obj_ then
                     eventNeedDelete[j] = eventObj;
@@ -131,15 +133,16 @@ function prototype:seek(time)
             end
 
             if i < eventCount then
-                local nextEventBeginTime = self.trackObj_:getEventBeginTimeAt(i + 1);
-                if time >= endTime and time <= nextEventBeginTime then
+                local nextEvent = self.trackObj_:getEventAt(i + 1);
+                local nextEventBeginTime = nextEvent:getCurrentBeginTime();
+                if time >= realEndTime and time <= nextEventBeginTime then
                     self.index_ = i + 1;
                 end
             end
-            if i == eventCount and time >= endTime then
+            if i == eventCount and time >= realEndTime then
                 self.index_ = i + 1;
             end
-            if i == 1 and time <= beginTime then
+            if i == 1 and time <= realBeginTime then
                 self.index_ = i;
             end
         end
@@ -157,8 +160,8 @@ function prototype:seek(time)
     end
 
     for i = 1, #eventNeedAdd do
-        self:_addPlayingEvent(eventNeedAdd[i].obj, eventNeedAdd[i].beginTime, eventNeedAdd[i].endTime);
-        self:onEventEntered(eventNeedAdd[i].obj, eventNeedAdd[i].beginTime);
+        self:_addPlayingEvent(eventNeedAdd[i].obj, eventNeedAdd[i].beginTime);
+        self:onEventEntered(eventNeedAdd[i].obj);
         self:_callEventCallbackByEventState(eventNeedAdd[i].obj, definations.EVENT_PLAYER_STATE.EVENT_START);
     end
     return true;
@@ -319,7 +322,7 @@ function prototype:releaseResource()
 end
 
 
-function prototype:onEventEntered(eventObj, beginTime)
+function prototype:onEventEntered(eventObj)
     
 end
 
@@ -330,22 +333,24 @@ end
 
 
 function prototype:preparePlayingEvents()
-    local beginTime = self.trackObj_:getEventBeginTimeAt(self.index_);
     local event = self.trackObj_:getEventAt(self.index_);
-    local endTime = -1;
-    if event == nil then
-        endTime = -1;
-    else
-        if event.eventType_ ~= definations.EVENT_TYPE.SCENE_PLAN and --scenePlan,cameraPlan,ROLE_PLAN不调用event:getTimeLength()
+    local initialBeginTime = -1;
+    local realBeginTime = -1;
+    local realEndTime = -1;
+    if event ~= nil then
+        if event.eventType_ ~= definations.EVENT_TYPE.SCENE_PLAN and --scenePlan,cameraPlan,ROLE_PLAN不调用event:getEventCurrentLength()
             event.eventType_ ~= definations.EVENT_TYPE.CAMERA_PLAN and
+            event.eventType_ ~= definations.EVENT_TYPE.MUSIC_PLAN and
             event.eventType_ ~= definations.EVENT_TYPE.ROLE_PLAN then
-            endTime = beginTime + event:getTimeLength();
+                initialBeginTime = event:getDataBeginTime();               --event剪裁之前的原始开始时间
+                realBeginTime = event:getCurrentBeginTime();                      --event(支持剪裁)的实际播放开始时间
+                realEndTime = realBeginTime + event:getEventCurrentLength();
         end
     end
     for i = 1, #self.playingEvents_ do
         local playingEvent = self.playingEvents_[i].obj_;
-        local playingBeginTime = playingEvent:getBeginTime();
-        local playingEndTime = playingBeginTime + playingEvent:getTimeLength();
+        local playingBeginTime = playingEvent:getCurrentBeginTime();
+        local playingEndTime = playingBeginTime + playingEvent:getEventCurrentLength();
         if self.director_.timeLine_ >= playingEndTime or self.director_.timeLine_ <= playingBeginTime then --event 离开
             self:onEventLeft(playingEvent);
             self:_callEventCallbackByEventState(playingEvent, definations.EVENT_PLAYER_STATE.EVENT_END);
@@ -356,7 +361,7 @@ function prototype:preparePlayingEvents()
         self:_callEventCallbackByEventState(playingEvent, definations.EVENT_PLAYER_STATE.EVENT_UPDATE);
     end
 
-    if self.director_.timeLine_ > beginTime and self.director_.timeLine_ < endTime then
+    if self.director_.timeLine_ > realBeginTime and self.director_.timeLine_ < realEndTime then
         local isEventEntered = true;
         for i = 1, #self.playingEvents_ do
             if event == self.playingEvents_[i].obj_ then 
@@ -367,8 +372,8 @@ function prototype:preparePlayingEvents()
             if self.eventLoadedStatus_[event] == "failed" then
                 assert(false, "error: load resource on the fly failed!");
             elseif self.eventLoadedStatus_[event] == "finished" or self.eventLoadedStatus_[event] == nil then
-                self:_addPlayingEvent(event,beginTime,endTime);  --必须先调_addPlayingEvent函数，再调onEventEntered函数；seek函数中也是。
-                self:onEventEntered(event, beginTime);
+                self:_addPlayingEvent(event, initialBeginTime);  --必须先调_addPlayingEvent函数，再调onEventEntered函数；seek函数中也是。
+                self:onEventEntered(event);
                 self:_callEventCallbackByEventState(event, definations.EVENT_PLAYER_STATE.EVENT_START);
             end
         end
@@ -380,7 +385,7 @@ function prototype:preparePlayingEvents()
     if self.eventLoadedStatus_[event] ~= nil then
         return;
     end
-    if beginTime - self.director_.timeLine_ <= 2 and beginTime - self.director_.timeLine_ > 0 then
+    if realBeginTime - self.director_.timeLine_ <= 2 and realBeginTime - self.director_.timeLine_ > 0 then
         local eventType = event:getEventType();
         self.eventLoadedStatus_[event] = "waiting";
         async.series({
@@ -454,11 +459,10 @@ function prototype:_callEventCallbackByEventState(event, callbackState)
     
 end
 
-function prototype:_addPlayingEvent(eventObj, beginTime, endTime)
+function prototype:_addPlayingEvent(eventObj, beginTime)
     local event = {};
     event.obj_ = eventObj;
     event.beginTime_ = beginTime;
-    event.endTime_ = endTime;
     self.playingEvents_[#self.playingEvents_ + 1] = event;
     self.index_ = self.index_ + 1;
 

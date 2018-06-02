@@ -64,21 +64,15 @@ function prototype:_setParam(param)
     res.path = "motions/clips/" .. param.motionFilename;
     res.count = 1;
     self.eventData_ = {
+        endTime_ = param.endTime,
+        beginTime_ = param.beginTime,
         resourcesNeeded_ = {res},
-        beginTime = param.beginTime,
-        endTime = param.endTime,
         timeLength_ = param.eventLength,
-        motionLength = param.motionLength
+        motionLength_ = param.motionLength,
     }
-    self.eventDataLength_ = self.eventData_.timeLength_;
-    return true;
-end
 
-function prototype:clipEvent(newLength)
-    self.base:clipEvent(newLength);
-    local oldLen = self.eventData_.timeLength_;
-    local tLength = self.eventData_.endTime - self.eventData_.beginTime;
-    self.eventData_.endTime = (newLength / oldLen) * tLength + self.eventData_.beginTime;
+    self.initialRatio_ = param.eventLength / (param.endTime - param.beginTime) ;
+    return true;
 end
 
 

@@ -95,7 +95,7 @@ function prototype:_setParam(param)
         timeLength_ = param.timeLength,
         resourcesNeeded_ = {},
     };
-    self.eventDataLength_ = self.eventData_.timeLength_;
+    -- self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

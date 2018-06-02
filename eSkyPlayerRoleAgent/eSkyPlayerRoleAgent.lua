@@ -44,7 +44,7 @@ function prototype:initialize(role, isStopPre)  --参数role一般由G.character
     self.roleObj_:shutDownMotion();
     self.animator_ = self.roleGameObject_:GetComponent("Animator");
     self.animatorStates_ = {"swapLeft", "swapRight"};
-    self.stateIndex_ = 1;
+    -- self.stateIndex_ = 1;
     self.animatorOverrideContoller_ = UtilEx.createAnimatorOverrideController(self.animator_);  --TODO:评估一下是否要释放
     self.animator_.runtimeAnimatorController = self.animatorOverrideContoller_;
     self.morph_ = newClass("eSkyPlayer/misc/morphPlay");
@@ -55,6 +55,7 @@ function prototype:initialize(role, isStopPre)  --参数role一般由G.character
     if not self.skinnedMeshCombiner_ then
         self.skinnedMeshCombiner_ = self.roleGameObject_:AddComponent(typeof(SkinnedMeshCombiner));
     end
+    self.currentAssetName_ = nil;
     return true;
 end
 

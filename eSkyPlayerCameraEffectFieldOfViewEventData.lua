@@ -50,7 +50,7 @@ function prototype:_setParam(param)
         fov = self:_getInfoData(param.fovWeight0, param.fovRanges0, param.fovWeight1, param.fovRanges1),
         resourcesNeeded_ = {},
     };
-    self.eventDataLength_ = self.eventData_.timeLength_;
+    -- self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

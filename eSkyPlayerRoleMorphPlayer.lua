@@ -15,11 +15,12 @@ function prototype:initialize(trackObj)
 end
 
 
-function prototype:onEventEntered(eventObj, beginTime)
+function prototype:onEventEntered(eventObj)
     if self.roleAgent_ == nil then return end
     local morphConfigInfo = eventObj.eventData_.morphConfigInfo_;
     local controlPoints = eventObj.eventData_.curveConfigPoints_;
-    local duration = eventObj:getTimeLength();
+    local duration = eventObj:getEventCurrentLength();
+    local beginTime = eventObj:getDataBeginTime();
     local offsetTime = self.director_.timeLine_ - beginTime;
     if self.director_.isPlaying_ == true then
         self.roleAgent_:resumeMorph();
@@ -47,7 +48,7 @@ function prototype:seek(time)
     -- local eventCount = self.trackObj_:getEventCount();
     -- for i = 1, eventCount do
     --     local event = track:getEventAt(i);
-    --     local offsetTime = event:getTimeLength();
+    --     local offsetTime = event:getEventCurrentLength();
     --     local beginTime = track:getEventBeginTimeAt(i);
     --     local endTime = beginTime + offsetTime;
     --     local temp = {};
@@ -67,7 +68,7 @@ function prototype:seek(time)
     -- for i = 1, #preFrame do
     --     local morphConfigInfo = preFrame[i].event.eventData_.morphConfigInfo_;
     --     local controlPoints = preFrame[i].event.eventData_.curveConfigPoints_;
-    --     local duration = preFrame[i].event:getTimeLength();
+    --     local duration = preFrame[i].event:getEventCurrentLength();
     --     self.roleAgent_:playMorphWithoutReset(morphConfigInfo, controlPoints, duration, preFrame[i].offsetTime);
     -- end
     -- self.base:seek(time);
@@ -80,7 +81,7 @@ function prototype:seek(time)
         self.currentAnimatorSpeed_ = 0;
     end
     if #self.playingEvents_ == 1 and self.playingEvents_[1].beginTime_ == preTime then
-        self:onEventEntered(self.playingEvents_[1].obj_, self.playingEvents_[1].beginTime_);
+        self:onEventEntered(self.playingEvents_[1].obj_);
     end
 end
 

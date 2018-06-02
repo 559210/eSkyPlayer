@@ -75,7 +75,6 @@ function prototype:_setParam(param)
         curveConfigPoints_ = param.curveConfigPoints,
         morphConfigInfo_ = param.morphConfigInfo,
     };
-    self.eventDataLength_ = self.eventData_.timeLength_;
     return true;
 end
 

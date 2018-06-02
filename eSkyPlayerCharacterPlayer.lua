@@ -19,7 +19,7 @@ function prototype:uninitialize()
 end
 
 
-function prototype:onEventEntered(eventObj, beginTime)
+function prototype:onEventEntered(eventObj)
     self:destroy();
     local itemCodes = eventObj.eventData_.roleConfig_.itemCodes;
     local skeletonUrl = eventObj.eventData_.roleConfig_.skeletonUrl;
@@ -35,14 +35,20 @@ function prototype:seek(time)
     local track = self:getTrack();
     for i = 1, track:getEventCount() do
         local event = track:getEventAt(i);
-        local beginTime = track:getEventBeginTimeAt(i);
-        if time > beginTime then
+        local beginTime = event:getCurrentBeginTime();
+        if time >= beginTime then
             lastEvent = event;
             lastEventBeginTime = beginTime;
         end
+        if time < beginTime then
+            if i == self.index_ then
+                lastEvent = nil;
+            end
+            break;
+        end
     end
     if lastEvent ~= nil then
-        self:onEventEntered(lastEvent, lastEventBeginTime)
+        self:onEventEntered(lastEvent);
     end
     self.base:seek(time);
 end
